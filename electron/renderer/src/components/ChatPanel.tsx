@@ -848,8 +848,25 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
         currentOnSessionChange(updatedSession);
       }
 
-      if (!result.success && result.error) {
-        window.electronAPI?.log?.error('[ChatPanel] Agent error', { error: result.error });
+      if (!result.success) {
+        const errText = result.error || 'Agent failed without error message';
+        window.electronAPI?.log?.error('[ChatPanel] Agent error', { error: errText });
+        const errorMessage: ChatMessage = {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: `⚠️ ${errText}`,
+          timestamp: Date.now(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } else if (!result.response?.trim() && (!result.messages || result.messages.length === 0)) {
+        // Success but no response and no messages — show fallback
+        const fallbackMessage: ChatMessage = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: '(응답 없음)',
+          timestamp: Date.now(),
+        };
+        setMessages(prev => [...prev, fallbackMessage]);
       }
     } catch (error) {
       // Stale run guard for catch block too
