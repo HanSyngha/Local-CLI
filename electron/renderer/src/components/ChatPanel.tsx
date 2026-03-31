@@ -60,9 +60,13 @@ function reconstructToolExecutions(msgs: ChatMessage[]): ToolExecutionData[] {
     tell_to_user: 'user', ask_to_user: 'user', final_response: 'user',
   };
 
+  // Internal tools that should NOT appear as tool cards
+  const internalTools = new Set(['final_response', 'tell_to_user', 'ask_to_user', 'todo_write', 'todo_read']);
+
   for (const msg of msgs) {
     if (msg.role !== 'assistant' || !msg.tool_calls?.length) continue;
     for (const tc of msg.tool_calls) {
+      if (internalTools.has(tc.function.name)) continue;
       const response = msgs.find(m => m.role === 'tool' && m.tool_call_id === tc.id);
       let args: Record<string, unknown> = {};
       try { args = JSON.parse(tc.function.arguments); } catch { /* ignore */ }
@@ -428,7 +432,34 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
     setIsBatchLoad(true); // Disable animation for batch load
     if (session && session.messages.length > 0) {
       window.electronAPI?.log?.debug?.('[ChatPanel] Restoring session messages', { count: session.messages.length });
-      setMessages(session.messages);
+      // Convert final_response/tell_to_user tool results into visible assistant messages.
+      // These are filtered out by renderableMessages (role=tool), so without this
+      // the AI's actual text response disappears on session restore.
+      // NOTE: tool messages may not have a 'name' field — match via tool_call_id → parent assistant's tool_calls
+      const responseToolNames = new Set(['final_response', 'tell_to_user']);
+      const displayMessages: ChatMessage[] = [...session.messages];
+      for (const m of session.messages) {
+        if (m.role !== 'tool' || !m.tool_call_id || !m.content?.trim()) continue;
+        // Find what tool this is by matching tool_call_id to the calling assistant's tool_calls
+        let toolName = m.name;
+        if (!toolName) {
+          for (const am of session.messages) {
+            if (am.role === 'assistant' && am.tool_calls) {
+              const tc = am.tool_calls.find(t => t.id === m.tool_call_id);
+              if (tc) { toolName = tc.function.name; break; }
+            }
+          }
+        }
+        if (toolName && responseToolNames.has(toolName)) {
+          displayMessages.push({
+            id: `restored-resp-${m.tool_call_id}`,
+            role: 'assistant',
+            content: m.content,
+            timestamp: m.timestamp + 1,
+          });
+        }
+      }
+      setMessages(displayMessages);
       // Reconstruct tool execution history from messages so tool cards show on session restore
       const restoredTools = reconstructToolExecutions(session.messages);
       restoreToolExecutions(restoredTools);
