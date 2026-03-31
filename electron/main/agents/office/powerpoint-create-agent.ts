@@ -16,7 +16,7 @@ import { LLMAgentTool, ToolResult } from '../../tools/types.js';
 import { powerpointClient } from '../../tools/office/powerpoint-client.js';
 import { getSubAgentPhaseLogger, getSubAgentToolCallLogger } from '../common/sub-agent.js';
 import { logger } from '../../utils/logger.js';
-import { getPlatform } from '../../utils/platform-utils.js';
+import { getPlatform } from '../../utils/platform-utils';
 import {
   PPT_DESIGN_PROMPT,
   validateSlideHtml,
