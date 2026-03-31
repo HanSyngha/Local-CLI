@@ -253,6 +253,8 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
       if (m.role === 'tool') return false;
       // Hide assistant messages that only have tool_calls but no visible content
       if (m.role === 'assistant' && m.tool_calls && m.tool_calls.length > 0 && !m.content?.trim()) return false;
+      // Hide interrupted tool execution remnants (abort/pause leaves these in session)
+      if (m.content?.startsWith('[Interrupted') || m.content?.startsWith('[interrupted')) return false;
       return true;
     });
   }, [messages]);
@@ -494,15 +496,34 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
   // with multiple tabs. The full session is saved after agent.run() completes
   // via session.save(updatedSession) which correctly uses sessionRef.current.
   const saveMessageToSession = useCallback(async (message: ChatMessage) => {
-    // Multi-tab mode: skip — session is fully saved after agent.run() via session.save()
-    if (sessionIdProp) return;
-
     if (!window.electronAPI?.session) return;
 
-    try {
-      await window.electronAPI.session.addMessage(message);
-    } catch (error) {
-      window.electronAPI?.log?.error('[ChatPanel] Failed to save message to session', { error: error instanceof Error ? error.message : String(error) });
+    if (sessionIdProp) {
+      // Multi-tab mode: save directly via session.save() using sessionRef
+      // This ensures user messages are persisted even if agent.run() is aborted
+      const currentSession = sessionRef.current;
+      if (currentSession) {
+        const existingMessages = currentSession.messages || [];
+        const updatedSession = {
+          ...currentSession,
+          messages: [...existingMessages, message],
+          updatedAt: Date.now(),
+        };
+        try {
+          await window.electronAPI.session.save(updatedSession);
+          if (onSessionChangeRef.current) {
+            onSessionChangeRef.current(updatedSession);
+          }
+        } catch (error) {
+          window.electronAPI?.log?.error('[ChatPanel] Failed to save message to session (multi-tab)', { error: error instanceof Error ? error.message : String(error) });
+        }
+      }
+    } else {
+      try {
+        await window.electronAPI.session.addMessage(message);
+      } catch (error) {
+        window.electronAPI?.log?.error('[ChatPanel] Failed to save message to session', { error: error instanceof Error ? error.message : String(error) });
+      }
     }
   }, [sessionIdProp]);
 
@@ -698,11 +719,6 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
     // Clear progress messages but keep tool executions visible
     // Tool executions are cleared only on explicit "Clear Chat", not between messages
     clearProgressMessages();
-
-    // On resume after pause: clear old tool executions so new ones appear after user's correction message
-    if (shouldResume) {
-      clearToolExecutions();
-    }
 
     // Auto-create session if none exists
     if (!sessionRef.current && window.electronAPI?.session) {
@@ -926,7 +942,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
         window.electronAPI?.log?.debug?.('[ChatPanel] sendMessage FINALLY - skipped (stale run)', { myRunId, currentRunId: sendRunIdRef.current });
       }
     }
-  }, [input, isLoading, messages, saveMessageToSession, currentDirectory, allowAllPermissions, clearProgressMessages, clearToolExecutions, setIsExecuting, attachedImages, isPaused, todos]);
+  }, [input, isLoading, messages, saveMessageToSession, currentDirectory, allowAllPermissions, clearProgressMessages, setIsExecuting, attachedImages, isPaused, todos]);
 
   // Retry handler — 마지막 유저 메시지로 자동 재전송
   const handleRetry = useCallback(() => {
