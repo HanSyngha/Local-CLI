@@ -164,7 +164,6 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
       if (configAny2?.colorPalette) {
         setColorPalette(configAny2.colorPalette as ColorPalette);
       }
-      const configAny2 = config as unknown as Record<string, unknown>;
       if (configAny2?.uiScale && typeof configAny2.uiScale === 'number') {
         setUiScale(configAny2.uiScale);
       }
