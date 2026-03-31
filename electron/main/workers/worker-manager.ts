@@ -40,7 +40,8 @@ interface WorkerEntry {
 
 export class WorkerManager {
   private workers = new Map<string, WorkerEntry>();
-  private pendingRuns = new Map<string, { resolve: (result: AgentResult) => void; reject: (error: Error) => void }>();
+  private pendingRuns = new Map<string, { resolve: (result: AgentResult) => void; reject: (error: Error) => void; runId: number }>();
+  private runIdCounter = new Map<string, number>();
   private chatWindow: BrowserWindow | null = null;
   private taskWindow: BrowserWindow | null = null;
 
@@ -164,6 +165,13 @@ export class WorkerManager {
       throw new Error(`Worker for session ${sessionId} is already running`);
     }
 
+    const runId = (this.runIdCounter.get(sessionId) || 0) + 1;
+    this.runIdCounter.set(sessionId, runId);
+
+    // Dismiss stale askUser/approval modals from previous run
+    // (user sent new message without answering → old modal must go)
+    this.dismissPendingModals(sessionId);
+
     return new Promise((resolve, reject) => {
       entry.isRunning = true;
       // Resolve any existing pending run (e.g. paused run) so old sendMessage Promise settles
@@ -171,13 +179,14 @@ export class WorkerManager {
       if (existing) {
         existing.resolve({ success: true, response: '', messages: [], toolCalls: [], iterations: 0 });
       }
-      this.pendingRuns.set(sessionId, { resolve, reject });
+      this.pendingRuns.set(sessionId, { resolve, reject, runId });
 
       this.sendToWorker(sessionId, {
         type: 'run',
         userMessage,
         existingMessages,
         config,
+        runId,
       });
     });
   }
@@ -196,8 +205,19 @@ export class WorkerManager {
    * Abort agent in a worker (full stop, clear TODOs)
    */
   abortAgent(sessionId: string): void {
+    const entry = this.workers.get(sessionId);
+    if (entry) entry.isRunning = false;
+
     this.sendToWorker(sessionId, { type: 'abort' });
-    // Dismiss any pending modals immediately (don't wait for worker crash/exit)
+
+    // Resolve pending run immediately so old sendMessage Promise settles
+    // (stale error from worker will be ignored due to runId mismatch)
+    const pending = this.pendingRuns.get(sessionId);
+    if (pending) {
+      pending.resolve({ success: true, response: '', messages: [], toolCalls: [], iterations: 0 });
+      this.pendingRuns.delete(sessionId);
+    }
+
     this.dismissPendingModals(sessionId);
   }
 
@@ -374,16 +394,12 @@ export class WorkerManager {
       }
 
       case 'complete': {
-        const entry = this.workers.get(sessionId);
-        if (entry) {
-          entry.isRunning = false;
-        }
-
-        // Resolve the pending agent.run() IPC call — ChatPanel's sendMessage() handles
-        // response display and loading state in its finally block.
-        // Note: agent:complete broadcast is already sent by agent-engine via workerIO.broadcast()
         const pending = this.pendingRuns.get(sessionId);
-        if (pending) {
+        // Only resolve if runId matches — stale complete from an aborted run
+        // must not resolve the new run's promise (would lose the new result)
+        if (pending && pending.runId === msg.runId) {
+          const entry = this.workers.get(sessionId);
+          if (entry) entry.isRunning = false;
           pending.resolve(msg.result);
           this.pendingRuns.delete(sessionId);
         }
@@ -391,20 +407,18 @@ export class WorkerManager {
       }
 
       case 'error': {
-        const entry = this.workers.get(sessionId);
-        if (entry) {
-          entry.isRunning = false;
-        }
-
         const pending = this.pendingRuns.get(sessionId);
-        if (pending) {
+        // Only reject if runId matches — stale error from an aborted run
+        // must not reject the new run's promise (would kill the new run)
+        if (pending && pending.runId === msg.runId) {
+          const entry = this.workers.get(sessionId);
+          if (entry) entry.isRunning = false;
           pending.reject(new Error(msg.error));
           this.pendingRuns.delete(sessionId);
-        }
 
-        // Also notify renderer
-        if (this.chatWindow && !this.chatWindow.isDestroyed()) {
-          this.chatWindow.webContents.send('agent:error', { sessionId, error: msg.error });
+          if (this.chatWindow && !this.chatWindow.isDestroyed()) {
+            this.chatWindow.webContents.send('agent:error', { sessionId, error: msg.error });
+          }
         }
         break;
       }

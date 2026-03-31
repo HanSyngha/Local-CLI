@@ -14,7 +14,7 @@ import type { AskUserResponse } from '../orchestration/types';
 // =============================================================================
 
 export type MainToWorkerMessage =
-  | { type: 'run'; userMessage: string; existingMessages: Message[]; config: AgentConfig }
+  | { type: 'run'; userMessage: string; existingMessages: Message[]; config: AgentConfig; runId: number }
   | { type: 'abort' }
   | { type: 'pause' }
   | { type: 'clearState' }
@@ -33,8 +33,8 @@ export type MainToWorkerMessage =
 export type WorkerToMainMessage =
   | { type: 'ready' }
   | { type: 'broadcast'; channel: string; data: unknown[] }
-  | { type: 'complete'; result: AgentResult }
-  | { type: 'error'; error: string }
+  | { type: 'complete'; result: AgentResult; runId: number }
+  | { type: 'error'; error: string; runId: number }
   | { type: 'approvalRequest'; reqId: string; toolName: string; args: Record<string, unknown>; reason?: string }
   | { type: 'askUser'; reqId: string; request: unknown }
   | { type: 'fileEdit'; data: { path: string; originalContent: string; newContent: string; language: string } }

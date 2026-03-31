@@ -69,6 +69,11 @@ const agentState: AgentRunState = {
 // Pending Promise Maps (for async round-trips with main process)
 // =============================================================================
 
+// Monotonic run counter — guards catch/finally of old runs from corrupting new run state.
+// Incremented on each 'run' message. Old run's catch/finally checks myRunId === workerRunId
+// before posting complete/error or resetting agentState.isRunning.
+let workerRunId = 0;
+
 const pendingAskUser = new Map<string, { resolve: (response: AskUserResponse) => void; timer: NodeJS.Timeout }>();
 const pendingApprovals = new Map<string, { resolve: (result: ToolApprovalResult) => void; timer: NodeJS.Timeout }>();
 
@@ -128,6 +133,11 @@ const workerIO: AgentIO = {
 port.on('message', async (msg: MainToWorkerMessage) => {
   switch (msg.type) {
     case 'run': {
+      // Capture run ID to detect stale catch/finally when a new run starts
+      // before this one's async cleanup completes (e.g. pause → new message).
+      workerRunId++;
+      const myRunId = workerRunId;
+
       try {
         agentState.isRunning = true;
 
@@ -159,12 +169,23 @@ port.on('message', async (msg: MainToWorkerMessage) => {
           workerIO,
           agentState,
         );
-        port.postMessage({ type: 'complete', result });
+        // Only post result if this is still the current run
+        if (myRunId === workerRunId) {
+          port.postMessage({ type: 'complete', result, runId: msg.runId });
+        }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        port.postMessage({ type: 'error', error: errorMessage });
+        // Only post error if this is still the current run — stale errors
+        // from aborted runs must not reach worker-manager (they'd reject the new run's promise)
+        if (myRunId === workerRunId) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          port.postMessage({ type: 'error', error: errorMessage, runId: msg.runId });
+        }
       } finally {
-        agentState.isRunning = false;
+        // Only reset running state if this is still the current run — otherwise
+        // we'd clobber the new run's isRunning=true set by its 'run' handler
+        if (myRunId === workerRunId) {
+          agentState.isRunning = false;
+        }
       }
       break;
     }

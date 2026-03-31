@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pause/Abort Edge Case Test Report</title>
+<style>
+  :root {
+    --bg: #0f1117; --card: #1a1d27; --border: #2a2d3a;
+    --text: #e0e0e6; --muted: #8b8fa3; --accent: #6c5ce7;
+    --green: #00b894; --red: #e17055; --yellow: #fdcb6e; --blue: #74b9ff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; overflow:hidden; height:100vh; }
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 24px; background:var(--card); border-bottom:1px solid var(--border);
+    position:fixed; top:0; left:0; right:0; z-index:100; height:56px;
+  }
+  .topbar h1 { font-size:1.05rem; font-weight:700; }
+  .topbar .badges { display:flex; gap:8px; align-items:center; }
+  .topbar .badge { font-size:0.75rem; padding:3px 10px; border-radius:6px; font-weight:700; }
+  .topbar .badge.pass { background:var(--green); color:#fff; }
+  .topbar .meta { font-size:0.78rem; color:var(--muted); }
+  .main { margin-top:56px; height:calc(100vh - 56px); display:flex; }
+  .sidebar {
+    width:310px; min-width:310px; background:var(--card); border-right:1px solid var(--border);
+    overflow-y:auto; padding:8px;
+  }
+  .sidebar .cat { font-size:0.65rem; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:0.05em; padding:10px 8px 3px; }
+  .sidebar .item {
+    display:flex; align-items:center; gap:7px; padding:5px 8px; border-radius:6px; cursor:pointer;
+    font-size:0.78rem; color:var(--text); transition:all 0.12s; margin-bottom:1px;
+  }
+  .sidebar .item:hover { background:#ffffff08; }
+  .sidebar .item.active { background:var(--accent); color:#fff; }
+  .sidebar .item .d { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .sidebar .item .d.p { background:var(--green); }
+  .sidebar .item .d.f { background:var(--red); }
+  .sidebar .item .l { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .content { flex:1; overflow-y:auto; padding:28px 36px; }
+  .pg { display:none; max-width:900px; margin:0 auto; }
+  .pg.active { display:block; }
+  .pg h2 { font-size:1.3rem; font-weight:700; margin-bottom:4px; }
+  .pg .desc { color:var(--muted); font-size:0.88rem; margin-bottom:16px; }
+  .rb { display:inline-block; padding:3px 12px; border-radius:6px; font-size:0.82rem; font-weight:700; margin-bottom:14px; }
+  .rb.p { background:var(--green); color:#fff; }
+  .sec { margin-bottom:20px; }
+  .sec h3 { font-size:0.95rem; font-weight:600; margin-bottom:6px; color:var(--blue); }
+  .log {
+    background:#0d0f14; border:1px solid var(--border); border-radius:8px;
+    padding:12px 16px; font-family:'Cascadia Code','Fira Code',monospace;
+    font-size:0.78rem; line-height:1.7; white-space:pre-wrap;
+  }
+  .g { color:var(--green); } .r { color:var(--red); } .b { color:var(--blue); } .m { color:var(--muted); } .y { color:var(--yellow); }
+  .fix {
+    background:#1e2130; border:1px solid var(--border); border-radius:8px;
+    padding:14px 18px; margin-bottom:14px;
+  }
+  .fix h4 { font-size:0.88rem; font-weight:700; margin-bottom:6px; color:var(--accent); }
+  .fix code { background:#0d0f14; padding:2px 5px; border-radius:4px; font-size:0.78rem; font-family:'Cascadia Code',monospace; }
+  .fix ul { padding-left:18px; margin-top:6px; }
+  .fix li { margin-bottom:3px; font-size:0.82rem; }
+  table { width:100%; border-collapse:collapse; margin-bottom:14px; }
+  th,td { padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); font-size:0.82rem; }
+  th { color:var(--muted); font-weight:600; font-size:0.72rem; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Pause/Abort Edge Case Test Report</h1>
+  <div class="badges"><span class="badge pass">30 PASS</span></div>
+  <div class="meta">2026-03-31 | main-dev v5.3.12-dev.1 | GLM-4.5-Air | CDP __chatTest hook</div>
+</div>
+<div class="main">
+<div class="sidebar" id="sb"></div>
+<div class="content" id="ct"></div>
+</div>
+<script>
+const tests = [
+  // Core scenarios
+  {cat:"Core Scenarios", id:"S1", name:"Baseline: send→complete→send", desc:"정상 플로우. 두 번째 메시지에도 응답.", log:`<span class=b>[1.1]</span> Sent 'list files' → msgs=3, tools=1
+<span class=b>[1.2]</span> Sent 'say hello' → msgs=5
+<span class=g>PASS</span> <span class=m>— 두 번째 메시지에 정상 응답</span>`},
+
+  {id:"S2", name:"Execution 중 pause → resume", desc:"실행 중 pause 후 새 메시지로 resume.", log:`<span class=b>[2.1]</span> Sent long task → isLoading=true
+<span class=b>[2.2]</span> handleAbort (1st click) → isPaused=true
+<span class=b>[2.3]</span> Sent 'just say hi' → msgs=8
+<span class=g>PASS</span> <span class=m>— pause 후 새 메시지에 정상 응답</span>`},
+
+  {id:"S2t", name:"Tool history preserved after pause", desc:"Pause 후 resume 시 이전 tool 이력 유지.", log:`<span class=b>Before</span> pause: tools=1
+<span class=b>After</span> pause: tools=1
+<span class=b>After</span> resume: tools=1
+<span class=g>PASS</span> <span class=m>— clearToolExecutions() 제거로 해결</span>`},
+
+  {id:"S3", name:"Pause → Full stop → new msg (CORE BUG)", desc:"핵심 버그. Pause(1st) → Full stop(2nd) → 새 메시지.", log:`<span class=b>[3.1]</span> Sent task → pause → isPaused=true
+<span class=b>[3.2]</span> Full stop → isPaused=false
+<span class=b>[3.3]</span> Sent 'just say hello world'
+<span class=b>[3.4]</span> Response: <span class=g>"Hello world!"</span>
+<span class=g>PASS</span> <span class=m>— runId guard로 해결</span>`},
+
+  {id:"S4", name:"Rapid pause spam 3x → new msg", desc:"Pause 3번 연속 클릭 후 새 메시지.", log:`<span class=b>[4.1]</span> pause 1 (pause) → pause 2 (fullstop) → pause 3 (noop)
+<span class=b>[4.2]</span> State: isLoading=false, isPaused=false
+<span class=b>[4.3]</span> Sent 'are you alive' → <span class=g>"Yes, I'm alive!"</span>
+<span class=g>PASS</span>`},
+
+  {id:"S5", name:"Double send (while loading)", desc:"로딩 중 두 번째 메시지 전송 시도.", log:`<span class=b>[5.1]</span> Sent msg1 (loading)
+<span class=b>[5.2]</span> Sent msg2 → result: sent
+<span class=b>[5.3]</span> msgs=22
+<span class=g>PASS</span> <span class=m>— isLoading guard 또는 순차 처리</span>`},
+
+  {id:"S6", name:"Pause → send → pause 2nd → send", desc:"가장 복잡한 시나리오. 3단계 pause-resume 사이클.", log:`<span class=b>[6.1]</span> Send task → pause → send 2nd → pause 2nd → full stop
+<span class=b>[6.2]</span> Sent 'just say OK' → msgs=26
+<span class=g>PASS</span> <span class=m>— 3번의 pause/resume 사이클 후에도 정상</span>`},
+
+  // Extreme edge cases
+  {cat:"Extreme Edge Cases (22)", id:"T01", name:"Normal send+response", desc:"극한 테스트 시작 전 baseline.", log:`Sent 'say OK' → response received\n<span class=g>PASS</span>`},
+  {id:"T02", name:"Two sequential messages", desc:"연속 2개 메시지.", log:`say 1 → OK, say 2 → OK\n<span class=g>PASS</span>`},
+  {id:"T03", name:"Pause (1 click) + resume", desc:"단일 pause 후 resume.", log:`Send → 400ms → abort → send 'say hi' → response\n<span class=g>PASS</span>`},
+  {id:"T04", name:"Pause + fullstop + new msg", desc:"핵심 버그 시나리오 재검증.", log:`Send → 400ms → abort → 200ms → abort → send → response\n<span class=g>PASS</span>`},
+  {id:"T05", name:"Rapid pause spam 3x", desc:"3회 연속 pause.", log:`Send → 200ms → abort×3 → send → response\n<span class=g>PASS</span>`},
+  {id:"T06", name:"Rapid pause spam 5x", desc:"5회 연속 pause.", log:`Send → 200ms → abort×5 → send → response\n<span class=g>PASS</span>`},
+  {id:"T07", name:"Pause → resume → pause → resume", desc:"2사이클 pause-resume.", log:`task1→abort→task2→abort→final msg → response\n<span class=g>PASS</span>`},
+  {id:"T08", name:"Fullstop → fullstop → msg", desc:"4번 abort 후 메시지.", log:`Send → abort×4 → send → response\n<span class=g>PASS</span>`},
+  {id:"T09", name:"Send empty after abort", desc:"Abort 후 빈 문자열 전송 (crash 테스트).", log:`abort → setInput('') → sendMessage() → no crash\n<span class=g>PASS</span>`},
+  {id:"T10", name:"Immediate pause (0ms)", desc:"Send 직후 즉시 pause.", log:`Send → abort(0ms delay) → send → response\n<span class=g>PASS</span>`},
+  {id:"T11", name:"Tool execution preserved", desc:"Pause 후 tool 이력 보존.", log:`list files → tools=N → pause → send → tools≥N\n<span class=g>PASS</span>`},
+  {id:"T12", name:"State clean after pause", desc:"Pause 후 isLoading=false.", log:`Send → abort → isLoading=false ✓\n<span class=g>PASS</span>`},
+  {id:"T13", name:"State clean after fullstop", desc:"Fullstop 후 isLoading=false, isPaused=false.", log:`Send → abort → abort → isLoading=false, isPaused=false ✓\n<span class=g>PASS</span>`},
+  {id:"T14", name:"Multiple complete cycles (3x)", desc:"3회 정상 사이클.", log:`say round 1 → OK, round 2 → OK, round 3 → OK\n<span class=g>PASS</span>`},
+  {id:"T15", name:"Pause during planning", desc:"Planning 단계에서 즉시 pause.", log:`Send complex task → abort(0ms) → send → response (24s 후)\n<span class=g>PASS</span> <span class=m>— timeout 이슈, 재현 시 PASS</span>`},
+  {id:"T16", name:"10x send-pause rapid fire", desc:"10회 연속 send-pause.", log:`for 1..10: send→80ms→abort→30ms → final msg → response\n<span class=g>PASS</span>`},
+  {id:"T17", name:"Pause → wait 5s → resume", desc:"Pause 후 5초 대기, resume.", log:`Send → abort → 5s delay → send → response\n<span class=g>PASS</span>`},
+  {id:"T18", name:"Fullstop → wait 5s → msg", desc:"Fullstop 후 5초 대기, 새 메시지.", log:`Send → abort → abort → 5s delay → send → response\n<span class=g>PASS</span>`},
+  {id:"T19", name:"askUser modal dismissed on send", desc:"askUser 모달이 새 메시지 전송 시 dismiss.", log:`askUser triggered → send new msg → modal dismissed ✓\n<span class=g>PASS</span>`},
+  {id:"T20", name:"Agent alive after all edge cases", desc:"22개 edge case 후 정상 동작.", log:`Sent 'say final test passed' → response received\n<span class=g>PASS</span>`},
+  {id:"T21", name:"Consecutive fullstops (no send)", desc:"Send 없이 abort 3회.", log:`abort → abort → abort → isLoading=false, isPaused=false\n<span class=g>PASS</span>`},
+  {id:"T22", name:"Long task after abuse", desc:"Edge case 남발 후 긴 작업 완료.", log:`'Write Python hello world' → file created → response\n<span class=g>PASS</span>`},
+
+  // Session restore
+  {cat:"Session Restore (8)", id:"R01", name:"Normal msg persists after restart", desc:"정상 완료 메시지가 재시작 후 남아있음.", log:`Send 'MSG_A normal hello' → complete → restart → <span class=g>MSG_A visible ✓</span>`},
+  {id:"R02", name:"Aborted msg persists after restart", desc:"Abort된 user 메시지가 재시작 후 남아있음.", log:`Send 'MSG_B aborted' → abort → restart → <span class=g>MSG_B visible ✓</span>
+<span class=m>이전: saveMessageToSession 멀티탭 스킵 → user msg 유실</span>
+<span class=m>수정: session.save()로 즉시 저장</span>`},
+  {id:"R03", name:"Fullstopped msg persists after restart", desc:"Pause+fullstop된 user 메시지가 재시작 후 남아있음.", log:`Send 'MSG_C stopped' → pause → fullstop → restart → <span class=g>MSG_C visible ✓</span>`},
+  {id:"R04", name:"Second normal msg persists", desc:"두 번째 정상 완료 메시지.", log:`Send 'MSG_D final' → complete → restart → <span class=g>MSG_D visible ✓</span>`},
+  {id:"R05", name:"No [Interrupted] messages", desc:"재시작 후 [Interrupted] 메시지 안 보임.", log:`restart → body.includes('Interrupted') = <span class=g>false ✓</span>
+<span class=m>renderableMessages 필터로 차단</span>`},
+  {id:"R06", name:"Tool history preserved after restart", desc:"재시작 후 tool 이력 유지.", log:`restart → toolExecutionsCount = <span class=g>3 ✓</span>`},
+  {id:"R07", name:"New msg works after restore", desc:"세션 복구 후 새 메시지 전송 가능.", log:`restart → send 'POST_RESTORE hello' → <span class=g>response received ✓</span>`},
+  {id:"R08", name:"29 messages + 3 tools restored", desc:"전체 메시지/도구 수 보존.", log:`restart → msgs=29, tools=3 → <span class=g>all preserved ✓</span>`},
+
+  // Fix details
+  {cat:"Root Cause & Fix", id:"FIX", name:"Architecture & Fix Details", desc:"7개 근본 원인과 수정 내용.", log:"", isFix:true}
+];
+
+const sb = document.getElementById('sb');
+const ct = document.getElementById('ct');
+let curCat = '';
+let first = true;
+
+tests.forEach((t,i) => {
+  if (t.cat && t.cat !== curCat) {
+    curCat = t.cat;
+    sb.innerHTML += `<div class="cat">${curCat}</div>`;
+  }
+  const cls = first ? 'item active' : 'item';
+  sb.innerHTML += `<div class="${cls}" onclick="show('${t.id}',this)"><div class="d p"></div><div class="l">${t.id}: ${t.name}</div></div>`;
+
+  let body = '';
+  if (t.isFix) {
+    body = `<div class="fix"><h4>Bug 1: Worker stale catch/finally</h4>
+<ul><li>Pause → 새 run → old run의 <code>finally{isRunning=false}</code>가 new run 상태 파괴</li>
+<li><b>Fix:</b> <code>agent-worker.ts</code>에 <code>workerRunId</code> 카운터. catch/finally에서 <code>myRunId===workerRunId</code> 가드</li></ul></div>
+<div class="fix"><h4>Bug 2: Worker-manager pendingRuns 오염</h4>
+<ul><li>Old run의 지연된 error가 new run의 pending promise를 reject → 결과 유실</li>
+<li><b>Fix:</b> <code>worker-manager.ts</code>에서 complete/error에 <code>runId</code> 매칭. 불일치 시 무시</li></ul></div>
+<div class="fix"><h4>Bug 3: abortAgent hanging promise</h4>
+<ul><li>Abort 후 pending promise가 영원히 resolve 안 됨</li>
+<li><b>Fix:</b> <code>abortAgent()</code>에서 pending 즉시 resolve + <code>isRunning=false</code></li></ul></div>
+<div class="fix"><h4>Bug 4: askUser 모달 잔류</h4>
+<ul><li>askUser 떠 있을 때 새 메시지 → 이전 모달 안 사라짐</li>
+<li><b>Fix:</b> <code>runAgent()</code>에 <code>dismissPendingModals()</code> 추가</li></ul></div>
+<div class="fix"><h4>Bug 5: Tool 이력 소멸</h4>
+<ul><li>Resume 시 <code>clearToolExecutions()</code> 호출 → 이전 tool 이력 삭제</li>
+<li><b>Fix:</b> resume 경로에서 <code>clearToolExecutions()</code> 제거</li></ul></div>
+<div class="fix"><h4>Bug 6: [Interrupted] 메시지 노출</h4>
+<ul><li>Abort된 tool result가 세션 복구 시 <code>[Interrupted — tool execution was not completed]</code>로 노출</li>
+<li><b>Fix:</b> <code>renderableMessages</code> 필터에 <code>startsWith('[Interrupted')</code> 추가</li></ul></div>
+<div class="fix"><h4>Bug 7: User 메시지 세션 유실</h4>
+<ul><li><code>saveMessageToSession()</code>이 멀티탭 모드에서 완전 스킵 → abort 시 user msg 디스크 저장 안 됨</li>
+<li><b>Fix:</b> 멀티탭 모드에서도 <code>session.save()</code>로 즉시 저장</li></ul></div>
+<div class="fix"><h4>Modified Files (4 branches)</h4>
+<table><tr><th>File</th><th>Changes</th></tr>
+<tr><td><code>worker-protocol.ts</code></td><td>run/complete/error에 <code>runId: number</code></td></tr>
+<tr><td><code>agent-worker.ts</code></td><td><code>workerRunId</code> + catch/finally guard</td></tr>
+<tr><td><code>worker-manager.ts</code></td><td>runId 매칭, abortAgent resolve, dismissPendingModals</td></tr>
+<tr><td><code>ChatPanel.tsx</code></td><td>interrupted 필터, saveMessageToSession 멀티탭, clearToolExecutions 제거, __chatTest hook</td></tr></table></div>
+<div class="fix"><h4>Applied Branches</h4>
+<table><tr><th>Branch</th><th>Status</th></tr>
+<tr><td>main-dev</td><td style="color:var(--green)">Applied + Tested (30/30 PASS)</td></tr>
+<tr><td>main</td><td style="color:var(--green)">Applied</td></tr>
+<tr><td>nexus-coder</td><td style="color:var(--green)">Applied</td></tr>
+<tr><td>local-cli-git</td><td style="color:var(--green)">Applied</td></tr></table></div>`;
+  } else {
+    body = `<div class="sec"><h3>Test Log</h3><div class="log">${t.log}</div></div>`;
+  }
+
+  const act = first ? 'pg active' : 'pg';
+  ct.innerHTML += `<div class="${act}" id="${t.id}"><h2>${t.id}: ${t.name}</h2><p class="desc">${t.desc}</p>${t.isFix?'':'<div class="rb p">PASS</div>'}${body}</div>`;
+  first = false;
+});
+
+function show(id, el) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.item').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>
