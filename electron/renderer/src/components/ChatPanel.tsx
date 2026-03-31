@@ -596,6 +596,10 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
     }
   }, [input, maxInputHeight, isActiveProp]);
 
+  // Abort/Pause state (must be declared before sendMessage which references isPaused)
+  const [abortMessage, setAbortMessage] = useState<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+
   // Send message using agent
   const sendMessage = useCallback(async () => {
     if ((!input.trim() && attachedImages.length === 0) || isLoading) return;
@@ -894,10 +898,6 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
       sendMessage();
     }
   }, [input, isLoading, sendMessage]);
-
-  // Abort/Pause state
-  const [abortMessage, setAbortMessage] = useState<string | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
 
   // Two-stage abort: 1st click = pause (keep TODOs), 2nd click = full stop (clear TODOs)
   const handleAbort = useCallback(async () => {
