@@ -801,20 +801,36 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
       const currentSession = sessionRef.current;
       const currentOnSessionChange = onSessionChangeRef.current;
       if (result.success && result.messages && result.messages.length > 0 && currentSession && currentOnSessionChange) {
-        const agentStart = userMessage.timestamp;
+        // Preserve existing message timestamps — only assign new timestamps to messages
+        // added during this execution cycle. Rewriting ALL timestamps breaks timeline
+        // ordering (toolExecutions use real-time timestamps, so old tools get displaced).
+        const existingMessages = currentSession.messages || [];
+        const existingCount = existingMessages.length;
         const agentEnd = Date.now();
-        const totalDuration = agentEnd - agentStart;
-        const step = result.messages.length > 1
-          ? totalDuration / (result.messages.length - 1)
-          : 0;
-        const updatedMessages: ChatMessage[] = result.messages.map((m, idx) => ({
-          id: `msg-${agentStart}-${idx}`,
-          role: m.role as 'user' | 'assistant' | 'system' | 'tool',
-          content: m.content || '',
-          tool_calls: (m as any).tool_calls,
-          tool_call_id: (m as any).tool_call_id,
-          timestamp: Math.round(agentStart + (idx * step)),
-        }));
+
+        const updatedMessages: ChatMessage[] = result.messages.map((m, idx) => {
+          // Reuse existing message if within the range of previously saved messages
+          if (idx < existingCount && existingMessages[idx]) {
+            return {
+              ...existingMessages[idx],
+              content: m.content || existingMessages[idx].content,
+              tool_calls: (m as any).tool_calls || existingMessages[idx].tool_calls,
+              tool_call_id: (m as any).tool_call_id || existingMessages[idx].tool_call_id,
+            };
+          }
+          // New messages from this cycle: assign sequential timestamps after user message
+          const newIdx = idx - existingCount;
+          const newCount = result.messages.length - existingCount;
+          const step = newCount > 1 ? (agentEnd - userMessage.timestamp) / (newCount - 1) : 0;
+          return {
+            id: `msg-${userMessage.timestamp}-${idx}`,
+            role: m.role as 'user' | 'assistant' | 'system' | 'tool',
+            content: m.content || '',
+            tool_calls: (m as any).tool_calls,
+            tool_call_id: (m as any).tool_call_id,
+            timestamp: Math.round(userMessage.timestamp + (newIdx * step)),
+          };
+        });
 
         const updatedSession: Session = {
           ...currentSession,
