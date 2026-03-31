@@ -50,7 +50,7 @@ import { CustomTextInput } from './CustomTextInput.js';
 import { LLMClient, createLLMClient } from '../../core/llm/llm-client.js';
 import { Message } from '../../types/index.js';
 import { TodoPanel, TodoStatusBar } from '../TodoPanel.js';
-import { sessionManager } from '../../core/session/session-manager.js';
+import { sessionManager, reconstructLogEntries } from '../../core/session/session-manager.js';
 import { FileBrowser } from './FileBrowser.js';
 import { SessionBrowser, LogBrowser } from './panels/index.js';
 import { SettingsBrowser } from './dialogs/SettingsDialog.js';
@@ -868,13 +868,31 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         setLogEntries(restoredLogs);
         logIdCounter.current = restoredLogs.length;
       } else {
-        // No log entries saved, show session restored message only
-        clearLogs();
-        addLog({
-          type: 'session_restored',
-          content: `세션 복구됨: ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
-          details: detailParts.join(', ') + (sessionData.logEntries?.length ? '' : ' (로그 히스토리 없음)'),
-        });
+        // No saved logEntries — reconstruct from messages (tool_calls, tool results)
+        const reconstructed = reconstructLogEntries(sessionData.messages);
+        if (reconstructed.length > 0) {
+          const restoredLogs: LogEntry[] = [
+            {
+              id: `log-restored-header`,
+              type: 'session_restored',
+              content: `세션 복구됨: ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
+              details: detailParts.join(', ') + ' (메시지에서 복원)',
+            },
+            ...reconstructed.map((entry, idx) => ({
+              ...entry,
+              id: `log-restored-${idx}`,
+            })) as LogEntry[],
+          ];
+          setLogEntries(restoredLogs);
+          logIdCounter.current = restoredLogs.length;
+        } else {
+          clearLogs();
+          addLog({
+            type: 'session_restored',
+            content: `세션 복구됨: ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
+            details: detailParts.join(', '),
+          });
+        }
       }
     } catch (error) {
       const errorMessage = `세션 로드 실패: ${error instanceof Error ? error.message : 'Unknown error'}`;

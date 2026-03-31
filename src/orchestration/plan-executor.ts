@@ -351,6 +351,8 @@ export class PlanExecutor {
       const newMessages = result.allMessages.filter(m => m.role !== 'system');
       currentMessages = [...currentMessages, ...newMessages];
       callbacks.setMessages([...currentMessages]);
+      // Sync todos to sessionManager before save (React useEffect may not have fired yet)
+      sessionManager.setTodos(currentTodos);
       sessionManager.autoSaveCurrentSession(currentMessages);
 
       // Check for auto-compact after completion (fallback if threshold wasn't hit during loop)
@@ -364,6 +366,7 @@ export class PlanExecutor {
 
       // 4. Completion - LLM's final response is already in currentMessages
       const stats = getTodoStats(currentTodos);
+      sessionManager.setTodos(currentTodos);
       sessionManager.autoSaveCurrentSession(currentMessages);
 
       logger.exit('PlanExecutor.executePlanMode', { success: true, ...stats });

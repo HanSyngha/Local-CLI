@@ -34,7 +34,7 @@ export interface ChatPanelRef {
 import TodoList from './TodoList';
 import UserQuestion from './UserQuestion';
 import ProgressMessage from './ProgressMessage';
-import ToolExecution, { ToolExecutionData } from './ToolExecution';
+import ToolExecution, { ToolExecutionData, ToolCategory } from './ToolExecution';
 import ApprovalModal from './ApprovalModal';
 import './ChatPanel.css';
 
@@ -42,6 +42,44 @@ import './ChatPanel.css';
 type TimelineItem =
   | { type: 'message'; data: ChatMessage; timestamp: number }
   | { type: 'tools'; data: ToolExecutionData[]; timestamp: number };
+
+/**
+ * Reconstruct ToolExecutionData[] from saved messages for session restore.
+ * Matches tool_calls (assistant) with tool responses to rebuild the execution history.
+ */
+function reconstructToolExecutions(msgs: ChatMessage[]): ToolExecutionData[] {
+  const tools: ToolExecutionData[] = [];
+  const categoryMap: Record<string, ToolCategory> = {
+    read_file: 'file', write_file: 'file', edit_file: 'file', create_file: 'file',
+    list_files: 'file', search_files: 'file', view_file: 'file',
+    bash: 'shell', execute_command: 'shell',
+    browser_navigate: 'browser', browser_click: 'browser', browser_type: 'browser',
+    browser_screenshot: 'browser', browser_get_html: 'browser',
+    read_excel: 'office', write_excel: 'office', read_word: 'office', write_word: 'office',
+    todo_write: 'todo', todo_read: 'todo',
+    tell_to_user: 'user', ask_to_user: 'user', final_response: 'user',
+  };
+
+  for (const msg of msgs) {
+    if (msg.role !== 'assistant' || !msg.tool_calls?.length) continue;
+    for (const tc of msg.tool_calls) {
+      const response = msgs.find(m => m.role === 'tool' && m.tool_call_id === tc.id);
+      let args: Record<string, unknown> = {};
+      try { args = JSON.parse(tc.function.arguments); } catch { /* ignore */ }
+      const output = response?.content || '';
+      tools.push({
+        id: tc.id,
+        toolName: tc.function.name,
+        category: categoryMap[tc.function.name] || 'other',
+        status: response ? (output.startsWith('[interrupted') ? 'error' : 'success') : 'error',
+        input: args,
+        output: output.length > 2000 ? output.substring(0, 2000) + '...' : output || undefined,
+        timestamp: msg.timestamp,
+      });
+    }
+  }
+  return tools;
+}
 
 // Import logo for assistant avatar
 import logoImage from '/no_bg_logo.png';
@@ -229,6 +267,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
   const {
     toolExecutions,
     clearToolExecutions,
+    restoreToolExecutions,
     switchSession,
     clearSessionCache,
     progressMessages,
@@ -390,9 +429,16 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
     if (session && session.messages.length > 0) {
       window.electronAPI?.log?.debug?.('[ChatPanel] Restoring session messages', { count: session.messages.length });
       setMessages(session.messages);
+      // Reconstruct tool execution history from messages so tool cards show on session restore
+      const restoredTools = reconstructToolExecutions(session.messages);
+      restoreToolExecutions(restoredTools);
+      if (restoredTools.length > 0) {
+        window.electronAPI?.log?.debug?.('[ChatPanel] Restored tool executions from messages', { count: restoredTools.length });
+      }
     } else {
       // New or empty session: reset to welcome
       setMessages([{ ...DEFAULT_WELCOME_MESSAGE, content: t('chat.welcome') }]);
+      restoreToolExecutions([]); // Clear any leftover tools from previous session
     }
     // Reset windowing state and attached images when session changes
     setShowAllMessages(false);

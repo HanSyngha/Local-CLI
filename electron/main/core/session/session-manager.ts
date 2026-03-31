@@ -43,6 +43,58 @@ const ERROR_MESSAGE_PATTERNS = [
 ];
 
 /**
+ * Reconstruct logEntries from messages when logEntries were not saved.
+ * Enables session restore to show tool call history for older sessions.
+ */
+export function reconstructLogEntries(messages: Array<{ role: string; content: string; tool_calls?: Array<{ id: string; type: string; function: { name: string; arguments: string } }>; tool_call_id?: string; name?: string }>): SessionLogEntry[] {
+  const entries: SessionLogEntry[] = [];
+  let idx = 0;
+
+  for (const msg of messages) {
+    if (msg.role === 'user') {
+      entries.push({
+        id: `log-r-${idx++}`,
+        type: 'user_input',
+        content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+      });
+    } else if (msg.role === 'assistant') {
+      if (msg.tool_calls && msg.tool_calls.length > 0) {
+        for (const tc of msg.tool_calls) {
+          let args: Record<string, unknown> = {};
+          try { args = JSON.parse(tc.function.arguments); } catch { /* ignore */ }
+          entries.push({
+            id: `log-r-${idx++}`,
+            type: 'tool_start',
+            content: tc.function.name,
+            toolArgs: args,
+          });
+        }
+      } else if (msg.content) {
+        const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+        if (!content.startsWith('📋 Created ')) {
+          entries.push({
+            id: `log-r-${idx++}`,
+            type: 'agent_response',
+            content,
+          });
+        }
+      }
+    } else if (msg.role === 'tool') {
+      const resultContent = typeof msg.content === 'string' ? msg.content : '';
+      entries.push({
+        id: `log-r-${idx++}`,
+        type: 'tool_result',
+        content: msg.name || 'tool',
+        details: resultContent.length > 500 ? resultContent.substring(0, 500) + '...' : resultContent,
+        success: !resultContent.startsWith('[interrupted'),
+      });
+    }
+  }
+
+  return entries;
+}
+
+/**
  * Write file atomically: write to .tmp, then rename.
  * Creates .bak backup of existing file before replacing.
  */

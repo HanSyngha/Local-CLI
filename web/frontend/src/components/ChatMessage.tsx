@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Copy, Check, Bot, AlertCircle, Sparkles, Zap } from 'lucide-react';
+import { Copy, Check, Bot, AlertCircle, Sparkles, Zap, User } from 'lucide-react';
 import type { WSEvent } from '@/lib/websocket';
 import ToolCard from './ToolCard';
 
@@ -99,6 +99,31 @@ export default function ChatMessage({ event, onAskUserResponse }: ChatMessagePro
   const { t } = useTranslation();
 
   const p = event.payload || {};
+
+  // User message (sent by user via execute)
+  if (event.type === 'user_message') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="flex justify-end mb-4"
+      >
+        <div className="flex items-start gap-3 max-w-[85%] sm:max-w-[80%] flex-row-reverse">
+          <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 p-[1.5px] flex-shrink-0">
+            <div className="w-full h-full rounded-[10px] bg-[var(--bg-primary)] flex items-center justify-center">
+              <User size={14} className="text-[var(--text-secondary)]" />
+            </div>
+          </div>
+          <div className="bg-[var(--accent)]/[0.08] backdrop-blur-sm border border-[var(--accent)]/15 px-4 py-3 rounded-2xl rounded-tr-lg shadow-elevation-1">
+            <p className="text-sm text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
+              {(p.message as string) || ''}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   // Tell user (message from agent during execution)
   if (event.type === 'tell_user') {

@@ -71,6 +71,7 @@ interface AgentContextValue {
   // Tool executions
   toolExecutions: ToolExecutionData[];
   clearToolExecutions: () => void;
+  restoreToolExecutions: (tools: ToolExecutionData[]) => void;
 
   // Session-aware state switching
   switchSession: (newSessionId: string | null) => void;
@@ -198,6 +199,12 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   // Add tool execution immediately (no batching - fixes visibility issues during resize)
   const addToolExecution = useCallback((execution: ToolExecutionData) => {
     setToolExecutions(prev => [...prev, execution]);
+  }, []);
+
+  // Restore tool executions from session (for session load/restore)
+  const restoreToolExecutions = useCallback((tools: ToolExecutionData[]) => {
+    setToolExecutions(tools);
+    toolExecutionsRef.current = tools;
   }, []);
 
   // Clear functions
@@ -615,6 +622,7 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AgentContextValue>(() => ({
     toolExecutions,
     clearToolExecutions,
+    restoreToolExecutions,
     switchSession,
     clearSessionCache,
     progressMessages,
@@ -638,6 +646,7 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   }), [
     toolExecutions,
     clearToolExecutions,
+    restoreToolExecutions,
     switchSession,
     clearSessionCache,
     progressMessages,
