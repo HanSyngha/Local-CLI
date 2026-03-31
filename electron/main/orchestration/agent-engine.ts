@@ -222,6 +222,9 @@ export async function runAgentCore(
   const currentRunId = agentState.runId;
   agentState.isRunning = true;
   agentState.abortController = new AbortController();
+  // Reset LLM interrupt flag from previous pause/abort — without this,
+  // the first LLM call after pause immediately throws INTERRUPTED
+  llmClient.resetInterrupt();
 
   // Clear old todos if not resuming
   if (!resumeTodos) {
