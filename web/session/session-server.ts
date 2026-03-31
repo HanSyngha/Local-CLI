@@ -314,9 +314,26 @@ async function handleExecute(id: string, payload: Record<string, unknown>): Prom
     return;
   }
 
+  // Wait for any running execution to finish before starting a new one
+  // This prevents event interleaving (tool:call from old execution appearing after new user message)
+  if (currentExecutionPromise) {
+    handleInterrupt();
+    try {
+      await Promise.race([
+        currentExecutionPromise,
+        new Promise(resolve => setTimeout(resolve, 5000)), // 5s timeout safety
+      ]);
+    } catch {
+      // Previous execution failed — proceed with new one
+    }
+  }
+
   currentRequestId = id;
   isInterruptedRef.current = false;
   isInterrupted = false;
+
+  // Emit user message so the frontend can display it in the chat timeline
+  emit('user_message', { message: userMessage });
 
   // Build LLM client from current config
   const authToken = payload.authToken as string | undefined;
@@ -331,34 +348,51 @@ async function handleExecute(id: string, payload: Record<string, unknown>): Prom
   const executor = new PlanExecutor();
   const callbacks = buildCallbacks();
 
+  const thisExecution = executor.executePlanMode(
+    userMessage,
+    llmClient,
+    [...messages],
+    isInterruptedRef,
+    callbacks,
+  );
+  currentExecutionPromise = thisExecution;
+
   try {
-    currentExecutionPromise = executor.executePlanMode(
-      userMessage,
-      llmClient,
-      [...messages],
-      isInterruptedRef,
-      callbacks,
-    );
-    await currentExecutionPromise;
-    emit('execution:complete', { success: true });
+    await thisExecution;
+    // Only emit if we're still the current execution (a newer one may have taken over after timeout)
+    if (currentExecutionPromise === thisExecution) {
+      emit('execution:complete', { success: true });
+    }
   } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err);
-    if (errMsg === 'INTERRUPTED') {
-      emit('execution:complete', { success: false, interrupted: true });
-    } else {
-      emit('error', { message: errMsg });
-      emit('execution:complete', { success: false, error: errMsg });
+    if (currentExecutionPromise === thisExecution) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg === 'INTERRUPTED') {
+        emit('execution:complete', { success: false, interrupted: true });
+      } else {
+        emit('error', { message: errMsg });
+        emit('execution:complete', { success: false, error: errMsg });
+      }
     }
   } finally {
-    currentExecutionPromise = null;
-    currentRequestId = undefined;
-    executionPhase = 'idle';
+    // Only clear shared state if WE are still the current execution.
+    // After 5s timeout, a newer execution may have taken over — don't clobber it.
+    if (currentExecutionPromise === thisExecution) {
+      currentExecutionPromise = null;
+      currentRequestId = undefined;
+      executionPhase = 'idle';
+    }
   }
 }
 
 function handleInterrupt(): void {
   isInterruptedRef.current = true;
   isInterrupted = true;
+  // Resolve pending ask_user to unblock execution (prevents deadlock when
+  // user interrupts during ask_user and immediately sends a new message)
+  if (askUserResolve) {
+    askUserResolve({ selectedOption: '', isOther: false });
+    askUserResolve = null;
+  }
   logger.info('Interrupt requested');
 }
 
