@@ -50,7 +50,7 @@ export const APP_NAME = 'local-cli';
 /**
  * Application version (injected from package.json)
  */
-export const APP_VERSION = '5.3.14';
+export const APP_VERSION = '5.3.20';
 
 /**
  * CLI Server 포트 (Electron ↔ CLI 통신)

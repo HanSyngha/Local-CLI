@@ -549,7 +549,10 @@ class SessionManager {
       session.messages = this.normalizeMessages(session.messages);
 
       // Include log entries and todos for session restoration (CLI parity)
-      session.logEntries = this.currentLogEntries.length > 0 ? this.currentLogEntries : undefined;
+      // Reconstruct logEntries from messages if React useEffect hasn't synced yet (race condition fix)
+      session.logEntries = this.currentLogEntries.length > 0
+        ? this.currentLogEntries
+        : (session.messages.length > 0 ? reconstructLogEntries(session.messages) : undefined);
       session.todos = this.currentTodos.length > 0 ? this.currentTodos : undefined;
 
       // Atomic write: tmp → backup → rename
