@@ -800,7 +800,7 @@ export class LLMClient {
     let finalResponseFailures = 0;  // Prevent infinite loop when final_response keeps failing
     let consecutiveParseFailures = 0;  // Prevent infinite loop when model can't generate JSON
     let consecutiveTellToUserCalls = 0;  // Prevent tell_to_user infinite loop
-    const MAX_NO_TOOL_CALL_RETRIES = 3;  // Max retries for enforcing tool usage
+    const MAX_NO_TOOL_CALL_RETRIES = 5;  // Max retries for enforcing tool usage
     const MAX_FINAL_RESPONSE_FAILURES = 3;  // Max retries for final_response failures
     const MAX_CONSECUTIVE_TELL_TO_USER = 2;  // Max consecutive tell_to_user before forcing final_response
     const MAX_CONSECUTIVE_PARSE_FAILURES = 3;  // Max retries for arg parse failures
@@ -1366,6 +1366,16 @@ Retry with correct parameter names and types.`;
         noToolCallRetries++;
         logger.flow(`No tool call - enforcing tool usage (attempt ${noToolCallRetries}/${MAX_NO_TOOL_CALL_RETRIES})`);
 
+        // Remove empty assistant message from history to prevent context pollution
+        // Empty messages (no content, no tool_calls) waste tokens and confuse the LLM on retry
+        if (!assistantMessage.content && (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0)) {
+          workingMessages.pop();
+          if (options?.rebuildMessages) {
+            toolLoopMessages.pop();
+          }
+          logger.debug('Removed empty assistant message from history');
+        }
+
         // Max retries exceeded - return content as final response to prevent infinite loop
         if (noToolCallRetries > MAX_NO_TOOL_CALL_RETRIES) {
           logger.warn('Max no-tool-call retries exceeded - returning content as final response');
@@ -1388,13 +1398,16 @@ Retry with correct parameter names and types.`;
            /<arg_key>/i.test(assistantMessage.content) ||
            /<arg_value>/i.test(assistantMessage.content) ||
            /<\/tool_call>/i.test(assistantMessage.content) ||
-           /bash<arg_key>/i.test(assistantMessage.content));
+           /bash<arg_key>/i.test(assistantMessage.content) ||
+           /<xai:function_call/i.test(assistantMessage.content) ||
+           /<\/xai:function_call>/i.test(assistantMessage.content) ||
+           /<parameter\s+name=/i.test(assistantMessage.content));
 
         const retryMessage = hasMalformedToolCall
           ? 'Your previous response contained a malformed tool call (XML tags in content). You MUST use the proper tool_calls API format. Use final_response tool to deliver your message to the user.'
           : 'You must use tools for all actions. Use final_response tool to deliver your final message to the user after completing all tasks.';
 
-        // Add assistant message (to preserve context) and retry instruction
+        // Add retry instruction (assistant message already in history if it had content)
         addMessage({
           role: 'user',
           content: retryMessage,

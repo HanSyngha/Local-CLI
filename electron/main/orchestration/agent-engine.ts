@@ -527,7 +527,7 @@ export async function runAgentCore(
   let iterations = 0;
   let finalResponse = '';
   let noToolCallRetries = 0;
-  const MAX_NO_TOOL_CALL_RETRIES = 3;
+  const MAX_NO_TOOL_CALL_RETRIES = 5;
   let contextCompactRetried = false;
   let finalResponseFailures = 0;
   const MAX_FINAL_RESPONSE_FAILURES = 3;
@@ -1188,6 +1188,14 @@ Retry with correct parameter names and types.`;
       } else {
         noToolCallRetries++;
         logger.flow(`No tool call - enforcing tool usage (attempt ${noToolCallRetries}/${MAX_NO_TOOL_CALL_RETRIES})`);
+
+        // Remove empty assistant message from history to prevent context pollution
+        // Empty messages (no content, no tool_calls) waste tokens and confuse the LLM on retry
+        if (!assistantMessage.content && (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0)) {
+          messages.pop();
+          toolLoopMessages.pop();
+          logger.debug('Removed empty assistant message from history');
+        }
 
         if (noToolCallRetries > MAX_NO_TOOL_CALL_RETRIES) {
           logger.warn('Max no-tool-call retries exceeded - returning content as final response');

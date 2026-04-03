@@ -82,6 +82,60 @@ export interface SessionSummary {
 }
 
 /**
+ * Reconstruct logEntries from messages when logEntries were not saved.
+ * This enables session restore to show tool call history even for older sessions
+ * that didn't save logEntries (race condition between React useEffect and autoSave).
+ */
+export function reconstructLogEntries(messages: Message[]): SessionLogEntry[] {
+  const entries: SessionLogEntry[] = [];
+  let idx = 0;
+
+  for (const msg of messages) {
+    if (msg.role === 'user') {
+      entries.push({
+        id: `log-r-${idx++}`,
+        type: 'user_input',
+        content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+      });
+    } else if (msg.role === 'assistant') {
+      if (msg.tool_calls && msg.tool_calls.length > 0) {
+        for (const tc of msg.tool_calls) {
+          let args: Record<string, unknown> = {};
+          try { args = JSON.parse(tc.function.arguments); } catch { /* ignore */ }
+          entries.push({
+            id: `log-r-${idx++}`,
+            type: 'tool_start',
+            content: tc.function.name,
+            toolArgs: args,
+          });
+        }
+      } else if (msg.content) {
+        const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+        // Skip internal plan messages
+        if (!content.startsWith('📋 Created ')) {
+          entries.push({
+            id: `log-r-${idx++}`,
+            type: 'agent_response',
+            content,
+          });
+        }
+      }
+    } else if (msg.role === 'tool') {
+      const resultContent = typeof msg.content === 'string' ? msg.content : '';
+      entries.push({
+        id: `log-r-${idx++}`,
+        type: 'tool_result',
+        content: msg.name || 'tool',
+        details: resultContent.length > 500 ? resultContent.substring(0, 500) + '...' : resultContent,
+        success: !resultContent.startsWith('[interrupted'),
+      });
+    }
+  }
+
+  return entries;
+}
+
+/**
  * Error/abort message patterns to strip from session on load.
  * These are appended during errors but pollute LLM context on resume.
  */
@@ -626,7 +680,10 @@ export class SessionManager {
           endpoint: endpoint?.baseUrl || 'unknown',
         },
         messages: normalizedMessages,
-        logEntries: this.currentLogEntries,  // Include log entries
+        // Reconstruct logEntries from messages if React useEffect hasn't synced yet (race condition fix)
+        logEntries: this.currentLogEntries.length > 0
+          ? this.currentLogEntries
+          : reconstructLogEntries(normalizedMessages),
         todos: this.currentTodos.length > 0 ? this.currentTodos : undefined,  // Only include if there are pending/in-progress todos
       };
 

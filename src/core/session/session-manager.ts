@@ -680,7 +680,10 @@ export class SessionManager {
           endpoint: endpoint?.baseUrl || 'unknown',
         },
         messages: normalizedMessages,
-        logEntries: this.currentLogEntries,  // Include log entries
+        // Reconstruct logEntries from messages if React useEffect hasn't synced yet (race condition fix)
+        logEntries: this.currentLogEntries.length > 0
+          ? this.currentLogEntries
+          : reconstructLogEntries(normalizedMessages),
         todos: this.currentTodos.length > 0 ? this.currentTodos : undefined,  // Only include if there are pending/in-progress todos
       };
 
