@@ -43,6 +43,7 @@ import { logger } from '../utils/logger.js';
 import { getStreamLogger } from '../utils/json-stream-logger.js';
 import { detectGitRepo } from '../utils/git-utils.js';
 import { getWindowsUserDesktopPath } from '../utils/platform-utils.js';
+import { loadContextFile } from '../utils/context-loader.js';
 
 import type { StateCallbacks } from './types.js';
 import { formatErrorMessage, buildTodoContext, flattenMessagesToHistory, findActiveTodo, getTodoStats } from './utils.js';
@@ -50,10 +51,11 @@ import { reportError, updateRecentMessagesForTelemetry } from '../core/telemetry
 import { LLMRetryExhaustedError } from '../errors/llm.js';
 
 /**
- * Build system prompt with conditional Git rules
- * Git rules are only added when .git folder exists in working directory
+ * Build system prompt with conditional Git rules and optional project context.
+ * Git rules are only added when .git folder exists in working directory.
+ * context.md from the current working directory is injected once per session.
  */
-function buildSystemPrompt(): string {
+async function buildSystemPrompt(): Promise<string> {
   const isGitRepo = detectGitRepo();
   const hasVision = toolRegistry.isToolGroupEnabled('vision');
   const desktopPath = getWindowsUserDesktopPath();
@@ -66,6 +68,10 @@ function buildSystemPrompt(): string {
   }
   if (hasVision) {
     prompt += `\n\n${VISION_VERIFICATION_RULE}`;
+  }
+  const context = await loadContextFile();
+  if (context) {
+    prompt += `\n\n## Project Context\n\n${context}`;
   }
   return prompt;
 }
@@ -241,7 +247,7 @@ export class PlanExecutor {
       const hasSystemMessage = currentMessages.some(m => m.role === 'system');
       if (!hasSystemMessage) {
         currentMessages = [
-          { role: 'system' as const, content: buildSystemPrompt() },
+          { role: 'system' as const, content: await buildSystemPrompt() },
           ...currentMessages
         ];
       }
@@ -256,7 +262,7 @@ export class PlanExecutor {
 
       // Build rebuildMessages callback for per-iteration message reconstruction
       //  LLM  [system, user(<CURRENT_TASK> + <CONVERSATION_HISTORY> + <CURRENT_REQUEST>)]  
-      const systemPrompt = buildSystemPrompt();
+      const systemPrompt = await buildSystemPrompt();
       const hasVision = toolRegistry.isToolGroupEnabled('vision');
       const criticalReminders = getCriticalReminders(hasVision, process.cwd(), getWindowsUserDesktopPath() || undefined);
       let baseHistory: Message[] = [...historyBeforeExecution, { role: 'assistant' as const, content: planMessage }];
@@ -470,7 +476,7 @@ export class PlanExecutor {
       const hasSystemMessage = currentMessages.some(m => m.role === 'system');
       if (!hasSystemMessage) {
         currentMessages = [
-          { role: 'system' as const, content: buildSystemPrompt() },
+          { role: 'system' as const, content: await buildSystemPrompt() },
           ...currentMessages
         ];
       }
@@ -483,7 +489,7 @@ export class PlanExecutor {
       callbacks.setCurrentActivity(activeTodo?.title || 'Working on tasks');
 
       // Build rebuildMessages callback for per-iteration message reconstruction
-      const systemPrompt = buildSystemPrompt();
+      const systemPrompt = await buildSystemPrompt();
       const hasVision = toolRegistry.isToolGroupEnabled('vision');
       const criticalReminders = getCriticalReminders(hasVision, process.cwd(), getWindowsUserDesktopPath() || undefined);
       let baseHistory: Message[] = [...messages]; // messages param = history without current userMessage
