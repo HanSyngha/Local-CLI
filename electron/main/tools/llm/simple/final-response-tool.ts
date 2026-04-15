@@ -1,12 +1,12 @@
 /**
  * Final Response Tool (LLM Simple)
  *
- * LLM이 최종 응답을 전달할 때 사용하는 도구
+ * LLM      
  * CLI parity: src/tools/llm/simple/final-response-tool.ts
  *
- * - 모든 TODO가 완료되어야만 성공
- * - 미완료 TODO가 있으면 에러 반환 (종료 아님, LLM이 다시 시도)
- * - 성공 시 assistant message로 표시
+ * -  TODO  
+ * -  TODO   return ( , LLM  )
+ * -   assistant message 
  */
 
 import type { ToolDefinition } from '../../../core';

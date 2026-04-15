@@ -1,11 +1,11 @@
 /**
  * Tools Index
  *
- * 도구 분류 시스템의 중앙 export
+ *     export
  *
  * Active Categories:
- * 1. LLM Simple Tools - LLM이 tool_call로 호출, Sub-LLM 없음
- * 2. LLM Agent Tools - LLM이 tool_call로 호출, Sub-LLM 사용
+ * 1. LLM Simple Tools - LLM tool_call , Sub-LLM 
+ * 2. LLM Agent Tools - LLM tool_call , Sub-LLM 
  *
  * Usage:
  * - Use toolRegistry for centralized tool access

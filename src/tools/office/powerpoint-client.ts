@@ -95,7 +95,7 @@ $presentation.Slides(${fromIndex}).MoveTo(${toIndex})
     const escapedText = text.replace(/'/g, "''");
 
     // Auto-detect Korean and set font
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const fontName = options?.fontName || (hasKorean ? 'Malgun Gothic' : '');
 
     // IMPORTANT: Set text FIRST, then apply font formatting
@@ -165,7 +165,7 @@ foreach ($shape in $slide.Shapes) {
     const formatCmds: string[] = [];
 
     // Font name (auto-detect Korean if not specified)
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const fontName = options?.fontName || (hasKorean ? 'Malgun Gothic' : undefined);
     if (fontName) formatCmds.push(`$textbox.TextFrame.TextRange.Font.Name = '${fontName}'`);
 
@@ -531,7 +531,7 @@ Remove-Item $tempPath -Force
           const cellValue = row[j];
           if (cellValue === undefined) continue;
           // Check for Korean text in this specific cell
-          const cellHasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(cellValue);
+          const cellHasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(cellValue);
           const val = cellValue.replace(/'/g, "''");
           // IMPORTANT: Set text FIRST, then apply font to prevent garbled Korean
           dataLines.push(`$table.Cell(${i + 1}, ${j + 1}).Shape.TextFrame.TextRange.Text = ('${val}' -replace '\\\\n', [char]10 -replace '\\n', [char]10)`);
@@ -562,7 +562,7 @@ ${dataScript}
     options?: { fontName?: string; fontSize?: number; bold?: boolean; fillColor?: string }
   ): Promise<OfficeResponse> {
     const escapedText = text.replace(/'/g, "''");
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const fontName = options?.fontName || (hasKorean ? 'Malgun Gothic' : '');
 
     // IMPORTANT: Set text FIRST, then apply font formatting to prevent garbled Korean
@@ -1029,7 +1029,7 @@ for ($i = 1; $i -le $presentation.SectionProperties.Count; $i++) {
 
   async powerpointAddNote(slideNumber: number, noteText: string): Promise<OfficeResponse> {
     const escapedText = noteText.replace(/'/g, "''");
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(noteText);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(noteText);
 
     // IMPORTANT: Set text FIRST, then apply font to prevent garbled Korean
     return this.executePowerShell(`
@@ -1482,7 +1482,7 @@ if (Test-Path $userThemesPath) {
     text: string
   ): Promise<OfficeResponse> {
     const escapedText = text.replace(/'/g, "''");
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
 
     // ppPlaceholderType values
     const typeMap: Record<string, number> = {

@@ -1,10 +1,10 @@
 /**
  * Approval Dialog Component
  *
- * Supervised Mode에서 Tool 실행 전 사용자 승인을 요청하는 UI
- * - Approve: 이번 한 번만 승인
- * - Always Approve: 이 세션에서 같은 Tool 항상 승인
- * - Reject: 거부 + AI에게 보낼 코멘트 입력
+ * Supervised Mode Tool      UI
+ * - Approve:    
+ * - Always Approve:    Tool  
+ * - Reject:  + AI   
  */
 
 import React, { useState, useCallback } from 'react';
@@ -81,7 +81,7 @@ function getParamIcon(key: string): string {
 }
 
 /**
- * Approval Dialog - Tool 실행 승인 대화상자
+ * Approval Dialog - Tool   
  */
 export const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
   toolName,
@@ -251,7 +251,7 @@ export const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
       {/* Help */}
       <Box marginTop={1}>
         <Text color="gray" dimColor>
-          ↑↓ 이동 | Enter 선택 | 1-3 번호 선택
+          ↑↓  | Enter  | 1-3  
         </Text>
       </Box>
     </Box>

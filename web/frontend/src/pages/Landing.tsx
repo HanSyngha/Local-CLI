@@ -161,7 +161,7 @@ export default function Landing() {
               onClick={() => i18n.changeLanguage(i18n.language === 'ko' ? 'en' : 'ko')}
               className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors text-[var(--text-secondary)]"
             >
-              {i18n.language === 'ko' ? 'EN' : '한국어'}
+              {i18n.language === 'ko' ? 'EN' : ''}
             </button>
             {isAuthenticated ? (
               <button onClick={() => navigate('/sessions')} className="btn-primary">{t('nav.sessions')}</button>

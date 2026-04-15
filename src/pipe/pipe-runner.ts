@@ -1,12 +1,12 @@
 /**
  * Pipe Runner
  *
- * -p 모드의 핵심 실행 로직
- * Non-interactive: CLI 인자로 프롬프트 받아 처리 후 결과 출력
- * ask_to_user는 Manager LLM이 자동 답변 (Jarvis 방식)
+ * -p    
+ * Non-interactive: CLI       
+ * ask_to_user Manager LLM   (Jarvis )
  *
- * -ps 모드: Full observability — 모든 LLM 호출, tool call, tool result,
- *   에이전트 응답, TODO 진행상황을 stderr에 실시간 출력
+ * -ps : Full observability —  LLM , tool call, tool result,
+ *   agent , TODO  stderr  
  */
 
 import chalk from 'chalk';
@@ -19,7 +19,7 @@ import type { StateCallbacks } from '../orchestration/types.js';
 import { setSubAgentToolCallLogger, setSubAgentPhaseLogger } from '../agents/common/sub-agent.js';
 
 /**
- * stderr에 상세 과정 출력 (stdout은 최종 결과 전용)
+ * stderr    (stdout   dedicated)
  */
 function log(msg: string): void {
   process.stderr.write(msg + '\n');
@@ -76,11 +76,11 @@ export class PipeRunner {
         });
       }
 
-      // 초기화
+      // 
       await configManager.initialize();
 
       if (!configManager.hasEndpoints()) {
-        log(chalk.red('Error: 사용 가능한 모델이 없습니다.'));
+        log(chalk.red('Error:    .'));
         process.exit(1);
       }
 
@@ -95,7 +95,7 @@ export class PipeRunner {
         log(chalk.cyan(`${'═'.repeat(80)}\n`));
       }
 
-      // 실행
+      // 
       const messages: Message[] = [];
       const isInterruptedRef = { current: false };
       const callbacks = this.createCallbacks();
@@ -120,7 +120,7 @@ export class PipeRunner {
         log(chalk.cyan(`${'═'.repeat(80)}\n`));
       }
 
-      // 최종 결과 출력 (stdout)
+      //    (stdout)
       if (this.lastResponse) {
         console.log(this.lastResponse);
       }
@@ -166,7 +166,7 @@ export class PipeRunner {
       setCurrentTodoId: () => {},
       setExecutionPhase: (phase) => {
         if (this.specific && phase === 'planning') {
-          log(chalk.yellow(`\n${ts()} [Planning] TODO 생성 중...`));
+          log(chalk.yellow(`\n${ts()} [Planning] TODO  ...`));
         }
       },
       setIsInterrupted: () => {},
@@ -180,18 +180,18 @@ export class PipeRunner {
         const addedMessages = newMessages.slice(previousMessages.length);
 
         for (const msg of addedMessages) {
-          // Tool call 처리
+          // Tool call 
           if (msg.role === 'assistant' && msg.tool_calls) {
             for (const toolCall of msg.tool_calls) {
               let args: Record<string, unknown> = {};
               try { args = JSON.parse(toolCall.function.arguments); } catch { /* ignore */ }
 
-              // final_response의 message를 lastResponse로 캡처
+              // final_response message lastResponse 
               if (toolCall.function.name === 'final_response' && typeof args['message'] === 'string') {
                 this.lastResponse = args['message'];
               }
 
-              // -ps 모드: tool call 상세 출력
+              // -ps : tool call  
               if (this.specific) {
                 const toolName = toolCall.function.name;
                 const formatted = this.formatToolArgs(toolName, args);
@@ -201,7 +201,7 @@ export class PipeRunner {
             }
           }
 
-          // Tool result 출력 (-ps)
+          // Tool result  (-ps)
           if (this.specific && msg.role === 'tool') {
             const content = msg.content || '';
             const isError = content.startsWith('Error:') || content.startsWith('error:');
@@ -222,7 +222,7 @@ export class PipeRunner {
             }
           }
 
-          // Assistant text 응답 출력 (-ps)
+          // Assistant text   (-ps)
           if (msg.role === 'assistant' && !msg.tool_calls && msg.content) {
             this.lastResponse = msg.content;
             if (this.specific) {
@@ -236,7 +236,7 @@ export class PipeRunner {
 
       setAskUserRequest: () => {},
 
-      // Manager LLM이 Sub-LLM의 질문에 자동 답변 (Jarvis 방식)
+      // Manager LLM Sub-LLM    (Jarvis )
       askUser: async (request) => {
         return this.handleAskUser(request);
       },
@@ -244,12 +244,12 @@ export class PipeRunner {
   }
 
   /**
-   * Manager LLM이 ask_to_user 질문에 자동 답변 (Jarvis 방식)
+   * Manager LLM ask_to_user    (Jarvis )
    */
   private async handleAskUser(request: AskUserRequest): Promise<AskUserResponse> {
     const optionsList = request.options.length > 0
       ? request.options.map((o, i) => `${i + 1}. ${o}`).join('\n')
-      : '(선택지 없음 — 자유 답변)';
+      : '(  —  )';
 
     try {
       const response = await this.llmClient!.chatCompletion({
@@ -263,7 +263,7 @@ Reply in Korean. No explanation, just the answer.`,
           },
           {
             role: 'user',
-            content: `<TASK>\n${this.prompt}\n</TASK>\n\n질문: ${request.question}\n\n선택지:\n${optionsList}`,
+            content: `<TASK>\n${this.prompt}\n</TASK>\n\n: ${request.question}\n\n:\n${optionsList}`,
           },
         ],
         temperature: 0.3,
@@ -374,7 +374,7 @@ Reply in Korean. No explanation, just the answer.`,
 }
 
 /**
- * Pipe 모드 실행 (CLI에서 호출)
+ * Pipe   (CLI )
  */
 export async function runPipeMode(prompt: string, specific: boolean): Promise<void> {
   const runner = new PipeRunner(specific);

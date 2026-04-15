@@ -40,7 +40,7 @@ export function createWordCreateRequestTool(): LLMAgentTool {
     execute: async (args, llmClient) => {
       const instruction = args['instruction'] as string;
       // Detect small page requests to reduce minimum tool calls
-      const isSmallDoc = /(?:한\s*페이지|1\s*페이지|2\s*페이지|1\s*page|2\s*page)/i.test(instruction);
+      const isSmallDoc = /(?:\s*|1\s*|2\s*|1\s*page|2\s*page)/i.test(instruction);
       const agent = new SubAgent(
         llmClient,
         'word-create',

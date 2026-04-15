@@ -1,14 +1,14 @@
 /**
  * LLM Client
  *
- * OpenAI Compatible API 클라이언트
- * Gemini (HTTPS) 및 LiteLLM (HTTP) 지원
+ * OpenAI Compatible API 
+ * Gemini (HTTPS)  LiteLLM (HTTP) won
  *
- * Logger 사용 가이드:
- * - 이 파일은 이미 logger.httpRequest(), logger.httpResponse(), logger.error() 등을 사용 중입니다.
- * - 추가 개선 사항: 주요 public 함수에 logger.enter/exit 추가
- * - 예시: logger.enter('sendMessage', { messageLength: userMessage.length });
- * - 상세한 사용법은 docs/LOGGER_USAGE_KR.md 참고
+ * Logger  :
+ * -    logger.httpRequest(), logger.httpResponse(), logger.error()   .
+ * -   :  public  logger.enter/exit 
+ * - : logger.enter('sendMessage', { messageLength: userMessage.length });
+ * -   docs/LOGGER_USAGE_KR.md 
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
@@ -34,7 +34,7 @@ import { usageTracker } from '../usage-tracker.js';
 import { getJsonStreamLogger } from '../../utils/json-stream-logger.js';
 
 /**
- * LLM 응답 인터페이스 (OpenAI Compatible)
+ * LLM   (OpenAI Compatible)
  */
 export interface LLMResponse {
   id: string;
@@ -56,7 +56,7 @@ export interface LLMResponse {
 }
 
 /**
- * 스트리밍 청크 인터페이스
+ *   
  */
 export interface LLMStreamChunk {
   id: string;
@@ -75,21 +75,21 @@ export interface LLMStreamChunk {
 }
 
 /**
- * 재시도 설정 인터페이스
+ *   
  */
 export interface RetryConfig {
-  /** 최대 재시도 횟수 (기본값: 3) */
+  /**    (: 3) */
   maxRetries?: number;
-  /** 현재 시도 횟수 (내부용) */
+  /**    () */
   currentAttempt?: number;
-  /** 재시도 비활성화 여부 */
+  /**    */
   disableRetry?: boolean;
-  /** 확장 retry (2분 대기 + Phase 3) 이미 수행됨 — 무한 루프 방지 (내부용) */
+  /**  retry (2  + Phase 3)   —    () */
   extendedRetryDone?: boolean;
 }
 
 /**
- * LLM Client 클래스
+ * LLM Client 
  */
 export class LLMClient {
   private axiosInstance: AxiosInstance;
@@ -101,14 +101,14 @@ export class LLMClient {
   private currentAbortController: AbortController | null = null;
   private isInterrupted: boolean = false;
 
-  /** 카운트다운 콜백 — UI에서 대기 시간 표시용 */
+  /**   — UI    */
   public countdownCallback: ((remainingSeconds: number) => void) | null = null;
 
-  /** 기본 최대 재시도 횟수 */
+  /**     */
   private static readonly DEFAULT_MAX_RETRIES = 3;
 
   constructor() {
-    // ConfigManager에서 현재 설정 가져오기
+    // ConfigManager   
     const endpoint = configManager.getCurrentEndpoint();
     const currentModel = configManager.getCurrentModel();
 
@@ -122,14 +122,14 @@ export class LLMClient {
     this.modelName = currentModel.name;
     this.provider = endpoint.provider || 'other';
 
-    // Axios 인스턴스 생성
+    // Axios  
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
       headers: {
         'Content-Type': 'application/json',
         ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
       },
-      timeout: 600000, // 600초 (10분)
+      timeout: 600000, // 600 (10)
     });
   }
 
@@ -209,8 +209,8 @@ export class LLMClient {
   }
 
   /**
-   * Chat Completion API 호출 (Non-streaming)
-   * 기본적으로 3번까지 재시도하며, 재시도 중에는 에러가 UI에 표시되지 않음
+   * Chat Completion API  (Non-streaming)
+   *  3 ,    UI  
    */
   async chatCompletion(
     options: Partial<LLMRequestOptions>,
@@ -230,7 +230,7 @@ export class LLMClient {
     const url = '/chat/completions';
 
     try {
-      logger.flow('메시지 전처리 시작');
+      logger.flow('  ');
       // Preprocess messages for model-specific requirements
       const modelId = options.model || this.model;
       const processedMessages = options.messages ?
@@ -264,7 +264,7 @@ export class LLMClient {
         }),
       };
 
-      logger.flow('API 요청 준비 완료');
+      logger.flow('API   ');
 
       // Log request
       logger.httpRequest('POST', `${this.baseUrl}${url}`, {
@@ -276,7 +276,7 @@ export class LLMClient {
 
       logger.verbose('Full Request Body', requestBody);
 
-      // LLM Log mode: 요청 로깅
+      // LLM Log mode:  
       if (isLLMLogEnabled()) {
         logger.llmRequest(processedMessages, modelId, options.tools);
       }
@@ -293,12 +293,12 @@ export class LLMClient {
       this.currentAbortController = null;
       const elapsed = logger.endTimer('llm-api-call');
 
-      logger.flow('API 응답 수신 완료');
+      logger.flow('API   ');
 
       // Validate response structure
       if (!response.data.choices || !Array.isArray(response.data.choices)) {
         logger.error('Invalid response structure - missing choices array', response.data);
-        throw new Error('LLM 응답 형식이 올바르지 않습니다. choices 배열이 없습니다.');
+        throw new Error('LLM    . choices  .');
       }
 
       // Log response
@@ -315,7 +315,7 @@ export class LLMClient {
         { name: 'responseTime', value: elapsed }
       );
 
-      // LLM Log mode: 응답 로깅
+      // LLM Log mode:  
       if (isLLMLogEnabled()) {
         const responseContent = response.data.choices[0]?.message?.content || '';
         const toolCalls = response.data.choices[0]?.message?.tool_calls;
@@ -354,16 +354,16 @@ export class LLMClient {
 
       // Check if this was an abort/cancel
       if (axios.isCancel(error) || (error instanceof Error && error.name === 'CanceledError')) {
-        logger.flow('API 호출 취소됨 (사용자 인터럽트)');
+        logger.flow('API   ( )');
         logger.exit('chatCompletion', { success: false, aborted: true });
         throw new Error('INTERRUPTED');
       }
 
-      // 재시도 가능한 에러이고, 아직 재시도 횟수가 남아있으면 재시도
+      //   ,     
       if (currentAttempt < maxRetries && this.isRetryableError(error)) {
-        // 재시도 중에는 debug 레벨로만 로깅 (UI에 표시 안됨)
-        const delay = Math.pow(2, currentAttempt - 1) * 1000; // 지수 백오프: 1s, 2s, 4s
-        logger.debug(`LLM 호출 실패 (${currentAttempt}/${maxRetries}), ${delay}ms 후 재시도...`, {
+        //   debug   (UI  )
+        const delay = Math.pow(2, currentAttempt - 1) * 1000; //  : 1s, 2s, 4s
+        logger.debug(`LLM   (${currentAttempt}/${maxRetries}), ${delay}ms  ...`, {
           error: (error as Error).message,
           attempt: currentAttempt,
           maxRetries,
@@ -372,30 +372,30 @@ export class LLMClient {
 
         await this.sleep(delay);
 
-        // 재귀적으로 재시도
+        //  
         return this.chatCompletion(options, {
           maxRetries,
           currentAttempt: currentAttempt + 1,
         });
       }
 
-      // Phase 1 (3회) 실패 → Phase 2 (2분 대기) → Phase 3 (3회 추가 retry)
-      // 단, retryable 에러이고 retry가 활성화되고 확장 retry가 아직 수행되지 않은 경우에만
+      // Phase 1 (3)  → Phase 2 (2 ) → Phase 3 (3  retry)
+      // , retryable  retry   retry    
       if (currentAttempt >= maxRetries && !retryConfig?.disableRetry && !retryConfig?.extendedRetryDone && this.isRetryableError(error)) {
-        logger.warn(`Phase 1 (${maxRetries}회) 실패. 2분 대기 후 Phase 2 시작...`, {
+        logger.warn(`Phase 1 (${maxRetries}) . 2   Phase 2 ...`, {
           error: (error as Error).message,
         });
 
-        // 2분 카운트다운 대기 (10초마다 콜백)
+        // 2   (10 )
         const waited = await this.waitWithCountdown(120);
         if (!waited) {
-          // 인터럽트됨 — throw
-          logger.flow('카운트다운 중 인터럽트 감지');
+          //  — throw
+          logger.flow('   ');
           throw new Error('INTERRUPTED');
         }
 
-        // Phase 3: 3회 추가 retry (재귀 호출, extendedRetryDone=true로 무한 루프 방지)
-        logger.warn('Phase 2 (2분 대기) 완료. Phase 3 (3회 추가 retry) 시작...');
+        // Phase 3: 3  retry ( , extendedRetryDone=true   )
+        logger.warn('Phase 2 (2 ) . Phase 3 (3  retry) ...');
         try {
           return await this.chatCompletion(options, {
             maxRetries,
@@ -403,24 +403,24 @@ export class LLMClient {
             extendedRetryDone: true,
           });
         } catch (phase3Error) {
-          // Phase 3도 실패 → LLMRetryExhaustedError throw
+          // Phase 3  → LLMRetryExhaustedError throw
           const finalError = phase3Error instanceof Error ? phase3Error : new Error(String(phase3Error));
-          // INTERRUPTED는 그대로 전파
+          // INTERRUPTED  
           if (finalError.message === 'INTERRUPTED') {
             throw finalError;
           }
-          logger.error('Phase 3 (추가 3회) 실패. 최종 LLMRetryExhaustedError throw.', {
+          logger.error('Phase 3 ( 3) .  LLMRetryExhaustedError throw.', {
             error: finalError.message,
           });
           throw new LLMRetryExhaustedError(finalError);
         }
       }
 
-      // 최종 실패: 에러 로깅 및 throw
-      logger.flow('API 호출 실패 - 에러 처리');
+      //  :    throw
+      logger.flow('API   -  ');
       if (currentAttempt > 1) {
-        // 재시도 후 최종 실패한 경우에만 에러 로그 표시
-        logger.error(`LLM 호출 ${maxRetries}번 재시도 후 최종 실패`, {
+        //        
+        logger.error(`LLM  ${maxRetries}    `, {
           error: (error as Error).message,
           attempts: currentAttempt
         });
@@ -440,7 +440,7 @@ export class LLMClient {
    * Abort current LLM request and set interrupt flag (for ESC interrupt)
    */
   abort(): void {
-    logger.flow('LLM 인터럽트 - 모든 동작 중단');
+    logger.flow('LLM  -   ');
     this.isInterrupted = true;
 
     if (this.currentAbortController) {
@@ -471,14 +471,14 @@ export class LLMClient {
   }
 
   /**
-   * 재시도 가능한 에러인지 확인
-   * - 5xx 서버 에러
-   * - 네트워크 에러 (ECONNREFUSED, ETIMEDOUT, ECONNRESET 등)
+   *    
+   * - 5xx  
+   * -   (ECONNREFUSED, ETIMEDOUT, ECONNRESET )
    * - Rate Limit (429)
-   * - Tool argument 파싱 에러는 재시도하지 않음 (LLM 응답 문제)
+   * - Tool argument     (LLM  )
    */
   private isRetryableError(error: unknown): boolean {
-    // 사용자 인터럽트는 재시도하지 않음
+    //    
     if (error instanceof Error && error.message === 'INTERRUPTED') {
       return false;
     }
@@ -486,17 +486,17 @@ export class LLMClient {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
 
-      // 네트워크 에러 (응답 없음)
+      //   ( )
       if (!axiosError.response) {
         const retryableCodes = ['ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET', 'ECONNABORTED', 'ENOTFOUND', 'EHOSTUNREACH'];
         if (axiosError.code && retryableCodes.includes(axiosError.code)) {
           return true;
         }
-        // 타임아웃
+        // 
         if (axiosError.message.includes('timeout')) {
           return true;
         }
-        return true; // 기타 네트워크 에러도 재시도
+        return true; //    
       }
 
       const status = axiosError.response.status;
@@ -506,32 +506,32 @@ export class LLMClient {
         return true;
       }
 
-      // 서버 에러 (5xx)
+      //   (5xx)
       if (status >= 500) {
         return true;
       }
 
-      // 인증/권한 에러는 재시도하지 않음 (401, 403)
-      // 잘못된 요청도 재시도하지 않음 (400)
-      // Context Length 초과도 재시도하지 않음
+      // /    (401, 403)
+      //     (400)
+      // Context Length   
       return false;
     }
 
-    // 기타 에러는 재시도하지 않음
+    //    
     return false;
   }
 
   /**
-   * 지정된 시간만큼 대기 (재시도용)
+   *    ()
    */
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
-   * 카운트다운 대기 (확장 retry Phase 2)
-   * @param totalSeconds 총 대기 시간 (초)
-   * @returns true: 정상 완료, false: 인터럽트됨
+   *   ( retry Phase 2)
+   * @param totalSeconds    ()
+   * @returns true:  , false: 
    */
   private async waitWithCountdown(totalSeconds: number): Promise<boolean> {
     for (let remaining = totalSeconds; remaining > 0; remaining -= 10) {
@@ -550,7 +550,7 @@ export class LLMClient {
   }
 
   /**
-   * Chat Completion API 호출 (Streaming)
+   * Chat Completion API  (Streaming)
    */
   async *chatCompletionStream(
     options: Partial<LLMRequestOptions>
@@ -605,7 +605,7 @@ export class LLMClient {
         sl?.log({ timestamp: new Date().toISOString(), type: 'http_event', content: `Stream started (status: ${response.status})`, category: 'http', metadata: { model: this.model } });
       }
 
-      // SSE (Server-Sent Events) 파싱
+      // SSE (Server-Sent Events) 
       const stream = response.data as AsyncIterable<Buffer>;
       let buffer = '';
       let chunkCount = 0;
@@ -644,7 +644,7 @@ export class LLMClient {
 
                 yield data;
               } catch (parseError) {
-                // JSON 파싱 에러 무시 (불완전한 청크)
+                // JSON    ( )
                 logger.debug('Skipping invalid chunk', { line: trimmed });
                 continue;
               }
@@ -674,7 +674,7 @@ export class LLMClient {
   }
 
   /**
-   * 간단한 채팅 메시지 전송 (헬퍼 메서드)
+   *     ( )
    */
   async sendMessage(userMessage: string, systemPrompt?: string): Promise<string> {
     logger.enter('sendMessage', {
@@ -682,7 +682,7 @@ export class LLMClient {
       hasSystemPrompt: !!systemPrompt
     });
 
-    logger.flow('메시지 배열 구성');
+    logger.flow('  ');
     const messages: Message[] = [];
 
     if (systemPrompt) {
@@ -703,16 +703,16 @@ export class LLMClient {
       { name: 'userMessage', value: userMessage.substring(0, 100) + (userMessage.length > 100 ? '...' : '') }
     );
 
-    logger.flow('LLM API 호출');
+    logger.flow('LLM API ');
     logger.startTimer('sendMessage-api');
 
     const response = await this.chatCompletion({ messages });
 
     const elapsed = logger.endTimer('sendMessage-api');
 
-    logger.flow('응답 처리');
+    logger.flow(' ');
     if (response.choices.length === 0) {
-      logger.flow('응답 없음 - 에러 발생');
+      logger.flow('  -  ');
       logger.exit('sendMessage', { success: false, reason: 'No response from LLM' });
       throw new Error('No response from LLM');
     }
@@ -734,7 +734,7 @@ export class LLMClient {
   }
 
   /**
-   * 스트리밍 채팅 메시지 전송
+   *    
    */
   async *sendMessageStream(
     userMessage: string,
@@ -763,15 +763,15 @@ export class LLMClient {
   }
 
   /**
-   * Chat Completion with Tools (대화 히스토리 유지)
-   * Interactive Mode에서 사용 - 전체 대화 히스토리와 함께 tool calling 지원
+   * Chat Completion with Tools (  )
+   * Interactive Mode  -     tool calling won
    * No iteration limit - continues until LLM stops calling tools
    *
-   * @param messages - 대화 히스토리
-   * @param tools - 사용 가능한 도구들
-   * @param options - 추가 옵션
-   * @param options.getPendingMessage - 대기 중인 user message를 가져오는 콜백
-   * @param options.clearPendingMessage - 대기 중인 message를 처리 후 클리어하는 콜백
+   * @param messages -  
+   * @param tools -   
+   * @param options -  
+   * @param options.getPendingMessage -   user message  
+   * @param options.clearPendingMessage -   message    
    */
   async chatCompletionWithTools(
     messages: Message[],
@@ -779,11 +779,11 @@ export class LLMClient {
     options?: {
       getPendingMessage?: () => string | null;
       clearPendingMessage?: () => void;
-      /** 매 iteration마다 messages를 재구성하는 콜백. tool loop 내 메시지를 받아 [system, user] 형태로 반환 */
+      /**  iteration messages  . tool loop    [system, user]  return */
       rebuildMessages?: (toolLoopMessages: Message[]) => Message[];
-      /** 매 tool 실행 후 호출. auto-compact 등 후처리 수행. toolLoopMessages를 in-place 수정 가능 */
+      /**  tool   . auto-compact   . toolLoopMessages in-place   */
       onAfterToolExecution?: (toolLoopMessages: Message[]) => Promise<void>;
-      /** ask_to_user 도구 직접 처리 콜백 — 전역 callback 대신 사용 */
+      /** ask_to_user     —  callback   */
       askUser?: (request: { question: string; options: string[] }) => Promise<{ selectedOption: string; isOther: boolean; customText?: string }>;
     }
   ): Promise<{
@@ -792,7 +792,7 @@ export class LLMClient {
     allMessages: Message[];
   }> {
     let workingMessages = [...messages];
-    const toolLoopMessages: Message[] = []; // Tool loop에서 생긴 메시지 추적 (rebuildMessages 모드용)
+    const toolLoopMessages: Message[] = []; // Tool loop    (rebuildMessages )
     const toolCallHistory: Array<{ tool: string; args: unknown; result: string }> = [];
     let iterations = 0;
     let contextLengthRecoveryAttempted = false;  // Prevent infinite recovery loop
@@ -818,7 +818,7 @@ export class LLMClient {
       });
     };
 
-    // Helper: workingMessages와 toolLoopMessages에 동시 추가
+    // Helper: workingMessages toolLoopMessages  
     const addMessage = (msg: Message) => {
       workingMessages.push(msg);
       if (options?.rebuildMessages) {
@@ -826,7 +826,7 @@ export class LLMClient {
       }
     };
 
-    // Helper: 반환용 allMessages 선택 (rebuildMessages 모드면 loop 메시지만, 아니면 전체)
+    // Helper: return allMessages  (rebuildMessages  loop ,  )
     const getAllMessages = () => {
       return options?.rebuildMessages
         ? stripParseFailures(toolLoopMessages)
@@ -842,8 +842,8 @@ export class LLMClient {
 
       iterations++;
 
-      // rebuildMessages 모드: 매 iteration마다 messages 재구성
-      // 최신 TODO 상태, 전체 대화 history + tool loop messages를 포함
+      // rebuildMessages :  iteration messages 
+      //  TODO ,   history + tool loop messages 
       if (options?.rebuildMessages) {
         workingMessages = options.rebuildMessages(toolLoopMessages);
       }
@@ -854,7 +854,7 @@ export class LLMClient {
         if (pendingMsg) {
           logger.flow('Injecting pending user message into conversation');
           if (options?.rebuildMessages) {
-            // rebuildMessages 모드: toolLoopMessages에 추가 후 다시 rebuild
+            // rebuildMessages : toolLoopMessages    rebuild
             toolLoopMessages.push({ role: 'user' as const, content: pendingMsg });
             workingMessages = options.rebuildMessages(toolLoopMessages);
           } else {
@@ -864,7 +864,7 @@ export class LLMClient {
         }
       }
 
-      // LLM 호출 (tools 포함) - with ContextLengthError recovery
+      // LLM  (tools ) - with ContextLengthError recovery
       // tool_choice: 'required' forces LLM to always use a tool (use final_response for final answer)
       let response: LLMResponse;
       try {
@@ -880,8 +880,8 @@ export class LLMClient {
           logger.flow('ContextLengthError detected - attempting recovery');
 
           if (options?.rebuildMessages) {
-            // rebuildMessages 모드: toolLoopMessages에서 마지막 tool group 롤백
-            // 다음 iteration에서 rebuild 시 자연스럽게 context가 줄어듦
+            // rebuildMessages : toolLoopMessages  tool group 
+            //  iteration rebuild   context 
             let rollbackIdx = toolLoopMessages.length - 1;
             while (rollbackIdx >= 0 && toolLoopMessages[rollbackIdx]?.role === 'tool') {
               rollbackIdx--;
@@ -890,11 +890,11 @@ export class LLMClient {
               toolLoopMessages.length = rollbackIdx;
               logger.debug('Rolled back toolLoopMessages', { newLength: toolLoopMessages.length });
             }
-            // 다음 iteration에서 rebuild로 재시도
+            //  iteration rebuild 
             continue;
           }
 
-          // 기존 모드: workingMessages rollback + compact
+          //  : workingMessages rollback + compact
           logger.flow('Attempting recovery with compact');
 
           // Rollback: remove last tool results and assistant message with tool_calls
@@ -951,13 +951,13 @@ export class LLMClient {
 
       const choice = response.choices[0];
       if (!choice) {
-        throw new Error('응답에서 choice를 찾을 수 없습니다.');
+        throw new Error(' choice   .');
       }
 
       const assistantMessage = choice.message;
       addMessage(assistantMessage);
 
-      // Tool calls 확인
+      // Tool calls 
       if (assistantMessage.tool_calls && assistantMessage.tool_calls.length > 0) {
         const streamLogger = getJsonStreamLogger();
         streamLogger?.log({
@@ -977,7 +977,7 @@ export class LLMClient {
           assistantMessage.tool_calls = [assistantMessage.tool_calls[0]!];
         }
 
-        // Tool call 실행 (single tool per turn enforced)
+        // Tool call  (single tool per turn enforced)
         for (const toolCall of assistantMessage.tool_calls!) {
           // Sanitize tool name: strip <|...|> special tokens and trailing garbage
           const rawToolName = toolCall.function.name;
@@ -1021,7 +1021,7 @@ export class LLMClient {
               rawArguments: typeof toolCall.function.arguments === 'string' ? toolCall.function.arguments.substring(0, 500) : undefined,
             }).catch(() => {});
 
-            // 3회 연속 parse 실패 시 강제 종료
+            // 3  parse    
             if (consecutiveParseFailures >= MAX_CONSECUTIVE_PARSE_FAILURES) {
               logger.error('[ABORT] Tool argument parse failed 3 times consecutively. Model may not support JSON function calling.');
               const abortMsg = 'I cannot generate valid JSON tool arguments. Please try a different model that supports JSON function calling.';
@@ -1037,7 +1037,7 @@ export class LLMClient {
               };
             }
 
-            // LLM에게 구체적 피드백 — raw input + 실패 원인 + 올바른 형식 안내
+            // LLM   — raw input +  won +   
             const rawArgs = toolCall.function.arguments;
             const rawPreview = typeof rawArgs === 'string' ? rawArgs.substring(0, 300) : String(rawArgs);
             const hintMsg = `Error: Failed to parse tool arguments for "${toolName}".
@@ -1077,13 +1077,13 @@ Do NOT use XML tags like <arg_key> or <arg_value>. Retry with valid JSON.`;
             continue;
           }
 
-          // Schema validation: required 파라미터 누락 및 타입 불일치 검증
+          // Schema validation: required      
           const toolDef = tools.find(t => t.function.name === toolName);
           if (toolDef?.function.parameters) {
             const schema = toolDef.function.parameters;
             const schemaErrors: string[] = [];
 
-            // 1. required 파라미터 누락 체크
+            // 1. required   
             if (schema.required) {
               for (const req of schema.required) {
                 if (toolArgs[req] === undefined || toolArgs[req] === null) {
@@ -1093,7 +1093,7 @@ Do NOT use XML tags like <arg_key> or <arg_value>. Retry with valid JSON.`;
               }
             }
 
-            // 2. 제공된 파라미터 타입 불일치 체크
+            // 2.     
             for (const [key, value] of Object.entries(toolArgs)) {
               const propDef = schema.properties[key] as { type?: string } | undefined;
               if (propDef?.type && value !== null && value !== undefined) {
@@ -1108,7 +1108,7 @@ Do NOT use XML tags like <arg_key> or <arg_value>. Retry with valid JSON.`;
               consecutiveParseFailures++;
               parseFailureToolCallIds.add(toolCall.id);
 
-              // 3회 연속 실패 시 abort
+              // 3    abort
               if (consecutiveParseFailures >= MAX_CONSECUTIVE_PARSE_FAILURES) {
                 const abortMsg = 'Cannot generate valid tool arguments. Please try a different model.';
                 addMessage({ role: 'tool', content: schemaErrors.join('\n'), tool_call_id: toolCall.id });
@@ -1119,7 +1119,7 @@ Do NOT use XML tags like <arg_key> or <arg_value>. Retry with valid JSON.`;
                 };
               }
 
-              // 구체적 피드백: 어떤 파라미터가 잘못됐는지 + 올바른 스키마 안내
+              //  :    +   
               const requiredList = (schema.required || [])
                 .map(r => {
                   const p = schema.properties[r] as { type?: string } | undefined;
@@ -1140,10 +1140,10 @@ Retry with correct parameter names and types.`;
             }
           }
 
-          // JSON parse + schema validation 모두 통과 → 연속 실패 카운터 리셋
+          // JSON parse + schema validation   →    
           consecutiveParseFailures = 0;
 
-          // tell_to_user 연속 호출 감지 — 무한루프 방지
+          // tell_to_user    —  
           if (toolName === 'tell_to_user') {
             consecutiveTellToUserCalls++;
             logger.info('[CHAT] tell_to_user called', {
@@ -1173,11 +1173,11 @@ Retry with correct parameter names and types.`;
               continue;
             }
           } else {
-            // 다른 tool 호출 시 카운터 리셋
+            //  tool    
             consecutiveTellToUserCalls = 0;
           }
 
-          // Tool 실행
+          // Tool 
           const { executeFileTool, executeAgentTool, requestToolApproval } = await import('../../tools/llm/simple/file-tools.js');
           const { isLLMAgentTool: checkAgentTool } = await import('../../tools/types.js');
           const { toolRegistry: registry } = await import('../../tools/registry.js');
@@ -1256,7 +1256,7 @@ Retry with correct parameter names and types.`;
             }
             logger.toolExecution(toolName, toolArgs, result);
 
-            // LLM Log mode: Tool 결과 로깅
+            // LLM Log mode: Tool  
             if (isLLMLogEnabled()) {
               logger.llmToolResult(toolName, result.result || '', result.success);
             }
@@ -1318,7 +1318,7 @@ Retry with correct parameter names and types.`;
             logger.toolExecution(toolName, toolArgs, undefined, toolError as Error);
             reportError(toolError, { type: 'toolExecution', tool: toolName, modelId: this.model, modelName: this.modelName, toolArgs }).catch(() => {});
 
-            // LLM Log mode: Tool 에러 로깅
+            // LLM Log mode: Tool  
             if (isLLMLogEnabled()) {
               const errorMsg = toolError instanceof Error ? toolError.message : String(toolError);
               logger.llmToolResult(toolName, `Error: ${errorMsg}`, false);
@@ -1331,14 +1331,14 @@ Retry with correct parameter names and types.`;
           }
           } // close else (ask_to_user special handling)
 
-          // 결과를 메시지에 추가
+          //   
           addMessage({
             role: 'tool',
             content: result.success ? result.result || '' : `Error: ${result.error}`,
             tool_call_id: toolCall.id,
           });
 
-          // 히스토리에 추가
+          //  
           toolCallHistory.push({
             tool: toolName,
             args: toolArgs,
@@ -1357,12 +1357,12 @@ Retry with correct parameter names and types.`;
           await options.onAfterToolExecution(toolLoopMessages);
         }
 
-        // Tool 실행 완료 - 계속해서 LLM 호출 (continue)
-        // LLM이 finish_reason: stop을 반환할 때까지 루프 계속
+        // Tool   -  LLM  (continue)
+        // LLM finish_reason: stop return   
         continue;
       } else {
-        // Tool call 없음 - tool call 강제
-        // LLM은 반드시 tool을 사용해야 함 (final_response 포함)
+        // Tool call  - tool call 
+        // LLM  tool   (final_response )
         noToolCallRetries++;
         logger.flow(`No tool call - enforcing tool usage (attempt ${noToolCallRetries}/${MAX_NO_TOOL_CALL_RETRIES})`);
 
@@ -1422,7 +1422,7 @@ Retry with correct parameter names and types.`;
   }
 
   /**
-   * 현재 모델 정보 가져오기
+   *    
    */
   getModelInfo(): { model: string; endpoint: string } {
     return {
@@ -1497,8 +1497,8 @@ Retry with correct parameter names and types.`;
         logger.httpResponse(status, axiosError.response.statusText, data);
 
         // Context length exceeded (OpenAI standard + Dashboard proxy format)
-        // errorType 조건을 제거: Dashboard 프록시가 비표준 포맷을 반환할 수 있음
-        // (error가 object가 아닌 string이면 errorType이 'unknown'이 됨)
+        // errorType  : Dashboard    return  
+        // (error object  string errorType 'unknown' )
         if (
           status === 400 &&
           (errorMessage.includes('context_length_exceeded') ||
@@ -1582,7 +1582,7 @@ Retry with correct parameter names and types.`;
           });
 
           return new APIError(
-            `인증 실패: ${errorMessage}`,
+            ` : ${errorMessage}`,
             status,
             this.baseUrl,
             {
@@ -1593,7 +1593,7 @@ Retry with correct parameter names and types.`;
                 fullError: data,
               },
               isRecoverable: false,
-              userMessage: `API 키가 유효하지 않습니다. 설정을 확인해주세요.\n상세: ${errorMessage}`,
+              userMessage: `API   .  .\n: ${errorMessage}`,
             }
           );
         }
@@ -1606,7 +1606,7 @@ Retry with correct parameter names and types.`;
           });
 
           return new APIError(
-            `접근 거부: ${errorMessage}`,
+            ` : ${errorMessage}`,
             status,
             this.baseUrl,
             {
@@ -1628,7 +1628,7 @@ Retry with correct parameter names and types.`;
           });
 
           return new APIError(
-            `엔드포인트를 찾을 수 없습니다: ${errorMessage}`,
+            `   : ${errorMessage}`,
             status,
             this.baseUrl,
             {
@@ -1638,7 +1638,7 @@ Retry with correct parameter names and types.`;
                 fullError: data,
               },
               isRecoverable: false,
-              userMessage: `API 엔드포인트가 존재하지 않습니다.\nURL: ${this.baseUrl}${requestContext?.url || ''}\n상세: ${errorMessage}`,
+              userMessage: `API   .\nURL: ${this.baseUrl}${requestContext?.url || ''}\n: ${errorMessage}`,
             }
           );
         }
@@ -1652,7 +1652,7 @@ Retry with correct parameter names and types.`;
           });
 
           return new APIError(
-            `서버 에러 (${status}): ${errorMessage}`,
+            `  (${status}): ${errorMessage}`,
             status,
             this.baseUrl,
             {
@@ -1675,7 +1675,7 @@ Retry with correct parameter names and types.`;
         });
 
         return new APIError(
-          `API 에러 (${status}): ${errorMessage}`,
+          `API  (${status}): ${errorMessage}`,
           status,
           this.baseUrl,
           {
@@ -1685,7 +1685,7 @@ Retry with correct parameter names and types.`;
               errorCode,
               fullError: data,
             },
-            userMessage: `API 요청 실패 (${status}):\n${errorMessage}\n\n에러 타입: ${errorType}\n에러 코드: ${errorCode}`,
+            userMessage: `API   (${status}):\n${errorMessage}\n\n : ${errorType}\n : ${errorCode}`,
           }
         );
 
@@ -1712,20 +1712,20 @@ Retry with correct parameter names and types.`;
               code: errorCode,
               message: axiosError.message,
             },
-            userMessage: `서버에 연결할 수 없습니다.\n엔드포인트: ${this.baseUrl}\n에러 코드: ${errorCode}\n상세: ${axiosError.message}\n\n네트워크 연결과 엔드포인트 URL을 확인해주세요.`,
+            userMessage: `   .\n: ${this.baseUrl}\n : ${errorCode}\n: ${axiosError.message}\n\n   URL .`,
           });
         }
 
         // General network error
         return new NetworkError(
-          `네트워크 에러: ${axiosError.message}`,
+          ` : ${axiosError.message}`,
           {
             cause: axiosError,
             details: {
               code: errorCode,
               endpoint: this.baseUrl,
             },
-            userMessage: `네트워크 연결 실패.\n엔드포인트: ${this.baseUrl}\n에러: ${axiosError.message}`,
+            userMessage: `  .\n: ${this.baseUrl}\n: ${axiosError.message}`,
           }
         );
       }
@@ -1737,7 +1737,7 @@ Retry with correct parameter names and types.`;
       });
 
       return new LLMError(
-        `LLM 클라이언트 에러: ${axiosError.message}`,
+        `LLM  : ${axiosError.message}`,
         {
           cause: axiosError,
           details: {
@@ -1751,35 +1751,35 @@ Retry with correct parameter names and types.`;
     if (error instanceof Error) {
       logger.error('Unexpected Error', error);
       return new LLMError(
-        `예상치 못한 에러: ${error.message}`,
+        `  : ${error.message}`,
         {
           cause: error,
-          userMessage: `오류가 발생했습니다:\n${error.message}\n\n스택:\n${error.stack}`,
+          userMessage: ` :\n${error.message}\n\n:\n${error.stack}`,
         }
       );
     }
 
     // Unknown error type
     logger.error('Unknown Error Type', { error });
-    return new LLMError('알 수 없는 에러가 발생했습니다.', {
+    return new LLMError('    .', {
       details: { unknownError: error },
     });
   }
 
   /**
-   * 재시도 로직이 포함된 Chat Completion
-   * @deprecated chatCompletion이 이제 기본적으로 재시도를 수행합니다
+   *    Chat Completion
+   * @deprecated chatCompletion    
    */
   async chatCompletionWithRetry(
     options: Partial<LLMRequestOptions>,
     maxRetries = 3
   ): Promise<LLMResponse> {
-    // chatCompletion이 이제 내부적으로 재시도를 수행하므로 직접 호출
+    // chatCompletion      
     return this.chatCompletion(options, { maxRetries });
   }
 
   /**
-   * 현재 설정된 엔드포인트 Health Check
+   *    Health Check
    */
   async healthCheck(): Promise<{
     success: boolean;
@@ -1824,7 +1824,7 @@ Retry with correct parameter names and types.`;
   }
 
   /**
-   * 모든 등록된 엔드포인트 일괄 Health Check
+   *     Health Check
    */
   static async healthCheckAll(): Promise<
     Map<string, { modelId: string; healthy: boolean; latency?: number; error?: string }[]>
@@ -1857,7 +1857,7 @@ Retry with correct parameter names and types.`;
               'Content-Type': 'application/json',
               ...(endpoint.apiKey && { Authorization: `Bearer ${endpoint.apiKey}` }),
             },
-            timeout: 30000, // 30초 타임아웃
+            timeout: 30000, // 30 
           });
 
           const response = await axiosInstance.post<LLMResponse>('/chat/completions', {
@@ -1908,8 +1908,8 @@ Retry with correct parameter names and types.`;
   }
 
   /**
-   * 엔드포인트 연결 테스트 (Static)
-   * config init 시 사용하기 위한 정적 메서드
+   *    (Static)
+   * config init     
    */
   static async testConnection(
     baseUrl: string,
@@ -1925,10 +1925,10 @@ Retry with correct parameter names and types.`;
           'Content-Type': 'application/json',
           ...(apiKey && { Authorization: `Bearer ${apiKey}` }),
         },
-        timeout: 60000, // 60초 타임아웃
+        timeout: 60000, // 60 
       });
 
-      // 간단한 테스트 메시지로 연결 확인
+      //     
       const response = await axiosInstance.post<LLMResponse>('/chat/completions', {
         model: model,
         messages: [
@@ -1944,7 +1944,7 @@ Retry with correct parameter names and types.`;
       if (response.status === 200 && response.data.choices?.[0]?.message) {
         return { success: true, latency };
       } else {
-        return { success: false, latency, error: '유효하지 않은 응답 형식' };
+        return { success: false, latency, error: '   ' };
       }
     } catch (error) {
       const latency = Date.now() - startTime;
@@ -1956,24 +1956,24 @@ Retry with correct parameter names and types.`;
         const message = data?.error?.message || axiosError.message;
 
         if (status === 401) {
-          return { success: false, latency, error: 'API 키가 유효하지 않습니다.' };
+          return { success: false, latency, error: 'API   .' };
         } else if (status === 404) {
-          return { success: false, latency, error: '엔드포인트 또는 모델을 찾을 수 없습니다.' };
+          return { success: false, latency, error: '     .' };
         } else {
-          return { success: false, latency, error: `API 에러 (${status}): ${message}` };
+          return { success: false, latency, error: `API  (${status}): ${message}` };
         }
       } else if (axiosError.request) {
-        return { success: false, latency, error: `네트워크 에러: 엔드포인트에 연결할 수 없습니다.` };
+        return { success: false, latency, error: ` :    .` };
       } else {
-        return { success: false, latency, error: axiosError.message || '알 수 없는 에러' };
+        return { success: false, latency, error: axiosError.message || '   ' };
       }
     }
   }
 }
 
 /**
- * LLMClient 싱글톤 인스턴스
- * ConfigManager가 초기화된 후 사용 가능
+ * LLMClient singleton 
+ * ConfigManager    
  */
 export function createLLMClient(): LLMClient {
   return new LLMClient();

@@ -1,10 +1,10 @@
 /**
  * IPC Handlers for Electron Main Process
- * - 파일 열기/저장 다이얼로그
- * - 폴더 선택 다이얼로그
- * - CLI 재시작 기능
- * - 현재 작업 디렉토리 변경
- * - 로그 관련 기능
+ * -  / 
+ * -   
+ * - CLI  
+ * -  task  
+ * -   
  */
 
 import { ipcMain, dialog, shell, app, BrowserWindow, nativeTheme } from 'electron';
@@ -41,13 +41,13 @@ import { workerManager } from './workers/worker-manager';
 import { toolRegistry } from './tools/registry';
 import { emitToCLI } from './cli-server-bridge';
 
-// 파일 필터 타입
+//   
 interface FileFilter {
   name: string;
   extensions: string[];
 }
 
-// 다이얼로그 결과 타입
+//   
 interface DialogResult {
   success: boolean;
   canceled: boolean;
@@ -56,19 +56,19 @@ interface DialogResult {
   error?: string;
 }
 
-// 파일 내용 결과 타입
+//    
 interface FileContentResult {
   success: boolean;
   content?: string;
   error?: string;
 }
 
-// 윈도우 참조 (index.ts에서 설정)
+//   (index.ts )
 let chatWindow: BrowserWindow | null = null;
 let taskWindow: BrowserWindow | null = null;
 let jarvisWindow: BrowserWindow | null = null;
 
-// Jarvis 런타임 시작/중지 콜백 (index.ts에서 설정)
+// Jarvis  /  (index.ts )
 let onJarvisEnable: (() => void) | null = null;
 let onJarvisDisable: (() => void) | null = null;
 
@@ -81,28 +81,28 @@ export function setJarvisLifecycleCallbacks(callbacks: {
 }
 
 /**
- * Chat 윈도우 설정 (메인)
+ * Chat   ()
  */
 export function setChatWindow(win: BrowserWindow): void {
   chatWindow = win;
 }
 
 /**
- * Task 윈도우 설정 (보조)
+ * Task   ()
  */
 export function setTaskWindow(win: BrowserWindow | null): void {
   taskWindow = win;
 }
 
 /**
- * Jarvis 윈도우 설정 (비서)
+ * Jarvis   ()
  */
 export function setJarvisWindow(win: BrowserWindow | null): void {
   jarvisWindow = win;
 }
 
 /**
- * Auto-start 설정 통합 (Chat + Jarvis 두 토글 조합 → 하나의 레지스트리 엔트리)
+ * Auto-start   (Chat + Jarvis    →   )
  */
 export function updateAutoStartSettings(): void {
   const autoStartChat = configManager.get('autoStartChat') ?? true;
@@ -110,7 +110,7 @@ export function updateAutoStartSettings(): void {
   const jarvisAutoStart = jarvisConfig.enabled && jarvisConfig.autoStartOnBoot;
 
   const openAtLogin = autoStartChat || jarvisAutoStart;
-  // Chat OFF + Jarvis ON → jarvis-only 모드, 그 외에는 일반 모드 (Chat 창 포함)
+  // Chat OFF + Jarvis ON → jarvis-only ,     (Chat  )
   const args = (!autoStartChat && jarvisAutoStart) ? ['--jarvis-only'] : [];
 
   app.setLoginItemSettings({ openAtLogin, args });
@@ -118,7 +118,7 @@ export function updateAutoStartSettings(): void {
 }
 
 /**
- * 양쪽 윈도우에 IPC 메시지 전송
+ *   IPC  
  */
 function broadcastToAll(channel: string, ...args: unknown[]): void {
   if (chatWindow && !chatWindow.isDestroyed()) {
@@ -127,12 +127,12 @@ function broadcastToAll(channel: string, ...args: unknown[]): void {
   if (taskWindow && !taskWindow.isDestroyed()) {
     taskWindow.webContents.send(channel, ...args);
   }
-  // CLI Server로 이벤트 전달
+  // CLI Server  
   emitToCLI('agent:event', channel, ...args);
 }
 
 /**
- * 파일 수정 이벤트 발송 (for Diff View)
+ *     (for Diff View)
  */
 export function sendFileEditEvent(data: {
   path: string;
@@ -144,7 +144,7 @@ export function sendFileEditEvent(data: {
 }
 
 /**
- * 파일 생성 이벤트 발송
+ *    
  */
 export function sendFileCreateEvent(data: {
   path: string;
@@ -155,17 +155,17 @@ export function sendFileCreateEvent(data: {
 }
 
 /**
- * IPC 핸들러 등록
+ * IPC  
  */
 export function setupIpcHandlers(): void {
-  // ============ 윈도우 제어 (event.sender 기반) ============
+  // ============   (event.sender ) ============
 
-  // 창 최소화
+  //  
   ipcMain.on('window:minimize', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.minimize();
   });
 
-  // 창 최대화/복원
+  //  /won
   ipcMain.on('window:maximize', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win?.isMaximized()) {
@@ -175,25 +175,25 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 창 닫기
+  //  
   ipcMain.on('window:close', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.close();
   });
 
-  // 창 최대화 상태 확인
+  //    
   ipcMain.handle('window:isMaximized', (event) => {
     return BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false;
   });
 
-  // 창 최대화 상태 변경 이벤트 전달
+  //      
   ipcMain.handle('window:onMaximizeChange', () => {
     return true;
   });
 
-  // ============ 윈도우 타입 판별 ============
+  // ============    ============
 
   ipcMain.handle('window:getType', (event) => {
-    // BrowserWindow.fromWebContents로 정확한 윈도우 매칭
+    // BrowserWindow.fromWebContents   
     const senderWin = BrowserWindow.fromWebContents(event.sender);
     if (senderWin && taskWindow && !taskWindow.isDestroyed() && senderWin.id === taskWindow.id) {
       return 'task';
@@ -204,7 +204,7 @@ export function setupIpcHandlers(): void {
     return 'chat';
   });
 
-  // ============ Task 윈도우 제어 ============
+  // ============ Task   ============
 
   ipcMain.handle('task-window:toggle', () => {
     if (taskWindow && !taskWindow.isDestroyed()) {
@@ -239,7 +239,7 @@ export function setupIpcHandlers(): void {
     return taskWindow && !taskWindow.isDestroyed() ? taskWindow.isVisible() : false;
   });
 
-  // Task 윈도우 항상 맨 위에 고정 (pin)
+  // Task      (pin)
   ipcMain.handle('task-window:setAlwaysOnTop', (_event, value: boolean) => {
     if (taskWindow && !taskWindow.isDestroyed()) {
       taskWindow.setAlwaysOnTop(value, 'floating');
@@ -252,36 +252,36 @@ export function setupIpcHandlers(): void {
     return taskWindow && !taskWindow.isDestroyed() ? taskWindow.isAlwaysOnTop() : false;
   });
 
-  // ============ 테마 ============
+  // ============  ============
 
-  // 시스템 테마 가져오기
+  //   
   ipcMain.handle('theme:getSystem', () => {
     return nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
   });
 
-  // 테마 변경 이벤트 설정
+  //    
   ipcMain.handle('theme:onChange', () => {
-    // 렌더러에서 이벤트 리스너 등록 확인
+    //     
     return true;
   });
 
   // ============ Config ============
 
-  // Config 전체 가져오기
+  // Config  
   ipcMain.handle('config:getAll', () => {
     return configManager.getAll();
   });
 
-  // Config 특정 값 가져오기
+  // Config   
   ipcMain.handle('config:get', (_event, key: keyof AppConfig) => {
     return configManager.get(key);
   });
 
-  // Config 특정 값 설정
+  // Config   
   ipcMain.handle('config:set', async (_event, key: keyof AppConfig, value: unknown) => {
     await configManager.set(key, value as AppConfig[typeof key]);
 
-    // 외관 관련 설정 변경 시 모든 윈도우에 브로드캐스트
+    //        
     const appearanceKeys = ['fontSize', 'fontFamily', 'colorPalette', 'theme', 'uiScale'];
     if (appearanceKeys.includes(key)) {
       broadcastToAll('appearance:change', { key, value });
@@ -290,13 +290,13 @@ export function setupIpcHandlers(): void {
     return true;
   });
 
-  // Config 여러 값 업데이트
+  // Config   
   ipcMain.handle('config:update', async (_event, updates: Partial<AppConfig>) => {
     await configManager.update(updates);
     return true;
   });
 
-  // 최근 디렉토리 추가 (lastOpenedDirectory + recentDirectories 동시 갱신)
+  //    (lastOpenedDirectory + recentDirectories  )
   ipcMain.handle('config:addRecentDirectory', async (_event, directory: string) => {
     try {
       await configManager.addRecentDirectory(directory);
@@ -307,18 +307,18 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 테마 설정
+  //  
   ipcMain.handle('config:setTheme', async (_event, theme: 'light' | 'dark' | 'system') => {
     await configManager.setTheme(theme);
     return true;
   });
 
-  // 테마 가져오기
+  //  
   ipcMain.handle('config:getTheme', () => {
     return configManager.getTheme();
   });
 
-  // Config 경로 가져오기
+  // Config  
   ipcMain.handle('config:getPath', () => {
     return {
       configPath: configManager.getConfigPath(),
@@ -328,7 +328,7 @@ export function setupIpcHandlers(): void {
 
   // ============ Session ============
 
-  // 새 세션 생성
+  //   
   ipcMain.handle('session:create', async (_event, name?: string, workingDirectory?: string): Promise<{ success: boolean; session?: Session; error?: string }> => {
     logger.ipcHandle('session:create', { name, workingDirectory });
     try {
@@ -350,7 +350,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 로드
+  //  
   ipcMain.handle('session:load', async (_event, sessionId: string): Promise<{ success: boolean; session?: Session; error?: string }> => {
     logger.ipcHandle('session:load', { sessionId });
     try {
@@ -370,7 +370,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 저장
+  //  
   ipcMain.handle('session:save', async (_event, session: Session): Promise<{ success: boolean; error?: string }> => {
     logger.ipcHandle('session:save', { sessionId: session.id, messageCount: session.messages?.length || 0 });
     try {
@@ -386,7 +386,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 현재 세션 저장
+  //   
   ipcMain.handle('session:saveCurrent', async (): Promise<{ success: boolean; error?: string }> => {
     try {
       const success = await sessionManager.saveCurrentSession();
@@ -400,7 +400,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 삭제
+  //  
   ipcMain.handle('session:delete', async (_event, sessionId: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const success = await sessionManager.deleteSession(sessionId);
@@ -414,7 +414,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 목록 가져오기
+  //   
   ipcMain.handle('session:list', async (): Promise<{ success: boolean; sessions?: SessionSummary[]; error?: string }> => {
     try {
       const sessions = await sessionManager.listSessions();
@@ -428,18 +428,18 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 현재 세션 가져오기
+  //   
   ipcMain.handle('session:getCurrent', (): Session | null => {
     return sessionManager.getCurrentSession();
   });
 
-  // 현재 세션 설정
+  //   
   ipcMain.handle('session:setCurrent', (_event, session: Session | null) => {
     sessionManager.setCurrentSession(session);
     return { success: true };
   });
 
-  // 메시지 추가
+  //  
   ipcMain.handle('session:addMessage', async (_event, message: ChatMessage): Promise<{ success: boolean; error?: string }> => {
     try {
       const success = await sessionManager.addMessage(message);
@@ -453,7 +453,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 이름 변경
+  //   
   ipcMain.handle('session:rename', async (_event, sessionId: string, newName: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const success = await sessionManager.renameSession(sessionId, newName);
@@ -467,7 +467,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 복제
+  //  
   ipcMain.handle('session:duplicate', async (_event, sessionId: string): Promise<{ success: boolean; session?: Session; error?: string }> => {
     try {
       const session = await sessionManager.duplicateSession(sessionId);
@@ -484,7 +484,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 내보내기
+  //  
   ipcMain.handle('session:export', async (_event, sessionId: string): Promise<{ success: boolean; data?: string; error?: string }> => {
     try {
       const data = await sessionManager.exportSession(sessionId);
@@ -501,7 +501,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 가져오기
+  //  
   ipcMain.handle('session:import', async (_event, jsonData: string): Promise<{ success: boolean; session?: Session; error?: string }> => {
     try {
       const session = await sessionManager.importSession(jsonData);
@@ -518,7 +518,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 검색
+  //  
   ipcMain.handle('session:search', async (_event, query: string): Promise<{ success: boolean; sessions?: SessionSummary[]; error?: string }> => {
     try {
       const sessions = await sessionManager.searchSessions(query);
@@ -532,14 +532,14 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 경로 가져오기
+  //   
   ipcMain.handle('session:getPath', () => {
     return {
       sessionsDir: sessionManager.getSessionsDirectory(),
     };
   });
 
-  // UI 상태 저장 (열린 탭 목록 — 앱 재시작 시 복원용)
+  // UI   (   —    won)
   ipcMain.handle('session:saveUIState', async (_event, state: { tabs: string[]; activeTabId: string | null }) => {
     try {
       await sessionManager.saveUIState(state);
@@ -549,7 +549,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // UI 상태 로드 (앱 시작 시 이전 탭 복원)
+  // UI   (     won)
   ipcMain.handle('session:loadUIState', async () => {
     try {
       return await sessionManager.loadUIState();
@@ -558,9 +558,9 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // ============ 파일 다이얼로그 ============
+  // ============   ============
 
-  // 파일 열기 다이얼로그
+  //   
   ipcMain.handle(
     'dialog:openFile',
     async (
@@ -575,9 +575,9 @@ export function setupIpcHandlers(): void {
       logger.ipcHandle('dialog:openFile', { title: options?.title, defaultPath: options?.defaultPath });
       try {
         const result = await dialog.showOpenDialog(chatWindow!, {
-          title: options?.title || '파일 열기',
+          title: options?.title || ' ',
           defaultPath: options?.defaultPath,
-          filters: options?.filters || [{ name: '모든 파일', extensions: ['*'] }],
+          filters: options?.filters || [{ name: ' ', extensions: ['*'] }],
           properties: options?.multiSelections
             ? ['openFile', 'multiSelections']
             : ['openFile'],
@@ -600,7 +600,7 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // 파일 저장 다이얼로그
+  //   
   ipcMain.handle(
     'dialog:saveFile',
     async (
@@ -613,9 +613,9 @@ export function setupIpcHandlers(): void {
     ): Promise<DialogResult> => {
       try {
         const result = await dialog.showSaveDialog(chatWindow!, {
-          title: options?.title || '파일 저장',
+          title: options?.title || ' ',
           defaultPath: options?.defaultPath,
-          filters: options?.filters || [{ name: '모든 파일', extensions: ['*'] }],
+          filters: options?.filters || [{ name: ' ', extensions: ['*'] }],
         });
 
         return {
@@ -634,7 +634,7 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // 폴더 선택 다이얼로그
+  //   
   ipcMain.handle(
     'dialog:openFolder',
     async (
@@ -647,7 +647,7 @@ export function setupIpcHandlers(): void {
     ): Promise<DialogResult> => {
       try {
         const result = await dialog.showOpenDialog(chatWindow!, {
-          title: options?.title || '폴더 선택',
+          title: options?.title || ' ',
           defaultPath: options?.defaultPath,
           properties: options?.multiSelections
             ? ['openDirectory', 'multiSelections']
@@ -671,7 +671,7 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // 메시지 박스 표시
+  //   
   ipcMain.handle(
     'dialog:showMessage',
     async (
@@ -690,7 +690,7 @@ export function setupIpcHandlers(): void {
           title: options.title || 'Local CLI',
           message: options.message,
           detail: options.detail,
-          buttons: options.buttons || ['확인'],
+          buttons: options.buttons || [''],
         });
 
         return {
@@ -706,9 +706,9 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // ============ 파일 시스템 ============
+  // ============   ============
 
-  // 파일 읽기
+  //  
   ipcMain.handle(
     'fs:readFile',
     async (_event, filePath: string): Promise<FileContentResult> => {
@@ -727,7 +727,7 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // 파일 쓰기
+  //  
   ipcMain.handle(
     'fs:writeFile',
     async (_event, filePath: string, content: string): Promise<{ success: boolean; error?: string }> => {
@@ -744,7 +744,7 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // 파일 존재 확인
+  //   
   ipcMain.handle('fs:exists', async (_event, filePath: string): Promise<boolean> => {
     try {
       await fs.promises.access(filePath);
@@ -754,7 +754,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 디렉토리 내용 읽기
+  //   
   ipcMain.handle(
     'fs:readDir',
     async (_event, dirPath: string): Promise<{ success: boolean; files?: string[]; error?: string }> => {
@@ -770,19 +770,19 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // 탐색기에서 열기
+  //  
   ipcMain.handle('shell:showItemInFolder', async (_event, filePath: string) => {
     shell.showItemInFolder(filePath);
     return { success: true };
   });
 
-  // 외부 프로그램으로 열기
+  //   
   ipcMain.handle('shell:openPath', async (_event, filePath: string) => {
     const result = await shell.openPath(filePath);
     return { success: !result, error: result || undefined };
   });
 
-  // 외부 URL 열기
+  //  URL 
   ipcMain.handle('shell:openExternal', async (_event, url: string) => {
     await shell.openExternal(url);
     return { success: true };
@@ -962,7 +962,7 @@ export function setupIpcHandlers(): void {
 
   // ============ PowerShell ============
 
-  // PowerShell 세션 시작
+  // PowerShell  
   ipcMain.handle('powershell:startSession', async (): Promise<{ success: boolean; session?: SessionInfo; error?: string }> => {
     try {
       const session = await powerShellManager.startSession();
@@ -976,7 +976,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // PowerShell 명령 실행 (세션 내)
+  // PowerShell   ( )
   ipcMain.handle(
     'powershell:execute',
     async (_event, command: string) => {
@@ -995,7 +995,7 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // PowerShell 단일 명령 실행 (새 프로세스)
+  // PowerShell    ( )
   ipcMain.handle(
     'powershell:executeOnce',
     async (_event, command: string, cwd?: string) => {
@@ -1012,25 +1012,25 @@ export function setupIpcHandlers(): void {
     }
   );
 
-  // PowerShell 입력 전송
+  // PowerShell  
   ipcMain.handle('powershell:sendInput', async (_event, input: string) => {
     const success = powerShellManager.sendInput(input);
     return { success };
   });
 
-  // PowerShell 인터럽트
+  // PowerShell 
   ipcMain.handle('powershell:interrupt', async () => {
     powerShellManager.sendInterrupt();
     return { success: true };
   });
 
-  // PowerShell 세션 종료
+  // PowerShell  
   ipcMain.handle('powershell:terminate', async () => {
     await powerShellManager.terminate();
     return { success: true };
   });
 
-  // PowerShell 세션 재시작
+  // PowerShell  
   ipcMain.handle('powershell:restart', async () => {
     try {
       const session = await powerShellManager.restart();
@@ -1043,29 +1043,29 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // PowerShell 세션 정보
+  // PowerShell  
   ipcMain.handle('powershell:getSessionInfo', () => {
     return powerShellManager.getSessionInfo();
   });
 
-  // PowerShell 상태 확인
+  // PowerShell  
   ipcMain.handle('powershell:isRunning', () => {
     return powerShellManager.isRunning();
   });
 
-  // PowerShell 작업 디렉토리 변경
+  // PowerShell task  
   ipcMain.handle('powershell:changeDirectory', async (_event, newPath: string) => {
     const success = await powerShellManager.changeDirectory(newPath);
     return { success };
   });
 
-  // PowerShell 현재 디렉토리 가져오기
+  // PowerShell   
   ipcMain.handle('powershell:getCurrentDirectory', async () => {
     const directory = await powerShellManager.getCurrentDirectory();
     return { success: true, directory };
   });
 
-  // PowerShell 출력 이벤트 리스너 설정
+  // PowerShell    
   powerShellManager.on('output', (output: PowerShellOutput) => {
     chatWindow?.webContents.send('powershell:output', output);
   });
@@ -1081,9 +1081,9 @@ export function setupIpcHandlers(): void {
     });
   });
 
-  // ============ 로그 ============
+  // ============  ============
 
-  // Renderer에서 보낸 로그 쓰기 (Log Viewer에 표시됨)
+  // Renderer    (Log Viewer )
   ipcMain.on('log:write', (_event, level: string, message: string, data?: unknown) => {
     switch (level) {
       case 'error':
@@ -1103,12 +1103,12 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 로그 파일 목록
+  //   
   ipcMain.handle('log:getFiles', async () => {
     return await logger.getLogFiles();
   });
 
-  // 로그 파일 내용 읽기
+  //    
   ipcMain.handle('log:readFile', async (_event, filePath: string) => {
     try {
       const content = await logger.readLogFile(filePath);
@@ -1121,7 +1121,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 로그 엔트리 읽기 (파싱됨)
+  //    ()
   ipcMain.handle('log:readEntries', async (_event, filePath: string) => {
     try {
       const entries = await logger.readLogEntries(filePath);
@@ -1134,40 +1134,40 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 로그 파일 탐색기에서 열기
+  //    
   ipcMain.handle('log:openInExplorer', async (_event, filePath?: string) => {
     await logger.openLogFileInExplorer(filePath);
     return { success: true };
   });
 
-  // 로그 디렉토리 열기
+  //   
   ipcMain.handle('log:openDirectory', async () => {
     await logger.openLogDirectory();
     return { success: true };
   });
 
-  // 로그 레벨 설정
+  //   
   ipcMain.handle('log:setLevel', (_event, level: LogLevel) => {
     logger.setLogLevel(level);
     return { success: true };
   });
 
-  // 로그 레벨 가져오기
+  //   
   ipcMain.handle('log:getLevel', () => {
     return logger.getLogLevel();
   });
 
-  // 현재 로그 파일 경로
+  //    
   ipcMain.handle('log:getCurrentPath', () => {
     return logger.getLogFilePath();
   });
 
-  // 로그 디렉토리 경로
+  //   
   ipcMain.handle('log:getDirectory', () => {
     return logger.getLogDirectory();
   });
 
-  // 로그 파일 삭제
+  //   
   ipcMain.handle('log:deleteFile', async (_event, filePath: string) => {
     try {
       await logger.deleteLogFile(filePath);
@@ -1180,7 +1180,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 모든 로그 삭제
+  //   
   ipcMain.handle('log:clearAll', async () => {
     try {
       const deletedCount = await logger.clearAllLogs();
@@ -1193,12 +1193,12 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 로그 스트리밍 관리
+  //   
   let logStreamUnsubscribe: (() => void) | null = null;
 
   ipcMain.handle('log:startStreaming', () => {
     if (logStreamUnsubscribe) {
-      return { success: true }; // 이미 스트리밍 중
+      return { success: true }; //   
     }
 
     logStreamUnsubscribe = logger.onLogEntry((entry) => {
@@ -1253,7 +1253,7 @@ export function setupIpcHandlers(): void {
     return { success: true, sessionId: logger.getCurrentSessionId() };
   });
 
-  // Current Run log handlers (이번 실행 로그)
+  // Current Run log handlers (  )
   ipcMain.handle('log:getRunFiles', async () => {
     try {
       const files = await logger.getRunLogFiles();
@@ -1294,9 +1294,9 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // ============ 시스템 ============
+  // ============  ============
 
-  // 시스템 정보
+  //  
   ipcMain.handle('system:info', () => {
     return {
       platform: process.platform,
@@ -1310,25 +1310,25 @@ export function setupIpcHandlers(): void {
     };
   });
 
-  // 앱 재시작
+  //  
   ipcMain.handle('app:restart', () => {
     app.relaunch();
     app.exit(0);
   });
 
-  // 앱 종료
+  //  
   ipcMain.handle('app:quit', () => {
     app.quit();
   });
 
-  // ============ 자동 업데이트 ============
+  // ============   ============
 
-  // 현재 버전 가져오기
+  //   
   ipcMain.handle('update:getVersion', () => {
     return app.getVersion();
   });
 
-  // 다운로드 시작
+  //  
   ipcMain.handle('update:startDownload', async () => {
     try {
       const { autoUpdater } = await import('electron-updater');
@@ -1339,7 +1339,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 설치 (silent NSIS install + 자동 재시작)
+  //  (silent NSIS install +  )
   ipcMain.handle('update:install', async () => {
     try {
       const { autoUpdater } = await import('electron-updater');
@@ -1349,13 +1349,13 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 개발자 도구 토글
+  //   
   ipcMain.handle('devTools:toggle', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.webContents.toggleDevTools();
     return { success: true };
   });
 
-  // 윈도우 리로드
+  //  
   ipcMain.handle('window:reload', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.reload();
     return { success: true };
@@ -1363,7 +1363,7 @@ export function setupIpcHandlers(): void {
 
   // ============ LLM ============
 
-  // LLM endpoints 가져오기
+  // LLM endpoints 
   ipcMain.handle('llm:getEndpoints', () => {
     try {
       const result = configManager.getEndpoints();
@@ -1377,7 +1377,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // LLM endpoint 추가
+  // LLM endpoint 
   ipcMain.handle('llm:addEndpoint', async (_event, endpointData: Omit<EndpointConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       const endpoint = await configManager.addEndpoint(endpointData);
@@ -1398,7 +1398,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // LLM endpoint 업데이트
+  // LLM endpoint 
   ipcMain.handle('llm:updateEndpoint', async (_event, endpointId: string, updates: Partial<EndpointConfig>) => {
     try {
       const success = await configManager.updateEndpoint(endpointId, updates);
@@ -1419,7 +1419,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // LLM endpoint 삭제
+  // LLM endpoint 
   ipcMain.handle('llm:removeEndpoint', async (_event, endpointId: string) => {
     try {
       const success = await configManager.removeEndpoint(endpointId);
@@ -1440,7 +1440,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 현재 모델 설정 (endpoint 내 개별 모델)
+  //    (endpoint   )
   ipcMain.handle('llm:setCurrentModel', async (_event, modelId: string) => {
     try {
       const success = await configManager.setCurrentModel(modelId);
@@ -1458,7 +1458,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 현재 endpoint 설정
+  //  endpoint 
   ipcMain.handle('llm:setCurrentEndpoint', async (_event, endpointId: string) => {
     try {
       const success = await configManager.setCurrentEndpoint(endpointId);
@@ -1476,7 +1476,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 연결 테스트
+  //  
   ipcMain.handle('llm:testConnection', async (_event, baseUrl: string, apiKey: string | undefined, modelId: string) => {
     try {
       const result = await configManager.testConnection(baseUrl, apiKey, modelId);
@@ -1490,7 +1490,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 전체 health check
+  //  health check
   ipcMain.handle('llm:healthCheckAll', async () => {
     try {
       await configManager.healthCheckAll();
@@ -1504,7 +1504,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 시스템 상태 가져오기
+  //   
   ipcMain.handle('llm:getStatus', () => {
     try {
       const status = configManager.getStatus();
@@ -1520,7 +1520,7 @@ export function setupIpcHandlers(): void {
 
   // ============ Chat (LLM) ============
 
-  // 채팅 메시지 전송 (non-streaming)
+  //    (non-streaming)
   ipcMain.handle('chat:send', async (_event, messages: Message[]) => {
     logger.ipcHandle('chat:send', { messageCount: messages.length });
     try {
@@ -1536,12 +1536,12 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 채팅 메시지 전송 (streaming)
+  //    (streaming)
   ipcMain.handle('chat:sendStream', async (_event, messages: Message[]) => {
     logger.ipcHandle('chat:sendStream', { messageCount: messages.length });
     logger.httpStreamStart('POST', 'llm/chat');
     try {
-      // Streaming은 IPC event로 청크 전송
+      // Streaming IPC event  
       const result = await llmClient.chat(messages, true, (chunk, done) => {
         chatWindow?.webContents.send('chat:chunk', { chunk, done });
       });
@@ -1549,7 +1549,7 @@ export function setupIpcHandlers(): void {
       return { success: true, ...result };
     } catch (error) {
       logger.error('Chat stream failed', error);
-      // 에러 발생시에도 done 이벤트 전송
+      //   done  
       chatWindow?.webContents.send('chat:chunk', { chunk: '', done: true, error: true });
       return {
         success: false,
@@ -1558,7 +1558,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 간단한 메시지 전송
+  //   
   ipcMain.handle('chat:sendMessage', async (_event, userMessage: string, systemPrompt?: string, stream?: boolean) => {
     try {
       if (stream) {
@@ -1582,7 +1582,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 요청 취소
+  //  
   ipcMain.handle('chat:abort', () => {
     try {
       llmClient.abort();
@@ -1595,14 +1595,14 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 요청 활성 상태 확인
+  //    
   ipcMain.handle('chat:isActive', () => {
     return llmClient.isRequestActive();
   });
 
   // ============ Compact ============
 
-  // 대화 압축 실행 (per-session via worker if available)
+  //    (per-session via worker if available)
   ipcMain.handle('compact:execute', async (_event, messagesOrSessionId: Message[] | string, contextOrMessages?: CompactContext | Message[], maybeContext?: CompactContext) => {
     // Support both old signature (messages, context) and new signature (sessionId, messages, context)
     let sessionId: string | undefined;
@@ -1639,14 +1639,14 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 압축 가능 여부 확인
+  //    
   ipcMain.handle('compact:canCompact', (_event, messages: Message[]) => {
     return canCompact(messages);
   });
 
   // ============ Usage Tracking ============
 
-  // 사용량 요약 가져오기
+  //   
   ipcMain.handle('usage:getSummary', () => {
     try {
       return { success: true, summary: usageTracker.getSummary() };
@@ -1659,7 +1659,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 일별 통계 가져오기
+  //   
   ipcMain.handle('usage:getDailyStats', (_event, days: number = 30) => {
     try {
       return { success: true, stats: usageTracker.getDailyStats(days) };
@@ -1672,7 +1672,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 세션 사용량 리셋
+  //   
   ipcMain.handle('usage:resetSession', () => {
     try {
       usageTracker.resetSession();
@@ -1685,7 +1685,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 전체 사용량 데이터 삭제
+  //    
   ipcMain.handle('usage:clearData', () => {
     try {
       usageTracker.clearData();
@@ -1700,7 +1700,7 @@ export function setupIpcHandlers(): void {
 
   // ============ Tools ============
 
-  // 도구 그룹 목록 가져오기
+  //    
   ipcMain.handle('tools:getGroups', () => {
     try {
       return { success: true, groups: toolManager.getToolGroups() };
@@ -1713,7 +1713,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 사용 가능한 도구 그룹만 가져오기
+  //     
   ipcMain.handle('tools:getAvailable', () => {
     try {
       return { success: true, groups: toolManager.getAvailableToolGroups() };
@@ -1726,7 +1726,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 활성화된 도구 그룹 가져오기
+  //    
   ipcMain.handle('tools:getEnabled', () => {
     try {
       return { success: true, groups: toolManager.getEnabledToolGroups() };
@@ -1739,7 +1739,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 도구 그룹 활성화
+  //   
   ipcMain.handle('tools:enable', async (_event, groupId: string) => {
     try {
       const result = await toolManager.enableToolGroup(groupId);
@@ -1756,7 +1756,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 도구 그룹 비활성화
+  //   
   ipcMain.handle('tools:disable', async (_event, groupId: string) => {
     try {
       const result = await toolManager.disableToolGroup(groupId);
@@ -1773,7 +1773,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 도구 그룹 토글
+  //   
   ipcMain.handle('tools:toggle', async (_event, groupId: string) => {
     try {
       const result = await toolManager.toggleToolGroup(groupId);
@@ -1790,7 +1790,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 도구 요약 가져오기
+  //   
   ipcMain.handle('tools:getSummary', () => {
     try {
       return { success: true, ...toolManager.getSummary() };
@@ -1803,7 +1803,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 도구 그룹 활성화 여부 확인
+  //     
   ipcMain.handle('tools:isEnabled', (_event, groupId: string) => {
     return toolManager.isEnabled(groupId);
   });
@@ -1813,7 +1813,7 @@ export function setupIpcHandlers(): void {
   // Pending ask user resolver
   let pendingAskUserResolve: ((response: AskUserResponse) => void) | null = null;
 
-  // Agent 실행 (sessionId optional - when provided and worker exists, routes to worker)
+  // Agent  (sessionId optional - when provided and worker exists, routes to worker)
   ipcMain.handle('agent:run', async (
     _event,
     userMessage: string,
@@ -1870,7 +1870,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // Agent 일시정지 — TODO 유지, 현재 LLM 호출만 중단 (sessionId optional)
+  // Agent  — TODO ,  LLM   (sessionId optional)
   ipcMain.handle('agent:pause', (_event, sessionId?: string) => {
     try {
       if (sessionId && workerManager.hasWorker(sessionId)) {
@@ -1885,7 +1885,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // Agent 중단 — TODO 전부 삭제 (sessionId optional)
+  // Agent  — TODO   (sessionId optional)
   ipcMain.handle('agent:abort', (_event, sessionId?: string) => {
     try {
       if (sessionId && workerManager.hasWorker(sessionId)) {
@@ -1909,7 +1909,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // Agent 실행 상태 확인 (per-session via worker)
+  // Agent    (per-session via worker)
   ipcMain.handle('agent:isRunning', (_event, sessionId?: string) => {
     if (sessionId && workerManager.hasWorker(sessionId)) {
       return workerManager.isSessionRunning(sessionId);
@@ -1918,7 +1918,7 @@ export function setupIpcHandlers(): void {
     return isAgentRunning();
   });
 
-  // 에이전트 상태 초기화 (Clear Chat 시 호출, sessionId optional)
+  // agent   (Clear Chat  , sessionId optional)
   ipcMain.handle('agent:clearState', (_event, sessionId?: string) => {
     if (sessionId && workerManager.hasWorker(sessionId)) {
       workerManager.clearState(sessionId);
@@ -1956,7 +1956,7 @@ export function setupIpcHandlers(): void {
     return { success: true };
   });
 
-  // 현재 TODO 목록 가져오기 (per-session via WorkerManager cache)
+  //  TODO   (per-session via WorkerManager cache)
   ipcMain.handle('agent:getTodos', (_event, sessionId?: string) => {
     if (sessionId && workerManager.hasWorker(sessionId)) {
       return workerManager.getSessionTodos(sessionId);
@@ -1965,7 +1965,7 @@ export function setupIpcHandlers(): void {
     return getCurrentTodos();
   });
 
-  // TODO 목록 설정 (per-session)
+  // TODO   (per-session)
   ipcMain.handle('agent:setTodos', (_event, todosOrSessionId: TodoItem[] | string, maybeTodos?: TodoItem[]) => {
     // Support both old signature (todos) and new signature (sessionId, todos)
     if (typeof todosOrSessionId === 'string' && maybeTodos) {
@@ -1978,7 +1978,7 @@ export function setupIpcHandlers(): void {
     return { success: true };
   });
 
-  // 간단한 채팅 (도구 없이)
+  //   ( )
   ipcMain.handle('agent:simpleChat', async (
     _event,
     userMessage: string,
@@ -2005,7 +2005,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // 사용자 질문 응답 (ask_to_user 도구 응답, sessionId optional)
+  //    (ask_to_user  , sessionId optional)
   ipcMain.handle('agent:respondToQuestion', (_event, response: unknown, sessionId?: string) => {
     // Normalize response: convert object format to string format
     const rawResponse = response as {
@@ -2049,7 +2049,7 @@ export function setupIpcHandlers(): void {
     return { success: true };
   });
 
-  // Tool approval 응답 (Supervised Mode, sessionId optional)
+  // Tool approval  (Supervised Mode, sessionId optional)
   ipcMain.handle('agent:respondToApproval', (_event, response: {
     id: string;
     result: 'approve' | 'always' | { reject: true; comment: string };
@@ -2068,14 +2068,14 @@ export function setupIpcHandlers(): void {
     return { success: true };
   });
 
-  // 내부적으로 ask_to_user가 호출될 때 사용하는 이벤트
+  //  ask_to_user    
   ipcMain.on('agent:askUserQuestion', (_event, request: AskUserRequest) => {
     broadcastToAll('agent:askUser', request);
   });
 
   // ============ Worker Management (Multi-Session) ============
 
-  // Worker 생성 (새 탭 열 때)
+  // Worker  (   )
   ipcMain.handle('worker:create', (_event, sessionId: string) => {
     try {
       workerManager.setChatWindow(chatWindow);
@@ -2093,7 +2093,7 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // Worker 종료 (탭 닫을 때)
+  // Worker  (  )
   ipcMain.handle('worker:terminate', async (_event, sessionId: string) => {
     try {
       await workerManager.terminateWorker(sessionId);
@@ -2103,12 +2103,12 @@ export function setupIpcHandlers(): void {
     }
   });
 
-  // Worker 존재 여부
+  // Worker  
   ipcMain.handle('worker:exists', (_event, sessionId: string) => {
     return workerManager.hasWorker(sessionId);
   });
 
-  // Worker 수
+  // Worker 
   ipcMain.handle('worker:count', () => {
     return workerManager.getWorkerCount();
   });
@@ -2156,12 +2156,12 @@ export function setupIpcHandlers(): void {
     const newConfig = { ...current, ...updates };
     await configManager.set('jarvis', newConfig);
 
-    // 자동 시작 설정 반영 (Chat + Jarvis 통합)
+    //     (Chat + Jarvis )
     if ('autoStartOnBoot' in updates || 'enabled' in updates) {
       updateAutoStartSettings();
     }
 
-    // 실시간 활성화/비활성화 — 재시작 불필요
+    //  / —  
     if ('enabled' in updates) {
       if (newConfig.enabled) {
         onJarvisEnable?.();
@@ -2227,21 +2227,21 @@ export function setupIpcHandlers(): void {
 }
 
 /**
- * IPC 핸들러 정리
+ * IPC  
  */
 export async function cleanupIpcHandlers(): Promise<void> {
-  // Agent 중단
+  // Agent 
   if (isAgentRunning()) {
     abortAgent();
   }
 
-  // PowerShell 매니저 종료
+  // PowerShell  
   powerShellManager.terminate();
 
-  // 세션 매니저 정리
+  //   
   await sessionManager.cleanup();
 
-  // 모든 핸들러 제거
+  //   
   ipcMain.removeAllListeners();
 
   logger.info('IPC handlers cleaned up');

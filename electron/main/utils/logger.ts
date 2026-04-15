@@ -1,8 +1,8 @@
 /**
  * Logger System for Electron Main Process
- * - 날짜별 로그 파일 저장
- * - 로그 레벨 설정
- * - 로그 파일 열기/다운로드 기능
+ * -    
+ * -   
+ * -   / 
  */
 
 import fs from 'fs';
@@ -28,7 +28,7 @@ function getElectronShell(): { showItemInFolder(fullPath: string): void; openPat
   }
 }
 
-// 로그 레벨 정의 (CLI parity: ERROR=0 가장 높은 우선순위, VERBOSE=4 가장 낮은 우선순위)
+//    (CLI parity: ERROR=0   , VERBOSE=4   )
 export enum LogLevel {
   ERROR = 0,
   WARN = 1,
@@ -37,7 +37,7 @@ export enum LogLevel {
   VERBOSE = 4,
 }
 
-// 로그 레벨 이름 매핑
+//    
 const LOG_LEVEL_NAMES: Record<LogLevel, string> = {
   [LogLevel.ERROR]: 'ERROR',
   [LogLevel.WARN]: 'WARN',
@@ -46,7 +46,7 @@ const LOG_LEVEL_NAMES: Record<LogLevel, string> = {
   [LogLevel.VERBOSE]: 'VERBOSE',
 };
 
-// 로그 엔트리 타입
+//   
 export interface LogEntry {
   timestamp: string;
   level: string;
@@ -54,7 +54,7 @@ export interface LogEntry {
   data?: unknown;
 }
 
-// 로거 설정 타입
+//   
 export interface LoggerConfig {
   logLevel: LogLevel;
   logDir: string;
@@ -63,11 +63,11 @@ export interface LoggerConfig {
   consoleOutput: boolean;
 }
 
-// 기본 설정
+//  
 const DEFAULT_CONFIG: LoggerConfig = {
   logLevel: LogLevel.INFO, // CLI parity: INFO=2 shows ERROR(0), WARN(1), INFO(2)
   logDir: '',
-  maxLogFiles: 7, // 7일치 보관
+  maxLogFiles: 7, // 7 
   maxLogSize: 10 * 1024 * 1024, // 10MB
   consoleOutput: true,
 };
@@ -84,7 +84,7 @@ class Logger {
   private sessionWriteStream: fs.WriteStream | null = null;
   private sessionLogDir: string = '';
 
-  // Current Run logging (exe 시작부터 종료까지)
+  // Current Run logging (exe  )
   private currentRunLogFile: string = '';
   private currentRunWriteStream: fs.WriteStream | null = null;
   private currentRunId: string = '';
@@ -95,15 +95,15 @@ class Logger {
   }
 
   /**
-   * 로거 초기화
+   *  
    */
   async initialize(customConfig?: Partial<LoggerConfig>): Promise<void> {
     if (this.initialized) return;
 
-    // 설정 병합
+    //  
     this.config = { ...this.config, ...customConfig };
 
-    // 로그 디렉토리 설정
+    //   
     if (!this.config.logDir) {
       const electronApp = getElectronApp();
       this.config.logDir = electronApp
@@ -111,25 +111,25 @@ class Logger {
         : path.join(os.homedir(), '.local-bot', 'logs'); // Worker fallback
     }
 
-    // 로그 디렉토리 생성
+    //   
     await this.ensureLogDirectory();
 
-    // Session 로그 디렉토리 설정
+    // Session   
     this.sessionLogDir = path.join(this.config.logDir, 'sessions');
     await fs.promises.mkdir(this.sessionLogDir, { recursive: true });
 
-    // Current Run 로그 디렉토리 설정
+    // Current Run   
     this.runLogDir = path.join(this.config.logDir, 'runs');
     await fs.promises.mkdir(this.runLogDir, { recursive: true });
 
-    // 오래된 로그 파일 정리
+    //    
     await this.cleanOldLogs();
     await this.cleanOldRunLogs();
 
-    // 현재 로그 파일 설정
+    //    
     this.updateLogFile();
 
-    // Current Run 로그 파일 설정 (exe 시작 시 한 번만)
+    // Current Run    (exe    )
     this.initializeCurrentRunLog();
 
     this.initialized = true;
@@ -137,7 +137,7 @@ class Logger {
   }
 
   /**
-   * 로그 디렉토리 생성
+   *   
    */
   private async ensureLogDirectory(): Promise<void> {
     try {
@@ -148,7 +148,7 @@ class Logger {
   }
 
   /**
-   * 오래된 로그 파일 정리
+   *    
    */
   private async cleanOldLogs(): Promise<void> {
     try {
@@ -163,7 +163,7 @@ class Logger {
         .filter((f) => f.date !== null)
         .sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
 
-      // 최대 파일 수 초과 시 삭제
+      //      
       const filesToDelete = logFiles.slice(this.config.maxLogFiles);
       for (const file of filesToDelete) {
         await fs.promises.unlink(file.path).catch(() => {});
@@ -174,7 +174,7 @@ class Logger {
   }
 
   /**
-   * 파일명에서 날짜 추출
+   *   
    */
   private extractDateFromFilename(filename: string): Date | null {
     const match = filename.match(/(\d{4}-\d{2}-\d{2})/);
@@ -185,7 +185,7 @@ class Logger {
   }
 
   /**
-   * 오래된 Run 로그 파일 정리 (최근 10개만 유지)
+   *  Run    ( 10 )
    */
   private async cleanOldRunLogs(): Promise<void> {
     try {
@@ -200,7 +200,7 @@ class Logger {
           })
       );
 
-      // 최신순 정렬 후 10개 초과분 삭제
+      //    10  
       const sorted = runFiles.sort((a, b) => b.mtime - a.mtime);
       const filesToDelete = sorted.slice(10);
       for (const file of filesToDelete) {
@@ -212,10 +212,10 @@ class Logger {
   }
 
   /**
-   * Current Run 로그 파일 초기화 (exe 시작 시 한 번)
+   * Current Run    (exe    )
    */
   private initializeCurrentRunLog(): void {
-    // 고유 Run ID 생성 (타임스탬프 기반)
+    //  Run ID  ( )
     const now = new Date();
     this.currentRunId = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
     this.currentRunLogFile = path.join(this.runLogDir, `run-${this.currentRunId}.log`);
@@ -223,14 +223,14 @@ class Logger {
   }
 
   /**
-   * 현재 로그 파일 업데이트
+   *    
    */
   private updateLogFile(): void {
     const today = new Date().toISOString().split('T')[0];
     const newLogFile = path.join(this.config.logDir, `app-${today}.log`);
 
     if (this.currentLogFile !== newLogFile) {
-      // 기존 스트림 닫기
+      //   
       if (this.writeStream) {
         this.writeStream.end();
         this.writeStream = null;
@@ -242,25 +242,25 @@ class Logger {
   }
 
   /**
-   * 로그 레벨 설정
+   *   
    */
   setLogLevel(level: LogLevel): void {
     this.config.logLevel = level;
   }
 
   /**
-   * 로그 레벨 가져오기
+   *   
    */
   getLogLevel(): LogLevel {
     return this.config.logLevel;
   }
 
   /**
-   * 로그 기록
+   *  
    */
   private log(level: LogLevel, message: string, data?: unknown): void {
-    // 로그 레벨 필터링 (CLI parity: level <= config.logLevel만 출력)
-    // ERROR=0 항상 출력, VERBOSE=4는 config가 VERBOSE일 때만
+    //    (CLI parity: level <= config.logLevel )
+    // ERROR=0  , VERBOSE=4 config VERBOSE 
     if (level > this.config.logLevel) return;
 
     const timestamp = new Date().toISOString();
@@ -275,26 +275,26 @@ class Logger {
 
     const logLine = JSON.stringify(entry) + '\n';
 
-    // 파일에 기록
+    //  
     if (this.initialized) {
-      this.updateLogFile(); // 날짜 변경 확인
+      this.updateLogFile(); //   
       this.writeStream?.write(logLine);
 
-      // Current Run 로그에도 기록
+      // Current Run  
       if (this.currentRunWriteStream) {
         this.currentRunWriteStream.write(logLine);
       }
 
-      // Session 로그에도 기록
+      // Session  
       if (this.sessionWriteStream) {
         this.sessionWriteStream.write(logLine);
       }
     }
 
-    // 실시간 콜백 알림
+    //   
     this.notifyLogCallbacks(entry);
 
-    // 콘솔 출력
+    //  
     if (this.config.consoleOutput) {
       const consoleMessage = `[${timestamp}] [${levelName}] ${message}`;
       switch (level) {
@@ -316,7 +316,7 @@ class Logger {
   }
 
   /**
-   * 로그 메서드들
+   *  
    */
   debug(message: string, data?: unknown): void {
     this.log(LogLevel.DEBUG, message, data);
@@ -352,7 +352,7 @@ class Logger {
   // Flow control logging methods (for agent/planning) - CLI parity
 
   /**
-   * Log flow - 실행 흐름 추적 (함수 호출, 분기 등)
+   * Log flow -    ( ,  )
    */
   flow(message: string, context?: Record<string, unknown>): void {
     this.log(LogLevel.DEBUG, `[FLOW] ${message}`, context);
@@ -373,7 +373,7 @@ class Logger {
   }
 
   /**
-   * Log variables - 변수 값 추적 (CLI parity)
+   * Log variables -    (CLI parity)
    */
   vars(variables: Record<string, unknown>): void {
     this.log(LogLevel.DEBUG, '[VARS]', variables);
@@ -518,7 +518,7 @@ class Logger {
   }
 
   // ============================================================================
-  // Current Run Log Methods (이번 실행 로그)
+  // Current Run Log Methods (  )
   // ============================================================================
 
   /**
@@ -565,7 +565,7 @@ class Logger {
   }
 
   /**
-   * Read current run log (이번 실행 로그 읽기)
+   * Read current run log (   )
    */
   async readCurrentRunLog(): Promise<LogEntry[]> {
     if (!this.currentRunLogFile) {
@@ -623,21 +623,21 @@ class Logger {
   }
 
   /**
-   * 로그 파일 경로 가져오기
+   *    
    */
   getLogFilePath(): string {
     return this.currentLogFile;
   }
 
   /**
-   * 로그 디렉토리 경로 가져오기
+   *    
    */
   getLogDirectory(): string {
     return this.config.logDir;
   }
 
   /**
-   * 로그 파일 목록 가져오기
+   *    
    */
   async getLogFiles(): Promise<{ name: string; path: string; size: number; date: string }[]> {
     try {
@@ -666,7 +666,7 @@ class Logger {
   }
 
   /**
-   * 로그 파일 내용 읽기
+   *    
    */
   async readLogFile(filePath: string): Promise<string> {
     try {
@@ -678,7 +678,7 @@ class Logger {
   }
 
   /**
-   * 로그 파일 탐색기에서 열기
+   *    
    */
   async openLogFileInExplorer(filePath?: string): Promise<void> {
     const targetPath = filePath || this.currentLogFile;
@@ -689,7 +689,7 @@ class Logger {
   }
 
   /**
-   * 로그 디렉토리 탐색기에서 열기
+   *    
    */
   async openLogDirectory(): Promise<void> {
     const electronShell = getElectronShell();
@@ -699,7 +699,7 @@ class Logger {
   }
 
   /**
-   * 특정 날짜의 로그 파일 경로 가져오기
+   *      
    */
   getLogFilePathForDate(date: Date): string {
     const dateStr = date.toISOString().split('T')[0];
@@ -707,10 +707,10 @@ class Logger {
   }
 
   /**
-   * 로거 종료
+   *  
    */
   async shutdown(): Promise<void> {
-    // shutdown 이후 log() 호출 시 write 방지
+    // shutdown  log()   write 
     this.initialized = false;
 
     const closeStream = (stream: fs.WriteStream | null): Promise<void> =>
@@ -734,11 +734,11 @@ class Logger {
   }
 
   /**
-   * 로그 파일 삭제
+   *   
    */
   async deleteLogFile(filePath: string): Promise<void> {
     try {
-      // 현재 로그 파일은 삭제 불가
+      //     
       if (filePath === this.currentLogFile) {
         throw new Error('Cannot delete current log file');
       }
@@ -751,7 +751,7 @@ class Logger {
   }
 
   /**
-   * 모든 로그 파일 삭제 (현재 로그 파일 제외)
+   *     (   )
    */
   async clearAllLogs(): Promise<number> {
     try {
@@ -774,7 +774,7 @@ class Logger {
   }
 
   /**
-   * 로그 엔트리 파싱 (JSON Lines 형식)
+   *    (JSON Lines )
    */
   parseLogEntries(content: string): LogEntry[] {
     const entries: LogEntry[] = [];
@@ -785,7 +785,7 @@ class Logger {
         const entry = JSON.parse(line) as LogEntry;
         entries.push(entry);
       } catch {
-        // 파싱 실패 시 원본 텍스트로 처리
+        //    won  
         entries.push({
           timestamp: new Date().toISOString(),
           level: 'INFO',
@@ -798,7 +798,7 @@ class Logger {
   }
 
   /**
-   * 로그 파일 내용을 파싱된 엔트리로 읽기
+   *      
    */
   async readLogEntries(filePath: string): Promise<LogEntry[]> {
     const content = await this.readLogFile(filePath);
@@ -806,7 +806,7 @@ class Logger {
   }
 
   /**
-   * 실시간 로그 스트리밍을 위한 콜백 등록
+   *      
    */
   private logCallbacks: Set<(entry: LogEntry) => void> = new Set();
 
@@ -816,14 +816,14 @@ class Logger {
   }
 
   /**
-   * 로그 콜백 알림
+   *   
    */
   private notifyLogCallbacks(entry: LogEntry): void {
     for (const callback of this.logCallbacks) {
       try {
         callback(entry);
       } catch {
-        // 콜백 에러 무시
+        //   
       }
     }
   }
@@ -1257,10 +1257,10 @@ class Logger {
   }
 }
 
-// 싱글톤 인스턴스
+// singleton 
 export const logger = new Logger();
 
-// 편의를 위한 함수 내보내기
+//    
 export const debug = logger.debug.bind(logger);
 export const info = logger.info.bind(logger);
 export const warn = logger.warn.bind(logger);

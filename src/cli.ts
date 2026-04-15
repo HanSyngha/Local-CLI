@@ -2,9 +2,9 @@
 
 /**
  * LOCAL-CLI
- * 오프라인 기업 환경을 위한 완전한 로컬 LLM CLI 플랫폼
+ *       LLM CLI 
  *
- * Entry Point: CLI 애플리케이션의 진입점
+ * Entry Point: CLI  
  */
 
 import { Command } from 'commander';
@@ -38,29 +38,29 @@ process.on('unhandledRejection', (reason) => {
 const program = new Command();
 
 /**
- * CLI 프로그램 설정
+ * CLI  
  */
 program
   .name('local-cli')
   .description('Local CLI - OpenAI-Compatible Local CLI Coding Agent')
   .version(packageJson.version)
-  .helpOption(false);  // -h, --help 비활성화 (/help 사용)
+  .helpOption(false);  // -h, --help  (/help )
 
 /**
- * 기본 명령어: 대화형 모드 시작
+ *  :   
  */
 program
-  .argument('[prompt]', 'Pipe 모드(-p)에서 실행할 명령')
-  .option('-p, --pipe', 'Pipe 모드: UI 없이 명령 처리 후 결과만 출력')
-  .option('-s, --specific', 'Pipe 모드 상세 출력 (-p와 함께 사용)')
+  .argument('[prompt]', 'Pipe (-p)  ')
+  .option('-p, --pipe', 'Pipe : UI      ')
+  .option('-s, --specific', 'Pipe    (-p  )')
   .option('--verbose', 'Enable verbose logging')
   .option('--debug', 'Enable debug logging')
   .option('--llm-log', 'Enable LLM logging')
   .action(async (prompt: string | undefined, options: { pipe?: boolean; specific?: boolean; verbose?: boolean; debug?: boolean; llmLog?: boolean }) => {
-    // -p 모드: non-interactive pipe 모드
+    // -p : non-interactive pipe 
     if (options.pipe) {
       if (!prompt) {
-        console.error('Error: -p 옵션에는 프롬프트가 필요합니다. 예: local-cli -p "파일 목록 보여줘"');
+        console.error('Error: -p   . : local-cli -p "  "');
         process.exit(1);
       }
       // Setup logging for pipe mode (--verbose, --debug, --llm-log)
@@ -79,7 +79,7 @@ program
       // Show loading spinner immediately (before any async work)
       const ora = (await import('ora')).default;
       const spinner = ora({
-        text: chalk.cyan('Local-CLI 시작 중...'),
+        text: chalk.cyan('Local-CLI  ...'),
         color: 'cyan',
       }).start();
 
@@ -102,8 +102,8 @@ program
         nodeVersion: process.version,
       });
 
-      // ConfigManager 초기화
-      spinner.text = chalk.cyan('설정 로드 중...');
+      // ConfigManager 
+      spinner.text = chalk.cyan('  ...');
       logger.flow('Initializing config manager');
       await configManager.initialize();
       logger.flow('Config manager initialized');
@@ -113,8 +113,8 @@ program
       await initializeOptionalTools();
       logger.flow('Optional tools initialized');
 
-      // LLMClient 생성 (엔드포인트가 없으면 null)
-      spinner.text = chalk.cyan('LLM 클라이언트 생성 중...');
+      // LLMClient  (  null)
+      spinner.text = chalk.cyan('LLM   ...');
       let llmClient = null;
       let modelInfo = { model: 'Not configured', endpoint: 'Not configured' };
 
@@ -125,7 +125,7 @@ program
           modelInfo = llmClient.getModelInfo();
           logger.flow('LLM client created', { model: modelInfo.model, endpoint: modelInfo.endpoint });
         } catch (error) {
-          // LLMClient 생성 실패 시 null 유지
+          // LLMClient    null 
           logger.warn('Failed to create LLM client', { error: error instanceof Error ? error.message : String(error) });
         }
       } else {
@@ -136,12 +136,12 @@ program
       spinner.stop();
       process.stdout.write('\x1B[2J\x1B[0f'); // Clear again for clean UI
 
-      // Ink UI 시작 (verbose/debug/llm-log 모드에서만 시작 메시지 표시)
+      // Ink UI  (verbose/debug/llm-log    )
       if (options.verbose || options.debug) {
         console.log(chalk.cyan('🚀 Starting local-cli...\n'));
       }
 
-      // Ink UI를 같은 프로세스에서 직접 렌더링 (stdin raw mode 유지)
+      // Ink UI     (stdin raw mode )
       try {
         // Use PlanExecuteApp for enhanced functionality
         // exitOnCtrlC: false - Ctrl+C is handled manually in PlanExecuteApp for smart behavior
@@ -154,13 +154,13 @@ program
         await waitUntilExit();
       } catch (error) {
         reportError(error, { type: 'inkUiInit' }).catch(() => {});
-        console.log(chalk.yellow('\n⚠️  Ink UI를 시작할 수 없습니다.\n'));
+        console.log(chalk.yellow('\n⚠️  Ink UI   .\n'));
         console.log(chalk.dim(`Error: ${error instanceof Error ? error.message : String(error)}\n`));
         process.exit(1);
       }
     } catch (error) {
       reportError(error, { type: 'initialization' }).catch(() => {});
-      console.error(chalk.red('\n❌ 에러 발생:'));
+      console.error(chalk.red('\n❌  :'));
       if (error instanceof Error) {
         console.error(chalk.red(error.message));
       }
@@ -173,7 +173,7 @@ program
         exitReason: 'normal',
       });
 
-      // JSON Stream Logger 정리
+      // JSON Stream Logger 
       if (cleanup) {
         await cleanup();
       }
@@ -182,31 +182,31 @@ program
 
 
 /**
- * chat 서브커맨드: Electron Chat 창에 명령 전달
+ * chat : Electron Chat   
  */
 program
   .command('chat')
-  .description('Electron Chat에 명령을 전달하고 결과를 받습니다')
-  .argument('<prompt>', '실행할 명령')
-  .option('-s, --specific', '상세 과정을 stderr에 출력')
+  .description('Electron Chat    ')
+  .argument('<prompt>', ' ')
+  .option('-s, --specific', '  stderr ')
   .action(async (prompt: string, opts: { specific?: boolean }) => {
     await runChatCommand(prompt, opts.specific ?? false);
   });
 
 /**
- * jarvis 서브커맨드: Electron Jarvis에 명령 전달
+ * jarvis : Electron Jarvis  
  */
 program
   .command('jarvis')
-  .description('Electron Jarvis에 명령을 전달하고 결과를 받습니다')
-  .argument('<prompt>', '실행할 명령')
-  .option('-s, --specific', '상세 과정을 stderr에 출력')
+  .description('Electron Jarvis    ')
+  .argument('<prompt>', ' ')
+  .option('-s, --specific', '  stderr ')
   .action(async (prompt: string, opts: { specific?: boolean }) => {
     await runJarvisCommand(prompt, opts.specific ?? false);
   });
 
 /**
- * 에러 핸들링: 알 수 없는 옵션 처리
+ *  :     
  */
 program.showHelpAfterError(false);
 program.configureOutput({
@@ -227,6 +227,6 @@ program.on('command:*', () => {
 });
 
 /**
- * CLI 프로그램 실행
+ * CLI  
  */
 program.parse(process.argv);

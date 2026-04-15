@@ -1,14 +1,14 @@
 /**
  * Electron Preload Script
- * - contextBridge를 통한 안전한 API 노출
- * - 모든 IPC 통신 래핑
+ * - contextBridge   API 
+ * -  IPC  
  */
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-// ============ 타입 정의 ============
+// ============   ============
 
-// PowerShell 타입
+// PowerShell 
 export interface PowerShellResult {
   success: boolean;
   stdout?: string;
@@ -42,7 +42,7 @@ export interface SessionInfo {
   lastActivity: number;
 }
 
-// 시스템 정보 타입
+//   
 export interface SystemInfo {
   platform: string;
   arch: string;
@@ -54,7 +54,7 @@ export interface SystemInfo {
   tempPath: string;
 }
 
-// 다이얼로그 타입
+//  
 export interface FileFilter {
   name: string;
   extensions: string[];
@@ -76,7 +76,7 @@ export interface MessageDialogOptions {
   buttons?: string[];
 }
 
-// 로그 파일 타입
+//   
 export interface LogFile {
   name: string;
   path: string;
@@ -84,10 +84,10 @@ export interface LogFile {
   date: string;
 }
 
-// 로그 카테고리 타입
+//   
 export type LogCategory = 'all' | 'chat' | 'tool' | 'http' | 'llm' | 'subagent' | 'ui' | 'system' | 'debug';
 
-// 로그 엔트리 타입
+//   
 export interface LogEntry {
   timestamp: string;
   level: string;
@@ -96,10 +96,10 @@ export interface LogEntry {
   category?: LogCategory; // Computed from message prefix
 }
 
-// 테마 타입
+//  
 export type Theme = 'dark' | 'light';
 
-// Docs 타입
+// Docs 
 export interface DocsSource {
   id: string;
   name: string;
@@ -123,7 +123,7 @@ export interface DownloadProgress {
   current?: string;
 }
 
-// Config 타입
+// Config 
 export interface AppConfig {
   theme: 'light' | 'dark' | 'system';
   lastOpenedDirectory?: string;
@@ -139,7 +139,7 @@ export interface AppConfig {
   };
 }
 
-// 채팅 메시지 타입
+//   
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'tool';
@@ -159,7 +159,7 @@ export interface ChatMessage {
   };
 }
 
-// 세션 타입
+//  
 export interface Session {
   id: string;
   name: string;
@@ -174,7 +174,7 @@ export interface Session {
   };
 }
 
-// 세션 요약 타입 (목록용)
+//    ()
 export interface SessionSummary {
   id: string;
   name: string;
@@ -185,7 +185,7 @@ export interface SessionSummary {
   preview?: string;
 }
 
-// LLM 모델 정보 타입
+// LLM   
 export interface ModelInfo {
   id: string;
   name: string;
@@ -197,7 +197,7 @@ export interface ModelInfo {
   supportsVision?: boolean;
 }
 
-// LLM Endpoint 타입
+// LLM Endpoint 
 export interface EndpointConfig {
   id: string;
   name: string;
@@ -208,7 +208,7 @@ export interface EndpointConfig {
   updatedAt?: Date;
 }
 
-// LLM 시스템 상태 타입
+// LLM   
 export interface LLMStatus {
   version: string;
   sessionId: string;
@@ -218,7 +218,7 @@ export interface LLMStatus {
   configPath: string;
 }
 
-// Agent 타입
+// Agent 
 export interface TodoItem {
   id: string;
   title: string;
@@ -267,10 +267,10 @@ export interface AskUserResponse {
   isOther: boolean;
 }
 
-// ============ API 정의 ============
+// ============ API  ============
 
 const electronAPI = {
-  // ============ 윈도우 제어 ============
+  // ============   ============
   window: {
     minimize: (): void => {
       ipcRenderer.send('window:minimize');
@@ -309,7 +309,7 @@ const electronAPI = {
     },
   },
 
-  // ============ Task 윈도우 제어 ============
+  // ============ Task   ============
   taskWindow: {
     toggle: (): Promise<{ success: boolean; visible?: boolean }> => {
       return ipcRenderer.invoke('task-window:toggle');
@@ -346,7 +346,7 @@ const electronAPI = {
     },
   },
 
-  // ============ 테마 ============
+  // ============  ============
   theme: {
     getSystem: (): Promise<Theme> => {
       return ipcRenderer.invoke('theme:getSystem');
@@ -365,7 +365,7 @@ const electronAPI = {
     },
   },
 
-  // ============ Config (설정) ============
+  // ============ Config () ============
   config: {
     getAll: (): Promise<AppConfig> => {
       return ipcRenderer.invoke('config:getAll');
@@ -400,7 +400,7 @@ const electronAPI = {
     },
   },
 
-  // ============ Session (세션) ============
+  // ============ Session () ============
   session: {
     create: (name?: string, workingDirectory?: string): Promise<{ success: boolean; session?: Session; error?: string }> => {
       return ipcRenderer.invoke('session:create', name, workingDirectory);
@@ -510,9 +510,9 @@ const electronAPI = {
     },
   },
 
-  // ============ Chat (LLM 대화) ============
+  // ============ Chat (LLM ) ============
   chat: {
-    // 메시지 배열로 대화 전송 (non-streaming)
+    //     (non-streaming)
     send: (messages: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string }>): Promise<{
       success: boolean;
       content?: string;
@@ -522,7 +522,7 @@ const electronAPI = {
       return ipcRenderer.invoke('chat:send', messages);
     },
 
-    // 메시지 배열로 대화 전송 (streaming)
+    //     (streaming)
     sendStream: (messages: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string }>): Promise<{
       success: boolean;
       content?: string;
@@ -532,7 +532,7 @@ const electronAPI = {
       return ipcRenderer.invoke('chat:sendStream', messages);
     },
 
-    // 간단한 메시지 전송
+    //   
     sendMessage: (userMessage: string, systemPrompt?: string, stream?: boolean): Promise<{
       success: boolean;
       content?: string;
@@ -541,17 +541,17 @@ const electronAPI = {
       return ipcRenderer.invoke('chat:sendMessage', userMessage, systemPrompt, stream);
     },
 
-    // 요청 취소
+    //  
     abort: (): Promise<{ success: boolean; error?: string }> => {
       return ipcRenderer.invoke('chat:abort');
     },
 
-    // 요청 활성 상태 확인
+    //    
     isActive: (): Promise<boolean> => {
       return ipcRenderer.invoke('chat:isActive');
     },
 
-    // 스트리밍 청크 수신 이벤트
+    //    
     onChunk: (callback: (data: { chunk: string; done: boolean; error?: boolean }) => void): (() => void) => {
       const handler = (_event: IpcRendererEvent, data: { chunk: string; done: boolean; error?: boolean }) => callback(data);
       ipcRenderer.on('chat:chunk', handler);
@@ -559,9 +559,9 @@ const electronAPI = {
     },
   },
 
-  // ============ Compact (대화 압축) ============
+  // ============ Compact ( ) ============
   compact: {
-    // 대화 압축 실행
+    //   
     execute: (
       messages: Array<{
         role: 'system' | 'user' | 'assistant' | 'tool';
@@ -586,7 +586,7 @@ const electronAPI = {
       return ipcRenderer.invoke('compact:execute', messages, context);
     },
 
-    // 압축 가능 여부 확인
+    //    
     canCompact: (messages: Array<{
       role: string;
       content: string;
@@ -600,9 +600,9 @@ const electronAPI = {
     },
   },
 
-  // ============ Usage Tracking (사용량 추적) ============
+  // ============ Usage Tracking ( ) ============
   usage: {
-    // 사용량 요약 가져오기
+    //   
     getSummary: (): Promise<{
       success: boolean;
       summary?: {
@@ -627,7 +627,7 @@ const electronAPI = {
       return ipcRenderer.invoke('usage:getSummary');
     },
 
-    // 일별 통계 가져오기
+    //   
     getDailyStats: (days?: number): Promise<{
       success: boolean;
       stats?: Array<{
@@ -642,20 +642,20 @@ const electronAPI = {
       return ipcRenderer.invoke('usage:getDailyStats', days);
     },
 
-    // 세션 사용량 리셋
+    //   
     resetSession: (): Promise<{ success: boolean; error?: string }> => {
       return ipcRenderer.invoke('usage:resetSession');
     },
 
-    // 전체 사용량 데이터 삭제
+    //    
     clearData: (): Promise<{ success: boolean; error?: string }> => {
       return ipcRenderer.invoke('usage:clearData');
     },
   },
 
-  // ============ Tools (도구 관리) ============
+  // ============ Tools ( ) ============
   tools: {
-    // 모든 도구 그룹 가져오기
+    //    
     getGroups: (): Promise<{
       success: boolean;
       groups?: Array<{
@@ -672,7 +672,7 @@ const electronAPI = {
       return ipcRenderer.invoke('tools:getGroups');
     },
 
-    // 사용 가능한 도구 그룹만 가져오기
+    //     
     getAvailable: (): Promise<{
       success: boolean;
       groups?: Array<{
@@ -689,7 +689,7 @@ const electronAPI = {
       return ipcRenderer.invoke('tools:getAvailable');
     },
 
-    // 활성화된 도구 그룹 가져오기
+    //    
     getEnabled: (): Promise<{
       success: boolean;
       groups?: Array<{
@@ -706,22 +706,22 @@ const electronAPI = {
       return ipcRenderer.invoke('tools:getEnabled');
     },
 
-    // 도구 그룹 활성화
+    //   
     enable: (groupId: string): Promise<{ success: boolean; error?: string }> => {
       return ipcRenderer.invoke('tools:enable', groupId);
     },
 
-    // 도구 그룹 비활성화
+    //   
     disable: (groupId: string): Promise<{ success: boolean; error?: string }> => {
       return ipcRenderer.invoke('tools:disable', groupId);
     },
 
-    // 도구 그룹 토글
+    //   
     toggle: (groupId: string): Promise<{ success: boolean; enabled?: boolean; error?: string }> => {
       return ipcRenderer.invoke('tools:toggle', groupId);
     },
 
-    // 도구 요약 가져오기
+    //   
     getSummary: (): Promise<{
       success: boolean;
       total?: number;
@@ -741,15 +741,15 @@ const electronAPI = {
       return ipcRenderer.invoke('tools:getSummary');
     },
 
-    // 도구 그룹 활성화 여부 확인
+    //     
     isEnabled: (groupId: string): Promise<boolean> => {
       return ipcRenderer.invoke('tools:isEnabled', groupId);
     },
   },
 
-  // ============ Agent (에이전트) ============
+  // ============ Agent (agent) ============
   agent: {
-    // 에이전트 실행 (sessionId optional - for multi-session worker routing)
+    // agent  (sessionId optional - for multi-session worker routing)
     run: (
       userMessage: string,
       existingMessages?: Array<{ role: string; content: string }>,
@@ -759,37 +759,37 @@ const electronAPI = {
       return ipcRenderer.invoke('agent:run', userMessage, existingMessages, config, sessionId);
     },
 
-    // 에이전트 일시정지 — TODO 유지 (sessionId optional)
+    // agent  — TODO  (sessionId optional)
     pause: (sessionId?: string): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('agent:pause', sessionId);
     },
 
-    // 에이전트 중단 — TODO 전부 삭제 (sessionId optional)
+    // agent  — TODO   (sessionId optional)
     abort: (sessionId?: string): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('agent:abort', sessionId);
     },
 
-    // 에이전트 실행 중 여부 (per-session)
+    // agent    (per-session)
     isRunning: (sessionId?: string): Promise<boolean> => {
       return ipcRenderer.invoke('agent:isRunning', sessionId);
     },
 
-    // 현재 TODO 목록 가져오기 (per-session)
+    //  TODO   (per-session)
     getTodos: (sessionId?: string): Promise<TodoItem[]> => {
       return ipcRenderer.invoke('agent:getTodos', sessionId);
     },
 
-    // TODO 목록 설정
+    // TODO  
     setTodos: (todos: TodoItem[]): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('agent:setTodos', todos);
     },
 
-    // 에이전트 상태 초기화 (Clear Chat 시, sessionId optional)
+    // agent   (Clear Chat , sessionId optional)
     clearState: (sessionId?: string): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('agent:clearState', sessionId);
     },
 
-    // 간단한 채팅 (도구 없음)
+    //   ( )
     simpleChat: (
       userMessage: string,
       existingMessages?: Array<{ role: string; content: string }>,
@@ -798,12 +798,12 @@ const electronAPI = {
       return ipcRenderer.invoke('agent:simpleChat', userMessage, existingMessages, systemPrompt);
     },
 
-    // 사용자 질문에 응답 (sessionId optional)
+    //    (sessionId optional)
     respondToQuestion: (response: AskUserResponse, sessionId?: string): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('agent:respondToQuestion', response, sessionId);
     },
 
-    // 이벤트 리스너들
+    //  
     onMessage: (callback: (message: { role: string; content: string; tool_calls?: unknown[] }) => void): (() => void) => {
       const handler = (_event: IpcRendererEvent, message: { role: string; content: string; tool_calls?: unknown[] }) => callback(message);
       ipcRenderer.on('agent:message', handler);
@@ -959,7 +959,7 @@ const electronAPI = {
     },
   },
 
-  // ============ Worker (멀티 세션) ============
+  // ============ Worker ( ) ============
   worker: {
     create: (sessionId: string): Promise<{ success: boolean; error?: string }> => {
       return ipcRenderer.invoke('worker:create', sessionId);
@@ -975,7 +975,7 @@ const electronAPI = {
     },
   },
 
-  // ============ 다이얼로그 ============
+  // ============  ============
   dialog: {
     openFile: (options?: {
       title?: string;
@@ -1007,7 +1007,7 @@ const electronAPI = {
     },
   },
 
-  // ============ 파일 시스템 ============
+  // ============   ============
   fs: {
     readFile: (filePath: string): Promise<{ success: boolean; content?: string; error?: string }> => {
       return ipcRenderer.invoke('fs:readFile', filePath);
@@ -1151,9 +1151,9 @@ const electronAPI = {
     },
   },
 
-  // ============ 로그 ============
+  // ============  ============
   log: {
-    // Renderer에서 로그 쓰기 (Log Viewer에 표시됨)
+    // Renderer   (Log Viewer )
     info: (message: string, data?: unknown): void => {
       ipcRenderer.send('log:write', 'info', message, data);
     },
@@ -1249,7 +1249,7 @@ const electronAPI = {
       return ipcRenderer.invoke('log:getCurrentSessionId');
     },
 
-    // Current Run log methods (이번 실행 로그)
+    // Current Run log methods (  )
     getRunFiles: (): Promise<{ success: boolean; files: Array<{ runId: string; path: string; size: number; modifiedAt: number }> }> => {
       return ipcRenderer.invoke('log:getRunFiles');
     },
@@ -1271,14 +1271,14 @@ const electronAPI = {
     },
   },
 
-  // ============ 시스템 ============
+  // ============  ============
   system: {
     info: (): Promise<SystemInfo> => {
       return ipcRenderer.invoke('system:info');
     },
   },
 
-  // ============ 앱 제어 ============
+  // ============   ============
   app: {
     restart: (): Promise<void> => {
       return ipcRenderer.invoke('app:restart');
@@ -1289,52 +1289,52 @@ const electronAPI = {
     },
   },
 
-  // ============ 자동 업데이트 ============
+  // ============   ============
   update: {
-    // 현재 버전 가져오기
+    //   
     getVersion: (): Promise<string> => {
       return ipcRenderer.invoke('update:getVersion');
     },
 
-    // 다운로드 시작
+    //  
     startDownload: (): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('update:startDownload');
     },
 
-    // 설치 (재시작)
+    //  ()
     install: (): Promise<void> => {
       return ipcRenderer.invoke('update:install');
     },
 
-    // 업데이트 가능 이벤트
+    //   
     onAvailable: (callback: (info: { version: string; releaseNotes?: string | { note?: string | null }[]; releaseDate?: string }) => void): (() => void) => {
       const handler = (_event: IpcRendererEvent, info: { version: string; releaseNotes?: string | { note?: string | null }[]; releaseDate?: string }) => callback(info);
       ipcRenderer.on('update:available', handler);
       return () => ipcRenderer.removeListener('update:available', handler);
     },
 
-    // 업데이트 없음 이벤트
+    //   
     onNotAvailable: (callback: () => void): (() => void) => {
       const handler = () => callback();
       ipcRenderer.on('update:not-available', handler);
       return () => ipcRenderer.removeListener('update:not-available', handler);
     },
 
-    // 다운로드 진행률 이벤트
+    //   
     onDownloadProgress: (callback: (progress: { percent: number; transferred: number; total: number; bytesPerSecond: number }) => void): (() => void) => {
       const handler = (_event: IpcRendererEvent, progress: { percent: number; transferred: number; total: number; bytesPerSecond: number }) => callback(progress);
       ipcRenderer.on('update:download-progress', handler);
       return () => ipcRenderer.removeListener('update:download-progress', handler);
     },
 
-    // 다운로드 완료 이벤트
+    //   
     onDownloaded: (callback: (info: { version: string; releaseNotes?: string | { note?: string | null }[] }) => void): (() => void) => {
       const handler = (_event: IpcRendererEvent, info: { version: string; releaseNotes?: string | { note?: string | null }[] }) => callback(info);
       ipcRenderer.on('update:downloaded', handler);
       return () => ipcRenderer.removeListener('update:downloaded', handler);
     },
 
-    // 에러 이벤트
+    //  
     onError: (callback: (error: string) => void): (() => void) => {
       const handler = (_event: IpcRendererEvent, error: string) => callback(error);
       ipcRenderer.on('update:error', handler);
@@ -1342,7 +1342,7 @@ const electronAPI = {
     },
   },
 
-  // ============ 개발자 도구 ============
+  // ============   ============
   devTools: {
     toggle: (): Promise<{ success: boolean }> => {
       return ipcRenderer.invoke('devTools:toggle');
@@ -1398,22 +1398,22 @@ const electronAPI = {
   // Jarvis Mode
   // =========================================================================
   jarvis: {
-    // Jarvis 윈도우 열기
+    // Jarvis  
     showWindow: (): Promise<void> => {
       return ipcRenderer.invoke('jarvis:showWindow');
     },
 
-    // 사용자 메시지 전송
+    //   
     sendMessage: (message: string): Promise<void> => {
       return ipcRenderer.invoke('jarvis:sendMessage', message);
     },
 
-    // 수동 폴링 트리거
+    //   
     pollNow: (): Promise<void> => {
       return ipcRenderer.invoke('jarvis:pollNow');
     },
 
-    // 설정 조회/변경
+    //  /
     getConfig: (): Promise<{ enabled: boolean; pollIntervalMinutes: number; autoStartOnBoot: boolean; modelId?: string; endpointId?: string }> => {
       return ipcRenderer.invoke('jarvis:getConfig');
     },
@@ -1421,27 +1421,27 @@ const electronAPI = {
       return ipcRenderer.invoke('jarvis:setConfig', config);
     },
 
-    // 상태 조회
+    //  
     getState: (): Promise<{ status: string; isRunning: boolean; lastPollTime: string | null }> => {
       return ipcRenderer.invoke('jarvis:getState');
     },
 
-    // 대화 이력 가져오기 (윈도우 재오픈 시 복원용)
+    //    (   won)
     getChatHistory: (): Promise<unknown[]> => {
       return ipcRenderer.invoke('jarvis:getChatHistory');
     },
 
-    // 승인 응답
+    //  
     respondToApproval: (requestId: string, approved: boolean): Promise<void> => {
       return ipcRenderer.invoke('jarvis:respondToApproval', requestId, approved);
     },
 
-    // 질문 응답
+    //  
     respondToQuestion: (requestId: string, answer: string): Promise<void> => {
       return ipcRenderer.invoke('jarvis:respondToQuestion', requestId, answer);
     },
 
-    // 이벤트 리스너
+    //  
     onMessage: (callback: (message: unknown) => void): (() => void) => {
       const handler = (_event: unknown, message: unknown) => callback(message);
       ipcRenderer.on('jarvis:message', handler);
@@ -1466,13 +1466,13 @@ const electronAPI = {
   },
 };
 
-// API 타입 내보내기
+// API  
 export type ElectronAPI = typeof electronAPI;
 
-// contextBridge를 통해 안전하게 API 노출
+// contextBridge   API 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
-// 개발 환경 확인 로그
+//    
 if (process.env.NODE_ENV === 'development') {
   console.log('[Preload] Electron API exposed to renderer');
 }

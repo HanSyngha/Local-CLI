@@ -1,11 +1,11 @@
 /**
  * Browser Automation Tools (LLM Simple)
  *
- * LLM이 브라우저를 제어할 수 있는 도구들
- * Category: LLM Simple Tools - LLM이 tool_call로 호출, Sub-LLM 없음
+ * LLM     
+ * Category: LLM Simple Tools - LLM tool_call , Sub-LLM 
  *
  * Uses CDP (Chrome DevTools Protocol) via Playwright
- * PowerShell로 브라우저를 시작하고 Playwright로 제어합니다.
+ * PowerShell   Playwright .
  */
 
 import { ToolDefinition } from '../../types/index.js';
@@ -1615,8 +1615,8 @@ export const BROWSER_TOOLS: LLMSimpleTool[] = [
 ];
 
 /**
- * Sub-agent용 브라우저 도구 서브셋
- * launch/close/connect/health 제외 — BrowserSubAgent가 lifecycle 관리
+ * Sub-agent   
+ * launch/close/connect/health  — BrowserSubAgent lifecycle 
  */
 export const BROWSER_SUB_AGENT_TOOLS: LLMSimpleTool[] = [
   browserNavigateTool,

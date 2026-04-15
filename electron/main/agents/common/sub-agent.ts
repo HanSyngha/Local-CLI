@@ -554,7 +554,7 @@ export class SubAgent {
     // Detect Korean in instruction and add language enforcement
     const hasKorean = /[\uac00-\ud7af\u1100-\u11ff]/.test(instruction);
     if (hasKorean) {
-      userContent += '\n⚠ LANGUAGE: 사용자가 한국어로 작성했습니다. 모든 텍스트(제목, 본문, 테이블 헤더, 차트 라벨)를 반드시 한국어로 작성하세요. 실행 계획에 영어 제목이 있더라도 한국어로 번역하여 사용하세요.';
+      userContent += '\n⚠ LANGUAGE:   .  (, ,  ,  )   .        .';
     }
 
     return [

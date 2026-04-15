@@ -1,6 +1,6 @@
 /**
  * Error Boundary Component
- * React 에러 발생 시 폴백 UI 표시
+ * React     UI 
  */
 
 import { Component, ErrorInfo, ReactNode } from 'react';
@@ -34,11 +34,11 @@ class ErrorBoundary extends Component<Props, State> {
     window.electronAPI?.log?.error('[ErrorBoundary] Caught an error', { error: error.message, componentStack: errorInfo?.componentStack });
     this.setState({ errorInfo });
 
-    // 로그 서버로 전송 가능 (선택적)
+    //     ()
     try {
-      // 추후 로깅 서비스 연동
+      //    
     } catch {
-      // 무시
+      // 
     }
   }
 

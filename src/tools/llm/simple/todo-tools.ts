@@ -1,8 +1,8 @@
 /**
  * TODO Management LLM Tools
  *
- * LLM이 TODO 리스트를 관리할 수 있는 도구
- * Claude Code 방식: write_todos로 전체 목록을 교체
+ * LLM TODO     
+ * Claude Code : write_todos   
  */
 
 import { LLMSimpleTool, ToolResult, ToolCategory } from '../../types.js';
@@ -10,7 +10,7 @@ import { ToolDefinition } from '../../../types/index.js';
 import { logger } from '../../../utils/logger.js';
 
 /**
- * TODO 아이템 (간소화: title + status만)
+ * TODO  (: title + status)
  */
 export interface TodoInput {
   id: string;
@@ -19,8 +19,8 @@ export interface TodoInput {
 }
 
 /**
- * TODO 리스트 교체 콜백 타입
- * 전체 목록을 받아서 교체
+ * TODO    
+ *    
  */
 export type TodoWriteCallback = (todos: TodoInput[]) => Promise<boolean>;
 
@@ -45,7 +45,7 @@ export function clearTodoCallbacks(): void {
 
 /**
  * write_todos Tool Definition
- * 전체 TODO 목록을 교체 (Claude Code 방식)
+ *  TODO   (Claude Code )
  */
 const WRITE_TODOS_DEFINITION: ToolDefinition = {
   type: 'function',

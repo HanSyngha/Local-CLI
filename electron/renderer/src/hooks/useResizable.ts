@@ -1,10 +1,10 @@
 /**
  * useResizable Hook
- * 패널 크기 조절을 위한 커스텀 훅
- * - localStorage에 크기 저장
- * - 창 크기 변경 시 비율 유지
- * - 60fps 성능 최적화
- * - 메모리 누수 방지
+ *      
+ * - localStorage  
+ * -      
+ * - 60fps  
+ * -   
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -42,7 +42,7 @@ export interface UseResizableReturn extends ResizableState, ResizableActions {
   };
 }
 
-// localStorage 유틸리티
+// localStorage 
 const getStoredSize = (key: string, defaultValue: number): number => {
   try {
     const stored = localStorage.getItem(`resizable-${key}`);
@@ -51,7 +51,7 @@ const getStoredSize = (key: string, defaultValue: number): number => {
       return typeof parsed.size === 'number' ? parsed.size : defaultValue;
     }
   } catch {
-    // 무시
+    // 
   }
   return defaultValue;
 };
@@ -64,7 +64,7 @@ const getStoredCollapsed = (key: string): boolean => {
       return typeof parsed.collapsed === 'boolean' ? parsed.collapsed : false;
     }
   } catch {
-    // 무시
+    // 
   }
   return false;
 };
@@ -73,7 +73,7 @@ const saveToStorage = (key: string, size: number, collapsed: boolean): void => {
   try {
     localStorage.setItem(`resizable-${key}`, JSON.stringify({ size, collapsed }));
   } catch {
-    // 무시
+    // 
   }
 };
 
@@ -108,7 +108,7 @@ export function useResizable(config: ResizableConfig): UseResizableReturn {
     isCollapsedRef.current = isCollapsed;
   }, [isCollapsed]);
 
-  // 크기 설정
+  //  
   const setSize = useCallback((newSize: number) => {
     const { minSize: min, maxSize: max, storageKey: key } = configRef.current;
     const clampedSize = Math.max(min, Math.min(max, newSize));
@@ -116,7 +116,7 @@ export function useResizable(config: ResizableConfig): UseResizableReturn {
     saveToStorage(key, clampedSize, isCollapsedRef.current);
   }, []);
 
-  // 접기/펼치기
+  // /
   const collapse = useCallback(() => {
     setIsCollapsed(true);
     saveToStorage(configRef.current.storageKey, sizeRef.current, true);
@@ -140,7 +140,7 @@ export function useResizable(config: ResizableConfig): UseResizableReturn {
     saveToStorage(configRef.current.storageKey, defaultSize, isCollapsedRef.current);
   }, [defaultSize]);
 
-  // 리사이즈 시작 (마우스)
+  //   ()
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -216,7 +216,7 @@ export function useResizable(config: ResizableConfig): UseResizableReturn {
     document.addEventListener('mouseup', handleMouseUp);
   }, []);
 
-  // 리사이즈 시작 (터치)
+  //   ()
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length !== 1) return;
 
@@ -287,7 +287,7 @@ export function useResizable(config: ResizableConfig): UseResizableReturn {
     document.addEventListener('touchcancel', handleTouchEnd);
   }, []);
 
-  // 창 크기 변경 시 비율 유지
+  //      
   useEffect(() => {
     if (!useRatio) return;
 

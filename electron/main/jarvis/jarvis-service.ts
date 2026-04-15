@@ -33,9 +33,9 @@ import { emitToCLI } from '../cli-server-bridge';
 // Constants
 // =============================================================================
 
-const MAX_MANAGER_ITERATIONS = 20; // Manager LLM 도구 루프 최대 반복
-const MAX_RETRY_NO_TOOL = 3;       // 도구 미사용 시 재시도
-const MEMORY_MAX_ENTRIES = 100;     // 기억 항목 최대 수
+const MAX_MANAGER_ITERATIONS = 20; // Manager LLM    
+const MAX_RETRY_NO_TOOL = 3;       //    
+const MEMORY_MAX_ENTRIES = 100;     //    
 
 // =============================================================================
 // JarvisService Class
@@ -44,18 +44,18 @@ const MEMORY_MAX_ENTRIES = 100;     // 기억 항목 최대 수
 export class JarvisService {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private memory: JarvisMemory = { entries: [], lastGreeting: '', lastPollTime: '' };
-  private messages: Message[] = [];    // Layer 2 대화
-  private pendingUserMessages: string[] = []; // 실행 중 대기열
-  private chatHistory: JarvisChatMessage[] = []; // UI 대화 이력 (윈도우 재오픈 시 복원용)
+  private messages: Message[] = [];    // Layer 2 
+  private pendingUserMessages: string[] = []; //   
+  private chatHistory: JarvisChatMessage[] = []; // UI   (   won)
 
   private status: JarvisStatus = 'idle';
   private isRunning = false;
-  private isStopped = false; // stop() 호출 시 true → 진행 중인 루프 종료
+  private isStopped = false; // stop()   true →    
 
-  // Pending response maps (사용자 응답 대기용)
+  // Pending response maps (  )
   private pendingApprovals = new Map<string, { resolve: (approved: boolean) => void; timer: NodeJS.Timeout }>();
   private pendingQuestions = new Map<string, { resolve: (answer: string) => void; timer: NodeJS.Timeout }>();
-  private static readonly RESPONSE_TIMEOUT = 300_000; // 5분
+  private static readonly RESPONSE_TIMEOUT = 300_000; // 5
   private jarvisWindow: BrowserWindow | null = null;
 
   // Memory file path
@@ -81,10 +81,10 @@ export class JarvisService {
     await this.loadMemory();
     const config = this.getConfig();
 
-    // 첫 인사 + TODO 체크
+    //   + TODO 
     this.greetAndCheck();
 
-    // 타이머 시작
+    //  
     this.scheduleNextPoll(config.pollIntervalMinutes);
     logger.info('[JarvisService] Started', { interval: config.pollIntervalMinutes });
   }
@@ -98,7 +98,7 @@ export class JarvisService {
     this.isRunning = false;
     this.setStatus('idle');
 
-    // Pending 응답 모두 정리
+    // Pending   
     for (const [, pending] of this.pendingApprovals) {
       clearTimeout(pending.timer);
       pending.resolve(false);
@@ -106,7 +106,7 @@ export class JarvisService {
     this.pendingApprovals.clear();
     for (const [, pending] of this.pendingQuestions) {
       clearTimeout(pending.timer);
-      pending.resolve('[서비스 종료]');
+      pending.resolve('[ ]');
     }
     this.pendingQuestions.clear();
 
@@ -122,12 +122,12 @@ export class JarvisService {
   }
 
   /**
-   * 사용자 메시지 처리
+   *   
    */
   async handleUserMessage(message: string): Promise<void> {
     logger.info('[JarvisService] handleUserMessage', { message: message.slice(0, 300), messageLength: message.length, isRunning: this.isRunning });
 
-    // 사용자 메시지를 chatHistory에 기록 (윈도우 재오픈 시 복원용)
+    //   chatHistory  (   won)
     this.chatHistory.push({
       id: `user-${Date.now()}`,
       type: 'user',
@@ -136,13 +136,13 @@ export class JarvisService {
     });
 
     if (this.isRunning) {
-      // 실행 중이면 대기열에 저장
+      //    
       this.pendingUserMessages.push(message);
       logger.info('[JarvisService] Message queued (busy)', { queueSize: this.pendingUserMessages.length });
       this.broadcastMessage({
         id: `sys-${Date.now()}`,
         type: 'system',
-        content: '현재 작업 중입니다. 완료 후 메시지를 처리하겠습니다.',
+        content: ' task .    .',
         timestamp: Date.now(),
       });
       return;
@@ -161,7 +161,7 @@ export class JarvisService {
   }
 
   // ===========================================================================
-  // User Response Handling (IPC에서 호출)
+  // User Response Handling (IPC )
   // ===========================================================================
 
   respondToApproval(requestId: string, approved: boolean): void {
@@ -203,7 +203,7 @@ export class JarvisService {
     this.setStatus(trigger === 'poll' ? 'polling' : 'analyzing');
 
     try {
-      // 1. 컨텍스트 구성
+      // 1.  
       const now = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
       const recentConversation = this.messages.slice(-20).map(m =>
         `[${m.role.toUpperCase()}]: ${(m.content || '').slice(0, 500)}`
@@ -218,10 +218,10 @@ export class JarvisService {
         pendingMessages: this.pendingUserMessages.length > 0 ? [...this.pendingUserMessages] : undefined,
       });
 
-      // 대기열 초기화 (컨텍스트에 포함했으므로)
+      //   ( )
       this.pendingUserMessages = [];
 
-      // 2.5. Jarvis 전용 모델 임시 적용 (설정되어 있으면)
+      // 2.5. Jarvis dedicated    ( )
       const jarvisModelConfig = this.getConfig();
       let originalEndpointId: string | undefined;
       let originalModelId: string | undefined;
@@ -241,7 +241,7 @@ export class JarvisService {
         }
       }
 
-      // 3. Manager LLM 도구 루프
+      // 3. Manager LLM  
       logger.info('[JarvisService] Starting Manager LLM loop', {
         trigger,
         userMessage: userMessage?.slice(0, 200),
@@ -256,7 +256,7 @@ export class JarvisService {
       ];
 
       let noToolRetries = 0;
-      let consecutiveReports = 0; // 연속 report_to_user 감지 → 루프 종료 조건
+      let consecutiveReports = 0; //  report_to_user  →   
 
       for (let i = 0; i < MAX_MANAGER_ITERATIONS; i++) {
         this.setStatus('analyzing');
@@ -275,7 +275,7 @@ export class JarvisService {
           this.broadcastMessage({
             id: `err-${Date.now()}`,
             type: 'system',
-            content: 'LLM 호출에 실패했습니다. 다음 폴링에서 다시 시도합니다.',
+            content: 'LLM  .    .',
             timestamp: Date.now(),
           });
           break;
@@ -287,14 +287,14 @@ export class JarvisService {
           break;
         }
 
-        // LLM 텍스트 응답이 있으면 로깅 (도구 호출 없이 텍스트만 온 경우 추적용)
+        // LLM     (      )
         if (assistantMessage.content) {
           logger.info('[JarvisService] LLM text response', { iteration: i + 1, content: String(assistantMessage.content).slice(0, 300) });
         }
 
         managerMessages.push(assistantMessage);
 
-        // Tool call 처리
+        // Tool call 
         const toolCalls = assistantMessage.tool_calls;
         if (!toolCalls || toolCalls.length === 0) {
           noToolRetries++;
@@ -302,16 +302,16 @@ export class JarvisService {
             logger.warn('[JarvisService] Manager LLM failed to use tools after retries');
             break;
           }
-          // 재시도: 도구 사용 강제
+          // :   
           managerMessages.push({
             role: 'user',
-            content: 'ERROR: 도구를 사용하지 않았습니다. 반드시 도구를 사용해주세요.',
+            content: 'ERROR:   .   .',
           });
           continue;
         }
 
         noToolRetries = 0;
-        const toolCall = toolCalls[0]; // 단일 도구 실행
+        const toolCall = toolCalls[0]; //   
         const toolName = toolCall.function.name;
         let toolArgs: Record<string, unknown> = {};
         try {
@@ -327,13 +327,13 @@ export class JarvisService {
 
         logger.info('[JarvisService] Manager tool call', { tool: toolName, iteration: i + 1, args: JSON.stringify(toolArgs).slice(0, 300) });
 
-        // 4. 도구별 처리
+        // 4.  
         let toolResult = '';
         let shouldBreak = false;
 
         switch (toolName) {
           case 'delegate_to_planner': {
-            consecutiveReports = 0; // 다른 도구 호출 시 리셋
+            consecutiveReports = 0; //     
             this.setStatus('executing');
             const taskDesc = (toolArgs.task_description as string) || '';
             const workDir = (toolArgs.working_directory as string) || process.cwd();
@@ -341,7 +341,7 @@ export class JarvisService {
             this.broadcastMessage({
               id: `exec-${Date.now()}`,
               type: 'execution_status',
-              content: '작업을 실행하고 있습니다...',
+              content: 'task  ...',
               timestamp: Date.now(),
             });
 
@@ -356,19 +356,19 @@ export class JarvisService {
               this.broadcastMessage({
                 id: `exec-done-${Date.now()}`,
                 type: 'execution_status',
-                content: result.success ? '작업이 완료되었습니다' : '작업에 실패했습니다',
+                content: result.success ? 'task ' : 'task ',
                 timestamp: Date.now(),
               });
             } catch (err) {
               toolResult = JSON.stringify({
                 success: false,
-                response: `실행 오류: ${String(err)}`,
+                response: ` : ${String(err)}`,
                 iterations: 0,
               });
               this.broadcastMessage({
                 id: `exec-err-${Date.now()}`,
                 type: 'execution_status',
-                content: '작업에 실패했습니다',
+                content: 'task ',
                 timestamp: Date.now(),
               });
             }
@@ -384,10 +384,10 @@ export class JarvisService {
               content: message,
               timestamp: Date.now(),
             });
-            // Layer 2에 기록
+            // Layer 2 
             this.messages.push({ role: 'assistant', content: `[Jarvis → User] ${message}` });
             consecutiveReports++;
-            // 1번 report로 충분 → 즉시 루프 종료 (중복 메시지 방지)
+            // 1 report  →    (  )
             logger.info('[JarvisService] report_to_user sent, ending loop');
             toolResult = 'Message sent. Cycle complete. Do NOT send another message.';
             shouldBreak = true;
@@ -412,7 +412,7 @@ export class JarvisService {
                 this.pendingApprovals.delete(requestId);
                 logger.warn('[JarvisService] Approval timeout', { requestId });
                 this.setStatus('analyzing');
-                resolve(JSON.stringify({ approved: false, reason: '응답 시간 초과' }));
+                resolve(JSON.stringify({ approved: false, reason: '  ' }));
               }, JarvisService.RESPONSE_TIMEOUT);
               this.pendingApprovals.set(requestId, {
                 resolve: (approved) => {
@@ -447,7 +447,7 @@ export class JarvisService {
                 this.pendingQuestions.delete(requestId);
                 logger.warn('[JarvisService] Question timeout', { requestId });
                 this.setStatus('analyzing');
-                resolve(JSON.stringify({ answer: '[응답 시간 초과 - 기본값 사용]' }));
+                resolve(JSON.stringify({ answer: '[   -  ]' }));
               }, JarvisService.RESPONSE_TIMEOUT);
               this.pendingQuestions.set(requestId, {
                 resolve: (answer) => {
@@ -493,7 +493,7 @@ export class JarvisService {
             break;
         }
 
-        // Tool result를 Manager에게 반환
+        // Tool result Manager return
         managerMessages.push({
           role: 'tool',
           tool_call_id: toolCall.id,
@@ -505,24 +505,24 @@ export class JarvisService {
         if (shouldBreak) break;
       }
 
-      // Jarvis 전용 모델 복원
+      // Jarvis dedicated  won
       if (originalEndpointId !== undefined || originalModelId !== undefined) {
         logger.info('[JarvisService] Restoring original model', { endpointId: originalEndpointId, modelId: originalModelId });
         if (originalEndpointId) await configManager.setCurrentEndpoint(originalEndpointId);
         if (originalModelId) await configManager.setCurrentModel(originalModelId);
       }
 
-      // 폴링 시각 업데이트
+      //   
       this.memory.lastPollTime = new Date().toISOString();
       await this.saveMemory();
 
-      // 컨텍스트 auto-compact 체크
+      //  auto-compact 
       await this.checkAndCompact();
 
     } catch (error) {
       logger.errorSilent('[JarvisService] runManagerLoop error', { type: 'jarvis', trigger, error: String(error) });
     } finally {
-      // 대기열 처리 전에 isRunning 유지하여 race condition 방지
+      //    isRunning  race condition 
       if (this.pendingUserMessages.length > 0) {
         const nextMessage = this.pendingUserMessages.shift()!;
         logger.info('[JarvisService] Processing queued message', { remaining: this.pendingUserMessages.length });
@@ -535,7 +535,7 @@ export class JarvisService {
       }
       this.isRunning = false;
       this.setStatus('idle');
-      // CLI Server에 완료 알림 (마지막 jarvis 메시지를 result로)
+      // CLI Server   ( jarvis  result)
       const lastJarvisMsg = [...this.chatHistory].reverse().find(m => m.type === 'jarvis');
       if (lastJarvisMsg) {
         emitToCLI('jarvis:complete', lastJarvisMsg);
@@ -586,7 +586,7 @@ export class JarvisService {
     };
     this.memory.entries.push(entry);
     const beforeCount = this.memory.entries.length;
-    // FIFO: 최대 항목 수 유지
+    // FIFO:    
     if (this.memory.entries.length > MEMORY_MAX_ENTRIES) {
       this.memory.entries = this.memory.entries.slice(-MEMORY_MAX_ENTRIES);
     }
@@ -647,7 +647,7 @@ export class JarvisService {
   // ===========================================================================
 
   private async checkAndCompact(): Promise<void> {
-    // 메시지가 50개 이상이면 compact
+    //  50  compact
     if (this.messages.length < 50) return;
 
     try {
@@ -680,17 +680,17 @@ export class JarvisService {
   };
 
   /**
-   * Agent Engine을 직접 호출하여 Planner→Executor 파이프라인 실행.
-   * Manager LLM이 비서 User 역할 — ask_to_user를 Manager가 대신 응답.
+   * Agent Engine   Planner→Executor  .
+   * Manager LLM  User  — ask_to_user Manager  .
    */
   private async executeViaAgentEngine(
     taskDescription: string,
     workingDirectory: string,
   ): Promise<{ success: boolean; response: string; iterations: number; toolCalls: Array<{ tool: string; args: Record<string, unknown>; result: string; success: boolean }>; error?: string }> {
-    // Jarvis 전용 AgentIO — 모든 이벤트를 jarvisWindow로만 전송
+    // Jarvis dedicated AgentIO —   jarvisWindow 
     const jarvisIO: AgentIO = {
       broadcast: (channel: string, ...data: unknown[]) => {
-        // 중간 과정은 로그로만 기록, UI에는 표시하지 않음
+        //    , UI  
         if (channel === 'agent:toolCall') {
           const toolInfo = data[0] as { toolName?: string } | undefined;
           if (toolInfo?.toolName) {
@@ -704,25 +704,25 @@ export class JarvisService {
       showTaskWindow: () => { /* noop */ },
       isTaskWindowVisible: () => false,
       requestApproval: async () => {
-        // 완전 자율: 모든 도구 자동 승인
+        //  :    
         return 'always' as const;
       },
-      sendFileEdit: () => { /* Jarvis는 파일 편집 미리보기 안 함 */ },
+      sendFileEdit: () => { /* Jarvis      */ },
     };
 
     const config: AgentConfig = {
       workingDirectory,
       enablePlanning: true,
-      autoMode: true, // supervised mode 비활성화 → 전부 자동 승인
+      autoMode: true, // supervised mode  →   
     };
 
     const result = await runAgentCore(
       taskDescription,
-      [], // 새로운 실행이므로 기존 메시지 없음
+      [], //     
       config,
       {
         onAskUser: async (request) => {
-          // Manager LLM이 Sub-LLM의 질문에 기억+컨텍스트 기반으로 판단하여 답변
+          // Manager LLM Sub-LLM  +   
           logger.info('[JarvisService] Sub-LLM ask_to_user intercepted', {
             question: request.question,
             options: request.options,
@@ -731,11 +731,11 @@ export class JarvisService {
           try {
             const memoryContext = this.memory.entries.length > 0
               ? this.memory.entries.map(e => `[${e.key}]: ${e.content}`).join('\n')
-              : '(기억 없음)';
+              : '( )';
 
             const optionsList = request.options.length > 0
               ? request.options.map((o, i) => `${i + 1}. ${o}`).join('\n')
-              : '(선택지 없음 — 자유 답변)';
+              : '(  —  )';
 
             const response = await llmClient.chatCompletion({
               messages: [
@@ -748,7 +748,7 @@ Reply in Korean. No explanation, just the answer.`,
                 },
                 {
                   role: 'user',
-                  content: `<MEMORY>\n${memoryContext}\n</MEMORY>\n\n<TASK_CONTEXT>\n${taskDescription}\n</TASK_CONTEXT>\n\n질문: ${request.question}\n\n선택지:\n${optionsList}`,
+                  content: `<MEMORY>\n${memoryContext}\n</MEMORY>\n\n<TASK_CONTEXT>\n${taskDescription}\n</TASK_CONTEXT>\n\n: ${request.question}\n\n:\n${optionsList}`,
                 },
               ],
               temperature: 0.3,
@@ -758,7 +758,7 @@ Reply in Korean. No explanation, just the answer.`,
             logger.info('[JarvisService] Manager answered sub-LLM question', { answer: answer.slice(0, 200) });
 
             if (request.options.length > 0) {
-              // 옵션 매칭: 정확 → 포함 → fallback 첫 번째
+              //  :  →  → fallback  
               const exact = request.options.find(o => o === answer);
               const partial = !exact ? request.options.find(o => answer.includes(o) || o.includes(answer)) : undefined;
               const selected = exact || partial || request.options[0];
@@ -819,7 +819,7 @@ Reply in Korean. No explanation, just the answer.`,
     });
     this.chatHistory.push(message);
     this.jarvisWindow?.webContents.send('jarvis:message', message);
-    // CLI Server로 이벤트 전달
+    // CLI Server  
     emitToCLI('jarvis:message', message);
   }
 }

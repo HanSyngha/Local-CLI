@@ -1,11 +1,11 @@
 /**
  * Tool Registry
  *
- * 도구 중앙 등록 시스템
- * 모든 도구를 카테고리별로 등록하고 관리
+ *    
+ *     
  *
  * Features:
- * - Multi-category registration (한 도구가 여러 카테고리에 등록 가능)
+ * - Multi-category registration (     )
  * - Type-safe tool retrieval
  * - LLM tool definitions export
  * - Optional tools with enable/disable support
@@ -83,20 +83,20 @@ export interface OptionalToolGroup {
 
 /**
  * Validation: Check if browser tools are available
- * CDP 방식에서는 별도 서버가 필요 없음
+ * CDP     
  */
 async function validateBrowserTools(): Promise<EnableResult> {
-  // CDP 방식에서는 server.exe가 필요 없음
-  // 브라우저(Chrome/Edge)가 설치되어 있으면 사용 가능
-  // 실제 브라우저 유무는 launch 시 확인됨
+  // CDP  server.exe  
+  // (Chrome/Edge)    
+  //    launch  
   try {
-    // startBrowserServer는 CDP 방식에서 항상 true 반환
+    // startBrowserServer CDP   true return
     await startBrowserServer();
     return { success: true };
   } catch (error) {
     return {
       success: false,
-      error: `Browser 도구 활성화 실패: ${error instanceof Error ? error.message : String(error)}`,
+      error: `Browser   : ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }

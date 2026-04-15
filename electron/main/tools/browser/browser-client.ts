@@ -903,7 +903,7 @@ class BrowserClient {
         return { success: false, error: 'Browser not running. Use launch first.' };
       }
 
-      // JavaScript로 요소에 값 입력 (CLI와 동일)
+      // JavaScript    (CLI )
       const result = await this.cdp.send('Runtime.evaluate', {
         expression: `
           (function() {
@@ -1141,32 +1141,32 @@ class BrowserClient {
         return { success: false, error: 'Browser not running. Use launch first.' };
       }
 
-      // 특수 키 매핑 (CLI와 동일)
+      //    (CLI )
       const keyMap: Record<string, { key: string; code: string; keyCode: number }> = {
-        // 네비게이션 키
+        //  
         'Enter': { key: 'Enter', code: 'Enter', keyCode: 13 },
         'Tab': { key: 'Tab', code: 'Tab', keyCode: 9 },
         'Escape': { key: 'Escape', code: 'Escape', keyCode: 27 },
         'Backspace': { key: 'Backspace', code: 'Backspace', keyCode: 8 },
         'Delete': { key: 'Delete', code: 'Delete', keyCode: 46 },
         'Space': { key: ' ', code: 'Space', keyCode: 32 },
-        // 화살표 키
+        //  
         'ArrowUp': { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
         'ArrowDown': { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
         'ArrowLeft': { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
         'ArrowRight': { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
-        // 페이지 네비게이션
+        //  
         'Home': { key: 'Home', code: 'Home', keyCode: 36 },
         'End': { key: 'End', code: 'End', keyCode: 35 },
         'PageUp': { key: 'PageUp', code: 'PageUp', keyCode: 33 },
         'PageDown': { key: 'PageDown', code: 'PageDown', keyCode: 34 },
         'Insert': { key: 'Insert', code: 'Insert', keyCode: 45 },
-        // 수정 키
+        //  
         'Control': { key: 'Control', code: 'ControlLeft', keyCode: 17 },
         'Alt': { key: 'Alt', code: 'AltLeft', keyCode: 18 },
         'Shift': { key: 'Shift', code: 'ShiftLeft', keyCode: 16 },
         'Meta': { key: 'Meta', code: 'MetaLeft', keyCode: 91 },
-        // Function 키
+        // Function 
         'F1': { key: 'F1', code: 'F1', keyCode: 112 },
         'F2': { key: 'F2', code: 'F2', keyCode: 113 },
         'F3': { key: 'F3', code: 'F3', keyCode: 114 },
@@ -1188,7 +1188,7 @@ class BrowserClient {
         });
       }
 
-      // 조합 키 처리 (예: Control+A, Shift+Tab)
+      //    (: Control+A, Shift+Tab)
       const parts = key.split('+');
       const modifiers: { ctrl?: boolean; alt?: boolean; shift?: boolean; meta?: boolean } = {};
       let mainKey = key;
@@ -1204,7 +1204,7 @@ class BrowserClient {
         mainKey = parts[parts.length - 1] || key;
       }
 
-      // 단일 문자의 경우 대문자/소문자 처리
+      //    / 
       let keyInfo = keyMap[mainKey];
       if (!keyInfo) {
         if (mainKey.length === 1) {
@@ -1220,7 +1220,7 @@ class BrowserClient {
         }
       }
 
-      // 수정자 플래그 계산 (CDP용)
+      //    (CDP)
       let modifierFlags = 0;
       if (modifiers.alt) modifierFlags |= 1;
       if (modifiers.ctrl) modifierFlags |= 2;

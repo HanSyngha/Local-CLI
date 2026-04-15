@@ -1,14 +1,14 @@
 /**
  * OAuth Login for CLI
  *
- * Dashboard(main)의 OAuth 인증을 CLI에서 수행하는 모듈
+ * Dashboard(main) OAuth  CLI  
  *
- * 플로우:
- * 1. CLI가 로컬 HTTP 서버 시작 (랜덤 포트)
- * 2. 브라우저 열기: http://<dashboard>/api/auth/cli-login?port=<port>&state=<state>
- * 3. 사용자가 OAuth 로그인 완료
- * 4. Dashboard가 http://localhost:<port>/callback?token=<jwt>&state=<state> 리다이렉트
- * 5. CLI가 토큰 수신 → ~/.hanseol/credentials.json 저장
+ * :
+ * 1. CLI  HTTP   ( )
+ * 2.  : http://<dashboard>/api/auth/cli-login?port=<port>&state=<state>
+ * 3.  OAuth sign in 
+ * 4. Dashboard http://localhost:<port>/callback?token=<jwt>&state=<state> 
+ * 5. CLI   → ~/.hanseol/credentials.json 
  */
 
 import * as http from 'http';
@@ -33,14 +33,14 @@ export interface DashboardCredentials {
 }
 
 /**
- * Dashboard 인증 정보 로드
+ * Dashboard   
  */
 export async function loadCredentials(): Promise<DashboardCredentials | null> {
   try {
     const data = await fs.readFile(CREDENTIALS_FILE_PATH, 'utf-8');
     const creds = JSON.parse(data) as DashboardCredentials;
 
-    // 만료 확인
+    //  
     if (creds.expiresAt && new Date(creds.expiresAt) < new Date()) {
       return null;
     }
@@ -53,33 +53,33 @@ export async function loadCredentials(): Promise<DashboardCredentials | null> {
 }
 
 /**
- * Dashboard 인증 정보 저장
+ * Dashboard   
  */
 export async function saveCredentials(creds: DashboardCredentials): Promise<void> {
   await fs.mkdir(LOCAL_HOME_DIR, { recursive: true });
   await fs.writeFile(CREDENTIALS_FILE_PATH, JSON.stringify(creds, null, 2), 'utf-8');
-  // 파일 권한 600 (소유자만 읽기/쓰기)
+  //   600 ( /)
   await fs.chmod(CREDENTIALS_FILE_PATH, 0o600);
 }
 
 /**
- * Dashboard 인증 정보 삭제
+ * Dashboard   
  */
 export async function clearCredentials(): Promise<void> {
   try {
     await fs.unlink(CREDENTIALS_FILE_PATH);
   } catch (error) {
     reportError(error, { type: 'authError', method: 'clearCredentials' }).catch(() => {});
-    // 파일 없으면 무시
+    //   
   }
 }
 
 /**
- * 서버에서 토큰 갱신
+ *   
  *
- * POST ${dashboardUrl}/api/auth/refresh 호출
- * 성공 시 새 JWT 디코딩 → credentials.json 갱신 → 새 creds 반환
- * 실패 시 null 반환
+ * POST ${dashboardUrl}/api/auth/refresh 
+ *    JWT  → credentials.json  →  creds return
+ *   null return
  */
 export async function refreshTokenFromServer(
   _creds: DashboardCredentials,
@@ -89,7 +89,7 @@ export async function refreshTokenFromServer(
 }
 
 /**
- * JWT 페이로드 파싱 (검증 없이 디코딩만)
+ * JWT   (  )
  */
 function parseJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -104,7 +104,7 @@ function parseJwtPayload(token: string): Record<string, unknown> | null {
 }
 
 /**
- * 사용 가능한 포트 찾기
+ *    
  */
 function findAvailablePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -123,7 +123,7 @@ function findAvailablePort(): Promise<number> {
 }
 
 /**
- * 브라우저 열기 (크로스 플랫폼)
+ *   ( )
  */
 async function openBrowser(url: string): Promise<void> {
   const { exec } = await import('child_process');
@@ -138,18 +138,18 @@ async function openBrowser(url: string): Promise<void> {
       await execAsync(`start "" "${url}"`);
     } else {
       // Linux (including WSL)
-      // WSL 감지: /proc/version에 microsoft 문자열 포함
+      // WSL : /proc/version microsoft  
       const { readFileSync } = await import('fs');
       let isWSL = false;
       try {
         const procVersion = readFileSync('/proc/version', 'utf-8');
         isWSL = /microsoft/i.test(procVersion);
       } catch {
-        // /proc/version 읽기 실패 → 순수 Linux
+        // /proc/version   →  Linux
       }
 
       if (isWSL) {
-        // WSL: Windows 브라우저로 열기
+        // WSL: Windows  
         try {
           await execAsync(`cmd.exe /c start "" "${url.replace(/&/g, '^&')}"`);
         } catch {
@@ -160,7 +160,7 @@ async function openBrowser(url: string): Promise<void> {
           }
         }
       } else {
-        // 순수 Linux
+        //  Linux
         try {
           await execAsync(`xdg-open "${url}"`);
         } catch {
@@ -170,30 +170,30 @@ async function openBrowser(url: string): Promise<void> {
     }
   } catch (error) {
     reportError(error, { type: 'authError', method: 'openBrowser' }).catch(() => {});
-    // 브라우저 열기 실패 시 URL 출력
-    // (호출자가 처리)
+    //     URL 
+    // ( )
     throw new Error('BROWSER_OPEN_FAILED');
   }
 }
 
 /**
- * OAuth 로그인 실행
+ * OAuth sign in 
  *
- * @param dashboardUrl Dashboard URL (예: http://ec2-ip:4090)
- * @param timeoutMs 타임아웃 (기본 5분)
- * @returns DashboardCredentials 또는 null (취소/타임아웃)
+ * @param dashboardUrl Dashboard URL (: http://ec2-ip:4090)
+ * @param timeoutMs  ( 5)
+ * @returns DashboardCredentials  null (/)
  */
 export async function performOAuthLogin(
   dashboardUrl: string,
   timeoutMs: number = 300000,
 ): Promise<DashboardCredentials | null> {
-  // 1. 상태값 생성 (CSRF 방지)
+  // 1.   (CSRF )
   const state = crypto.randomUUID();
 
-  // 2. 로컬 콜백 서버 포트 확보
+  // 2.     
   const port = await findAvailablePort();
 
-  // 3. Promise로 토큰 수신 대기
+  // 3. Promise   
   return new Promise<DashboardCredentials | null>((resolve) => {
     let resolved = false;
     let server: http.Server;
@@ -209,7 +209,7 @@ export async function performOAuthLogin(
       }
     };
 
-    // 타임아웃
+    // 
     const timeout = setTimeout(() => {
       if (!resolved) {
         cleanup();
@@ -217,7 +217,7 @@ export async function performOAuthLogin(
       }
     }, timeoutMs);
 
-    // 콜백 서버 생성
+    //   
     server = http.createServer(async (req, res) => {
       const url = new URL(req.url || '/', `http://localhost:${port}`);
 
@@ -225,31 +225,31 @@ export async function performOAuthLogin(
         const token = url.searchParams.get('token');
         const receivedState = url.searchParams.get('state');
 
-        // State 검증
+        // State 
         if (receivedState !== state) {
           res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
-          res.end(createHtmlPage('인증 실패', '잘못된 state 값입니다. 다시 시도해주세요.', false));
+          res.end(createHtmlPage(' ', ' state .  .', false));
           return;
         }
 
         if (!token) {
           res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
-          res.end(createHtmlPage('인증 실패', '토큰이 없습니다. 다시 시도해주세요.', false));
+          res.end(createHtmlPage(' ', ' .  .', false));
           return;
         }
 
-        // JWT 디코딩 (검증은 서버측에서 이미 완료)
+        // JWT  (   )
         const payload = parseJwtPayload(token);
 
-        // 성공 응답
+        //  
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(createHtmlPage('인증 완료!', 'CLI로 돌아가세요. 이 창을 닫아도 됩니다.', true));
+        res.end(createHtmlPage(' !', 'CLI .    .', true));
 
-        // 인증 정보 생성
+        //   
         const now = new Date();
         const expiresAt = payload?.['exp']
           ? new Date((payload['exp'] as number) * 1000)
-          : new Date(now.getTime() + 24 * 60 * 60 * 1000); // 기본 24시간
+          : new Date(now.getTime() + 24 * 60 * 60 * 1000); //  24
 
         const creds: DashboardCredentials = {
           dashboardUrl: dashboardUrl.replace(/\/$/, ''),
@@ -261,7 +261,7 @@ export async function performOAuthLogin(
           expiresAt: expiresAt.toISOString(),
         };
 
-        // 인증 정보 저장
+        //   
         await saveCredentials(creds);
 
         clearTimeout(timeout);
@@ -274,32 +274,32 @@ export async function performOAuthLogin(
     });
 
     server.listen(port, '127.0.0.1', async () => {
-      // 4. 브라우저에서 Dashboard CLI 로그인 페이지 열기
+      // 4.  Dashboard CLI sign in  
       const loginUrl = `${dashboardUrl.replace(/\/$/, '')}/api/auth/cli-login?port=${port}&state=${state}`;
 
-      console.log('\n  Dashboard OAuth 로그인을 시작합니다.');
-      console.log(`  브라우저가 열리지 않으면 아래 URL을 직접 열어주세요:\n`);
+      console.log('\n  Dashboard OAuth sign in .');
+      console.log(`      URL  :\n`);
       console.log(`  ${loginUrl}\n`);
 
       try {
         await openBrowser(loginUrl);
       } catch {
-        // 브라우저 열기 실패 - URL은 이미 출력됨
+        //    - URL  
       }
 
-      console.log('  로그인 완료를 기다리고 있습니다...\n');
+      console.log('  sign in   ...\n');
     });
 
     server.on('error', (err) => {
       clearTimeout(timeout);
-      console.error('  로컬 서버 오류:', err.message);
+      console.error('    :', err.message);
       resolve(null);
     });
   });
 }
 
 /**
- * 콜백 HTML 페이지 생성
+ *  HTML  
  */
 function createHtmlPage(title: string, message: string, success: boolean): string {
   const color = success ? '#10b981' : '#ef4444';
@@ -309,7 +309,7 @@ function createHtmlPage(title: string, message: string, success: boolean): strin
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>한설 CLI - ${title}</title>
+  <title> CLI - ${title}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
     .card { background: #fff; border-radius: 16px; padding: 48px 32px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }

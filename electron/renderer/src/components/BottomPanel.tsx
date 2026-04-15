@@ -491,13 +491,13 @@ const JarvisToggleButton: React.FC = () => {
     if (!api?.jarvis) return;
 
     if (!enabled) {
-      // 비활성화 → 활성화
+      //  → 
       setEnabled(true);
       await api.jarvis.setConfig({ enabled: true });
-      // 윈도우 생성 대기 (startJarvisRuntime이 sync로 동작하지만 약간의 여유)
+      //    (startJarvisRuntime sync   )
       await new Promise(r => setTimeout(r, 300));
     }
-    // 윈도우 열기/포커스
+    //  /
     await api.jarvis.showWindow();
   }, [enabled]);
 
@@ -507,7 +507,7 @@ const JarvisToggleButton: React.FC = () => {
     <button
       className={`panel-toolbar-btn panel-auto-view-btn jarvis-toolbar-btn ${enabled ? 'active' : ''}`}
       onClick={handleClick}
-      data-tooltip={enabled ? 'Jarvis 열기' : 'Jarvis 시작'}
+      data-tooltip={enabled ? 'Jarvis ' : 'Jarvis '}
       style={{
         position: 'relative',
         color: enabled ? '#D4A574' : undefined,

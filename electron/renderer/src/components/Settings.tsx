@@ -516,7 +516,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
               {view === 'llm-delete' && 'Delete Endpoint'}
               {view === 'appearance' && t('settings.appearance.title')}
               {view === 'tools' && t('settings.tools.title')}
-              {view === 'jarvis' && '🤖 자비스 비서'}
+              {view === 'jarvis' && '🤖  '}
             </span>
           </div>
           <button className="settings-close" onClick={onClose} title={t('settings.close')}>
@@ -604,8 +604,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
                   </svg>
                 </div>
                 <div className="menu-content">
-                  <span className="menu-label">🤖 자비스 비서</span>
-                  <span className="menu-description">자율 비서 모드 설정</span>
+                  <span className="menu-label">🤖  </span>
+                  <span className="menu-description">   </span>
                 </div>
                 <svg className="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
@@ -881,7 +881,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
                       title={t(opt.labelKey)}
                     >
                       <span className="font-family-label">{t(opt.labelKey)}</span>
-                      <span className="font-family-preview" style={{ fontFamily: opt.cssFamily }}>가나다 ABC</span>
+                      <span className="font-family-preview" style={{ fontFamily: opt.cssFamily }}> ABC</span>
                     </button>
                   ))}
                 </div>
@@ -912,7 +912,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
 
               {/* UI Scale */}
               <div className="setting-section">
-                <label className="setting-label">UI 크기 (아이콘/버튼/헤더)</label>
+                <label className="setting-label">UI  (//)</label>
                 <div className="font-size-control">
                   <input
                     type="range"
@@ -931,7 +931,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
                   <span>80%</span>
-                  <span>100% (기본)</span>
+                  <span>100% ()</span>
                   <span>150%</span>
                 </div>
               </div>
@@ -1012,14 +1012,14 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
 
               {visionModels.length > 0 && (
                 <div className="setting-section" style={{ marginTop: '16px' }}>
-                  <label className="setting-label">Vision Model (이미지 분석용)</label>
+                  <label className="setting-label">Vision Model ( )</label>
                   <select
                     className="vscode-path-input"
                     value={selectedVisionModel}
                     onChange={(e) => saveVisionModel(e.target.value)}
                     style={{ padding: '6px 8px', cursor: 'pointer' }}
                   >
-                    <option value="">Auto (첫 번째 Vision 모델 사용)</option>
+                    <option value="">Auto (  Vision  )</option>
                     {visionModels.map(vm => (
                       <option key={`${vm.endpointId}::${vm.modelId}`} value={`${vm.endpointId}::${vm.modelId}`}>
                         {vm.modelName} ({vm.endpointName})
@@ -1092,7 +1092,7 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const newValue = !enabled;
     setEnabled(newValue);
     await updateConfig({ enabled: newValue });
-    // 즉시 반영 — 재시작 불필요
+    //   —  
   }, [enabled, updateConfig]);
 
   const handleIntervalChange = useCallback(async (value: number) => {
@@ -1117,19 +1117,19 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   if (loading) {
     return (
       <div className="appearance-view">
-        <div className="empty-state"><p>로딩 중...</p></div>
+        <div className="empty-state"><p> ...</p></div>
       </div>
     );
   }
 
   return (
     <div className="appearance-view">
-      {/* 활성화 토글 */}
+      {/*   */}
       <div className="setting-section">
-        <label className="setting-label">자비스 활성화</label>
+        <label className="setting-label"> </label>
         <div className="setting-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-            {enabled ? '자율 비서가 백그라운드에서 동작합니다' : '비활성화 상태'}
+            {enabled ? '   ' : ' '}
           </span>
           <button
             className={`toggle-btn ${enabled ? 'toggle-btn--active' : ''}`}
@@ -1151,9 +1151,9 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* 체크 주기 */}
+      {/*   */}
       <div className="setting-section">
-        <label className="setting-label">체크 주기: {pollInterval}분</label>
+        <label className="setting-label"> : {pollInterval}</label>
         <input
           type="range"
           min={5}
@@ -1165,17 +1165,17 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           disabled={!enabled}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-muted)' }}>
-          <span>5분</span>
-          <span>120분</span>
+          <span>5</span>
+          <span>120</span>
         </div>
       </div>
 
-      {/* Windows 부팅 시 자동 시작 — 채팅 */}
+      {/* Windows     —  */}
       <div className="setting-section">
-        <label className="setting-label">Windows 부팅 시 채팅 자동 시작</label>
+        <label className="setting-label">Windows     </label>
         <div className="setting-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-            {autoStartChat ? '컴퓨터 켜면 채팅 창이 자동으로 뜹니다' : '채팅은 수동으로 시작해야 합니다'}
+            {autoStartChat ? '     ' : '   '}
           </span>
           <button
             onClick={handleAutoStartChatToggle}
@@ -1197,12 +1197,12 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Windows 부팅 시 자동 시작 — 자비스 */}
+      {/* Windows     —  */}
       <div className="setting-section">
-        <label className="setting-label">Windows 부팅 시 자비스 자동 시작</label>
+        <label className="setting-label">Windows     </label>
         <div className="setting-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-            {autoStart ? '컴퓨터 켜면 자비스가 자동 시작됩니다' : '자비스는 수동으로 시작해야 합니다'}
+            {autoStart ? '    ' : '   '}
           </span>
           <button
             onClick={handleAutoStartToggle}
@@ -1225,7 +1225,7 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* 안내 */}
+      {/*  */}
       {enabled && (
         <div className="setting-section" style={{ marginTop: '8px' }}>
           <div style={{
@@ -1233,13 +1233,13 @@ const JarvisSettings: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             background: 'rgba(212, 165, 116, 0.1)', border: '1px solid rgba(212, 165, 116, 0.2)',
             fontSize: '11px', lineHeight: '1.6', color: 'var(--color-text-secondary)',
           }}>
-            <strong>자비스 동작 방식:</strong><br />
-            • {pollInterval}분마다 상태를 확인하고 작업 분석<br />
-            • Manager LLM이 자율적으로 판단하여 작업 실행<br />
-            • 채팅 창을 닫아도 트레이에서 계속 동작<br />
-            • 트레이 우클릭 → "종료"로만 완전 종료<br />
-            {autoStartChat && '• 컴퓨터 부팅 시 채팅 자동 시작'}{autoStartChat && <br />}
-            {autoStart && '• 컴퓨터 부팅 시 자비스 자동 시작'}
+            <strong>  :</strong><br />
+            • {pollInterval}   task <br />
+            • Manager LLM   task <br />
+            •      <br />
+            •   → ""  <br />
+            {autoStartChat && '•      '}{autoStartChat && <br />}
+            {autoStart && '•      '}
           </div>
         </div>
       )}

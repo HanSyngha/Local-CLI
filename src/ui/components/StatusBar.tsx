@@ -37,8 +37,8 @@ export interface StatusBarProps {
   // Health status
   healthStatus?: 'healthy' | 'unhealthy' | 'checking' | 'unknown';
   // Claude Code style execution status
-  currentActivity?: string;  // LLM이 업데이트하는 현재 활동 (예: "파일 분석", "코드 작성")
-  sessionElapsedSeconds?: number;  // 세션 경과 시간
+  currentActivity?: string;  // LLM    (: " ", " ")
+  sessionElapsedSeconds?: number;  //   
 }
 
 /**
@@ -182,10 +182,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     }
   };
 
-  // Claude Code style: "✶ ~ 하는 중… (esc to interrupt · 2m 7s · ↑ 3.6k tokens)"
+  // Claude Code style: "✶ ~  … (esc to interrupt · 2m 7s · ↑ 3.6k tokens)"
   const isActive = status === 'thinking' || status === 'executing';
 
-  // 실행 중일 때는 Claude Code 스타일 상태바 표시
+  //    Claude Code   
   if (isActive && currentActivity) {
     return (
       <Box justifyContent="space-between" paddingX={1}>
@@ -217,7 +217,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     return 'red';
   };
 
-  // 기본 상태바 (idle, error 등)
+  //   (idle, error )
   return (
     <Box justifyContent="space-between" paddingX={1}>
       {/* Left section: Context remaining, Health, Status, Model */}

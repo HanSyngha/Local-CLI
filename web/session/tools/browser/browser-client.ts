@@ -1,10 +1,10 @@
 /**
- * Browser Automation Client (순수 CDP 방식, Linux Docker 전용)
+ * Browser Automation Client ( CDP , Linux Docker dedicated)
  *
- * Chrome/Chromium을 CDP 포트와 함께 시작하고,
- * WebSocket으로 CDP (Chrome DevTools Protocol)에 직접 연결하여 브라우저를 제어합니다.
+ * Chrome/Chromium CDP   ,
+ * WebSocket CDP (Chrome DevTools Protocol)    .
  *
- * 외부 의존성 없이 (playwright 없이) 동작합니다.
+ *    (playwright ) .
  */
 
 import { spawn, ChildProcess, execSync } from 'child_process';
@@ -117,7 +117,7 @@ interface CDPMessage {
 }
 
 // ===========================================================================
-// CDP Client (WebSocket 기반)
+// CDP Client (WebSocket )
 // ===========================================================================
 
 class CDPConnection {
@@ -238,7 +238,7 @@ class BrowserClient {
   private platform: Platform;
   private cdpPort: number = 9222;
   private browserType: 'chrome' | 'edge' = 'chrome';
-  // Console/Network 로그 수집
+  // Console/Network  
   private consoleLogs: ConsoleLogEntry[] = [];
   private networkLogs: NetworkLogEntry[] = [];
 
@@ -458,23 +458,23 @@ class BrowserClient {
     const headless = options?.headless ?? false;
     const preferredBrowser = options?.browser ?? 'chrome';
 
-    // 포트/프로필 오버라이드 (서브에이전트용)
+    // /profile  (agent)
     if (options?.cdpPort) this.cdpPort = options.cdpPort;
 
     logger.debug(`[BrowserClient] launch: starting browser (preferred=${preferredBrowser}, headless=${headless})`);
 
     try {
-      // 기존 연결 정리
+      //   
       if (this.cdp) {
         this.cdp.close();
         this.cdp = null;
       }
 
-      // 기존 CDP 프로세스 종료
+      //  CDP  
       this.killExistingBrowser();
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // 브라우저 경로 찾기
+      //   
       let browserPath: string | null = null;
       if (preferredBrowser === 'chrome') {
         browserPath = this.findChromePath();
@@ -533,7 +533,7 @@ class BrowserClient {
 
       this.browserProcess.unref();
 
-      // CDP 연결 대기
+      // CDP  
       logger.debug('[BrowserClient] launch: waiting for CDP endpoint...');
       const maxWait = 15000;
       const startTime = Date.now();
@@ -553,7 +553,7 @@ class BrowserClient {
         };
       }
 
-      // 타겟 (페이지) 가져오기
+      //  () 
       const targets = await this.getTargets();
       const pageTarget = targets.find(t => t.type === 'page');
 
@@ -565,18 +565,18 @@ class BrowserClient {
         };
       }
 
-      // WebSocket으로 CDP 연결
+      // WebSocket CDP 
       logger.debug('[BrowserClient] launch: connecting to page via WebSocket...');
       this.cdp = new CDPConnection();
       await this.cdp.connect(pageTarget.webSocketDebuggerUrl);
       // Target connected
 
-      // 로깅 설정
+      //  
       this.consoleLogs = [];
       this.networkLogs = [];
       this.setupLogging();
 
-      // Page 도메인 활성화
+      // Page  
       await this.cdp.send('Page.enable');
 
       // Bring browser window to front so actions are visible
@@ -611,7 +611,7 @@ class BrowserClient {
    */
   async close(): Promise<BrowserResponse> {
     try {
-      // 1. CDP 연결 해제
+      // 1. CDP  
       if (this.cdp) {
         this.cdp.close();
       }
@@ -620,7 +620,7 @@ class BrowserClient {
       this.consoleLogs = [];
       this.networkLogs = [];
 
-      // 2. 브라우저 프로세스 종료 (Linux)
+      // 2.    (Linux)
       try {
         const processName = this.browserType === 'chrome' ? 'chrome' : 'msedge';
         execSync(
@@ -628,10 +628,10 @@ class BrowserClient {
           { stdio: 'ignore', timeout: 10000 }
         );
       } catch {
-        // 프로세스가 없거나 이미 종료된 경우
+        //     
       }
 
-      // 3. CDP 포트 사용 프로세스도 종료 (백업)
+      // 3. CDP     ()
       this.killExistingBrowser();
 
       return { success: true, message: 'Browser closed' };
@@ -659,7 +659,7 @@ class BrowserClient {
 
       await this.cdp.send('Page.navigate', { url });
 
-      // Page.loadEventFired 이벤트를 기다려 안정적으로 페이지 로드 완료 확인
+      // Page.loadEventFired       
       await new Promise<void>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           this.cdp?.off('Page.loadEventFired');
@@ -675,7 +675,7 @@ class BrowserClient {
         this.cdp?.on('Page.loadEventFired', handler);
       });
 
-      // 현재 URL과 타이틀 가져오기
+      //  URL  
       const pageInfo = await this.getCurrentPageInfo();
 
       return {
@@ -703,11 +703,11 @@ class BrowserClient {
         return { success: false, error: 'Browser not running. Use launch first.' };
       }
 
-      // 스크린샷 옵션 — JPEG quality 60 for smaller context footprint
+      //   — JPEG quality 60 for smaller context footprint
       const params: Record<string, unknown> = { format: 'jpeg', quality: 60 };
 
       if (fullPage) {
-        // 전체 페이지 크기 가져오기
+        //    
         const layoutMetrics = await this.cdp.send('Page.getLayoutMetrics') as {
           contentSize: { width: number; height: number };
         };
@@ -724,7 +724,7 @@ class BrowserClient {
 
       const result = await this.cdp.send('Page.captureScreenshot', params) as { data: string };
 
-      // 현재 페이지 정보
+      //   
       const pageInfo = await this.getCurrentPageInfo();
 
       return {
@@ -755,7 +755,7 @@ class BrowserClient {
         return { success: false, error: 'Browser not running. Use launch first.' };
       }
 
-      // JavaScript로 요소 클릭
+      // JavaScript  
       const result = await this.cdp.send('Runtime.evaluate', {
         expression: `
           (function() {
@@ -775,7 +775,7 @@ class BrowserClient {
         };
       }
 
-      // 현재 URL 가져오기
+      //  URL 
       const urlResult = await this.cdp.send('Runtime.evaluate', {
         expression: 'window.location.href',
         returnByValue: true,
@@ -806,7 +806,7 @@ class BrowserClient {
         return { success: false, error: 'Browser not running. Use launch first.' };
       }
 
-      // JavaScript로 요소에 값 입력
+      // JavaScript   
       const result = await this.cdp.send('Runtime.evaluate', {
         expression: `
           (function() {
@@ -1123,32 +1123,32 @@ class BrowserClient {
         return { success: false, error: 'Browser not running. Use launch first.' };
       }
 
-      // 특수 키 매핑 (확장된 버전)
+      //    ( )
       const keyMap: Record<string, { key: string; code: string; keyCode: number }> = {
-        // 네비게이션 키
+        //  
         'Enter': { key: 'Enter', code: 'Enter', keyCode: 13 },
         'Tab': { key: 'Tab', code: 'Tab', keyCode: 9 },
         'Escape': { key: 'Escape', code: 'Escape', keyCode: 27 },
         'Backspace': { key: 'Backspace', code: 'Backspace', keyCode: 8 },
         'Delete': { key: 'Delete', code: 'Delete', keyCode: 46 },
         'Space': { key: ' ', code: 'Space', keyCode: 32 },
-        // 화살표 키
+        //  
         'ArrowUp': { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
         'ArrowDown': { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
         'ArrowLeft': { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
         'ArrowRight': { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
-        // 페이지 네비게이션
+        //  
         'Home': { key: 'Home', code: 'Home', keyCode: 36 },
         'End': { key: 'End', code: 'End', keyCode: 35 },
         'PageUp': { key: 'PageUp', code: 'PageUp', keyCode: 33 },
         'PageDown': { key: 'PageDown', code: 'PageDown', keyCode: 34 },
         'Insert': { key: 'Insert', code: 'Insert', keyCode: 45 },
-        // 수정 키
+        //  
         'Control': { key: 'Control', code: 'ControlLeft', keyCode: 17 },
         'Alt': { key: 'Alt', code: 'AltLeft', keyCode: 18 },
         'Shift': { key: 'Shift', code: 'ShiftLeft', keyCode: 16 },
         'Meta': { key: 'Meta', code: 'MetaLeft', keyCode: 91 },
-        // Function 키
+        // Function 
         'F1': { key: 'F1', code: 'F1', keyCode: 112 },
         'F2': { key: 'F2', code: 'F2', keyCode: 113 },
         'F3': { key: 'F3', code: 'F3', keyCode: 114 },
@@ -1164,13 +1164,13 @@ class BrowserClient {
       };
 
       if (selector) {
-        // 특정 요소에 포커스
+        //   
         await this.cdp.send('Runtime.evaluate', {
           expression: `document.querySelector(${JSON.stringify(selector)})?.focus()`,
         });
       }
 
-      // 조합 키 처리 (예: Control+A, Shift+Tab)
+      //    (: Control+A, Shift+Tab)
       const parts = key.split('+');
       const modifiers: { ctrl?: boolean; alt?: boolean; shift?: boolean; meta?: boolean } = {};
       let mainKey = key;
@@ -1186,7 +1186,7 @@ class BrowserClient {
         mainKey = parts[parts.length - 1] || key;
       }
 
-      // 단일 문자의 경우 대문자/소문자 처리
+      //    / 
       let keyInfo = keyMap[mainKey];
       if (!keyInfo) {
         if (mainKey.length === 1) {
@@ -1202,7 +1202,7 @@ class BrowserClient {
         }
       }
 
-      // 수정자 플래그 계산 (CDP용)
+      //    (CDP)
       let modifierFlags = 0;
       if (modifiers.alt) modifierFlags |= 1;
       if (modifiers.ctrl) modifierFlags |= 2;
@@ -1255,13 +1255,13 @@ class BrowserClient {
       }
 
       if (selector) {
-        // 특정 요소에 포커스
+        //   
         await this.cdp.send('Runtime.evaluate', {
           expression: `document.querySelector(${JSON.stringify(selector)})?.focus()`,
         });
       }
 
-      // 한 글자씩 입력
+      //   
       for (const char of text) {
         await this.cdp.send('Input.dispatchKeyEvent', {
           type: 'char',
@@ -1426,8 +1426,8 @@ class BrowserClient {
   }
 }
 
-// Export singleton instance (raw browser tools용)
+// Export singleton instance (raw browser tools)
 export const browserClient = new BrowserClient();
-// Export class for sub-agent instances (별도 포트/프로필 사용)
+// Export class for sub-agent instances ( /profile )
 export { BrowserClient };
 export type { BrowserResponse, HealthResponse, ScreenshotResponse, NavigateResponse, PageInfoResponse, ConsoleResponse, NetworkResponse };

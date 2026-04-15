@@ -1,13 +1,13 @@
 /**
  * Tool Registry (Web Session)
  *
- * 도구 중앙 등록 시스템
- * 모든 도구를 카테고리별로 등록하고 관리
+ *    
+ *     
  *
- * Web session: Office/Desktop/PowerShell 도구 제외 (Docker Linux 환경)
+ * Web session: Office/Desktop/PowerShell   (Docker Linux )
  *
  * Features:
- * - Multi-category registration (한 도구가 여러 카테고리에 등록 가능)
+ * - Multi-category registration (     )
  * - Type-safe tool retrieval
  * - LLM tool definitions export
  * - Optional tools with enable/disable support
@@ -77,7 +77,7 @@ async function validateBrowserTools(): Promise<EnableResult> {
   } catch (error) {
     return {
       success: false,
-      error: `Browser 도구 활성화 실패: ${error instanceof Error ? error.message : String(error)}`,
+      error: `Browser   : ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }

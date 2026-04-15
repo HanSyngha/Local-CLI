@@ -9,7 +9,7 @@ import { LanguageProvider } from './i18n/LanguageContext';
 import ChatApp from './ChatApp';
 import TaskApp from './TaskApp';
 
-// Jarvis는 lazy load (별도 번들)
+// Jarvis lazy load ( )
 const JarvisApp = lazy(() => import('./JarvisApp'));
 
 // Re-export types for backward compatibility (until IDE files are deleted in Phase 4)

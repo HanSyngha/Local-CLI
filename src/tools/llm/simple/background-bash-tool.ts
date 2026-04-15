@@ -1,9 +1,9 @@
 /**
  * Background Bash Tool (WSL/Linux Only)
  *
- * 백그라운드에서 bash 프로세스를 실행하고 관리하는 도구
- * npm run dev, npm start 등 장시간 실행되는 명령어에 유용
- * Native Windows에서는 background-powershell-tool 사용
+ *  bash    
+ * npm run dev, npm start     
+ * Native Windows background-powershell-tool 
  */
 
 import { spawn, ChildProcess } from 'child_process';

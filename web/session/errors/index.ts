@@ -1,7 +1,7 @@
 /**
  * Error Classes Export
  *
- * 모든 커스텀 에러 클래스를 export
+ *     export
  */
 
 import { BaseError as BaseErrorClass } from './base.js';
@@ -53,7 +53,7 @@ export { QuotaExceededError } from './quota.js';
 export type { QuotaInfo } from './quota.js';
 
 /**
- * 에러 타입 체크 유틸리티
+ *    
  */
 export function isRecoverableError(error: unknown): boolean {
   if (error && typeof error === 'object' && 'canRecover' in error) {
@@ -64,7 +64,7 @@ export function isRecoverableError(error: unknown): boolean {
 }
 
 /**
- * 사용자 메시지 추출 유틸리티
+ *    
  */
 export function getUserMessage(error: unknown): string {
   if (error && typeof error === 'object') {
@@ -80,7 +80,7 @@ export function getUserMessage(error: unknown): string {
 }
 
 /**
- * 에러를 JSON으로 변환
+ *  JSON 
  */
 export function errorToJSON(error: unknown): Record<string, unknown> {
   if (error && typeof error === 'object' && 'toJSON' in error) {

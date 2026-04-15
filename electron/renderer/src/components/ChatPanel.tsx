@@ -374,7 +374,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
   const [inputHistory, setInputHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
-  // LLM retry exhausted — 재시도 버튼 표시 상태
+  // LLM retry exhausted —    
   const [retryableError, setRetryableError] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState<number | null>(null);
 
@@ -585,7 +585,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
           const errorMessage: ChatMessage = {
             id: `retry-error-${Date.now()}`,
             role: 'system',
-            content: `LLM 서버가 응답하지 않습니다.\n6회 재시도 + 2분 대기 후에도 실패했습니다.\n\n아래 "재시도" 버튼을 눌러주세요.`,
+            content: `LLM   .\n6  + 2   .\n\n ""  .`,
             timestamp: Date.now(),
           };
           setMessages(prev => [...prev, errorMessage]);
@@ -910,7 +910,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
         const fallbackMessage: ChatMessage = {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: '(응답 없음)',
+          content: '( )',
           timestamp: Date.now(),
         };
         setMessages(prev => [...prev, fallbackMessage]);
@@ -944,7 +944,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
     }
   }, [input, isLoading, messages, saveMessageToSession, currentDirectory, allowAllPermissions, clearProgressMessages, setIsExecuting, attachedImages, isPaused, todos]);
 
-  // Retry handler — 마지막 유저 메시지로 자동 재전송
+  // Retry handler —     
   const handleRetry = useCallback(() => {
     setRetryableError(false);
     setCountdownSeconds(null);
@@ -989,16 +989,16 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
       setIsPaused(true);
       setTimeout(() => { skipSessionLoadRef.current = false; }, 500);
       // Don't clearTodos() — user can resume with correction
-      setAbortMessage('⏸ ' + t('chat.paused', '일시정지 — 수정 메시지를 입력하면 이어서 실행합니다. 다시 중지하면 취소됩니다.'));
+      setAbortMessage('⏸ ' + t('chat.paused', ' —     .   .'));
       // Don't auto-hide pause message — it should stay until user acts
     }
   }, [setIsExecuting, clearTodos, isLoading, isPaused, t, sessionIdProp]);
 
   // Handle keyboard events (arrow up/down history disabled for Electron)
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Korean IME guard: Do NOT send during composition (한글 조합 중).
+    // Korean IME guard: Do NOT send during composition (  ).
     // Without this check, pressing Enter during IME composition commits the character
-    // AND sends the message simultaneously, causing "입력 분할" (input splitting).
+    // AND sends the message simultaneously, causing " " (input splitting).
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       sendMessage();
@@ -1404,7 +1404,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
         {/* Countdown display during 2-minute wait */}
         {countdownSeconds !== null && countdownSeconds > 0 && (
           <div className="retry-countdown-bar">
-            LLM 서버 응답 대기 중... {countdownSeconds}초 남음
+            LLM    ... {countdownSeconds} 
           </div>
         )}
 
@@ -1412,7 +1412,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
         {retryableError && (
           <div className="retry-error-bar">
             <button className="retry-btn" onClick={handleRetry}>
-              재시도
+              
             </button>
           </div>
         )}
@@ -1498,7 +1498,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
                 <button
                   className="chat-send-btn chat-abort-paused"
                   onClick={handleAbort}
-                  title={t('chat.stopFull', '완전 중지')}
+                  title={t('chat.stopFull', ' ')}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -1508,7 +1508,7 @@ const ChatPanel = forwardRef<ChatPanelRef, ChatPanelProps>(({
                   className="chat-send-btn chat-resume-btn"
                   onClick={sendMessage}
                   disabled={!input.trim() && attachedImages.length === 0}
-                  title={t('chat.resume', '수정 후 이어서 실행')}
+                  title={t('chat.resume', '   ')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>

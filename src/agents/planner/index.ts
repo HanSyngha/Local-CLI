@@ -418,7 +418,7 @@ Choose one of your 4 tools now.`,
           }
           // Continue to next retry
         } catch (error) {
-          // LLMRetryExhaustedError: chatCompletion()에서 이미 6회 시도 완료 → 즉시 전파
+          // LLMRetryExhaustedError: chatCompletion()  6   →  
           if (error instanceof LLMRetryExhaustedError) {
             throw error;
           }

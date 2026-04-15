@@ -32,7 +32,7 @@ IMPORTANT: Always specify font_name, font_size, and color for proper formatting.
       properties: {
         reason: { type: 'string', description: 'Explanation of why you are writing this text' },
         text: { type: 'string', description: 'The text to write to the document' },
-        font_name: { type: 'string', description: 'Font name (e.g., "맑은 고딕", "Arial")' },
+        font_name: { type: 'string', description: 'Font name (e.g., " ", "Arial")' },
         font_size: { type: 'number', description: 'Font size in points' },
         bold: { type: 'boolean', description: 'Bold text' },
         italic: { type: 'boolean', description: 'Italic text' },
@@ -179,7 +179,7 @@ const WORD_SET_STYLE_DEFINITION: ToolDefinition = {
   type: 'function',
   function: {
     name: 'word_set_style',
-    description: `Apply a style to the current selection. IMPORTANT: Style names depend on Office language. English: "Normal", "Heading 1", "Title". Korean: "표준", "제목 1", "제목".`,
+    description: `Apply a style to the current selection. IMPORTANT: Style names depend on Office language. English: "Normal", "Heading 1", "Title". Korean: "", " 1", "".`,
     parameters: {
       type: 'object',
       properties: {

@@ -24,7 +24,7 @@ export const APP_LAUNCH_DELAY_MS = 3000;
 
 /**
  * Save a base64-encoded screenshot to the current working directory
- * LLM이 경로를 쉽게 찾을 수 있도록 working directory에 직접 저장
+ * LLM      working directory  
  *
  * @param base64Image - Base64 encoded image data
  * @param appName - Application name (e.g., 'word', 'excel', 'powerpoint')
@@ -72,7 +72,7 @@ export function hexToBgrColor(hex: string): number {
  * @returns true if contains Korean characters
  */
 export function hasKoreanText(text: string): boolean {
-  return /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+  return /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
 }
 
 /**

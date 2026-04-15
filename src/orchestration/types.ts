@@ -1,7 +1,7 @@
 /**
  * Orchestration Types
  *
- * Plan & Execute 워크플로우의 타입 정의
+ * Plan & Execute   
  */
 
 import { Message, TodoItem } from '../types/index.js';
@@ -9,13 +9,13 @@ import { LLMClient } from '../core/llm/llm-client.js';
 import { CompactResult } from '../core/compact/index.js';
 
 /**
- * 실행 단계
+ *  
  * Note: 'classifying' phase removed - all requests now go through planning
  */
 export type ExecutionPhase = 'idle' | 'planning' | 'executing' | 'compacting';
 
 /**
- * Plan Execution 상태
+ * Plan Execution 
  */
 export interface PlanExecutionState {
   todos: TodoItem[];
@@ -26,17 +26,17 @@ export interface PlanExecutionState {
 }
 
 /**
- * Ask User 요청
- * - options: LLM이 제공하는 2-4개의 선택지
- * - "Other (직접 입력)" 옵션은 UI에서 자동 추가됨
+ * Ask User 
+ * - options: LLM  2-4 
+ * - "Other ( )"  UI  
  */
 export interface AskUserRequest {
   question: string;
-  options: string[];  // 2-4개의 선택지 (LLM이 결정)
+  options: string[];  // 2-4  (LLM )
 }
 
 /**
- * Ask User 응답
+ * Ask User 
  */
 export interface AskUserResponse {
   selectedOption: string;
@@ -45,14 +45,14 @@ export interface AskUserResponse {
 }
 
 /**
- * Ask User 상태
+ * Ask User 
  */
 export interface AskUserState {
   askUserRequest: AskUserRequest | null;
 }
 
 /**
- * 상태 업데이트 콜백
+ *   
  */
 export interface StateCallbacks {
   setTodos: (todos: TodoItem[] | ((prev: TodoItem[]) => TodoItem[])) => void;
@@ -67,12 +67,12 @@ export interface StateCallbacks {
   // Pending user message callbacks (for injecting messages during execution)
   getPendingMessage?: () => string | null;
   clearPendingMessage?: () => void;
-  // LLM retry exhausted — UI에서 Enter로 재시도 대기
+  // LLM retry exhausted — UI Enter  
   setRetryPending?: (pending: boolean) => void;
 }
 
 /**
- * 실행 컨텍스트
+ *  
  */
 export interface ExecutionContext {
   llmClient: LLMClient;
@@ -83,7 +83,7 @@ export interface ExecutionContext {
 }
 
 /**
- * 실행 결과
+ *  
  */
 export interface ExecutionResult {
   success: boolean;
@@ -92,7 +92,7 @@ export interface ExecutionResult {
 }
 
 /**
- * Plan Execution Actions 인터페이스
+ * Plan Execution Actions 
  */
 export interface PlanExecutionActions {
   retryPending: boolean;

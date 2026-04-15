@@ -2,7 +2,7 @@
  * Browser Sub-Agent
  *
  * Browser lifecycle + auth + SubAgent delegation.
- * Confluence/Jira/Search 에이전트가 이 클래스를 사용하여 실행.
+ * Confluence/Jira/Search agent    .
  */
 
 import { LLMClient } from '../../core/llm/llm-client.js';
@@ -43,7 +43,7 @@ export class BrowserSubAgent {
     const startTime = Date.now();
 
     try {
-      // 1. URL 결정 (프로토콜 없으면 https:// 자동 추가)
+      // 1. URL  (  https://  )
       let url = sourceUrl || this.resolveServiceUrl();
       if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
         url = `https://${url}`;
@@ -55,7 +55,7 @@ export class BrowserSubAgent {
         };
       }
 
-      // 2. 브라우저 시작
+      // 2.  
       const headless = this.config.headless !== undefined ? this.config.headless : true;
       const launchResult = await launchSubAgentBrowser(headless);
       if (!launchResult.success) {
@@ -65,7 +65,7 @@ export class BrowserSubAgent {
         };
       }
 
-      // 3. 인증 (search는 스킵)
+      // 3.  (search )
       if (this.config.requiresAuth && url) {
         const indicators = this.config.loginIndicators || ATLASSIAN_LOGIN_INDICATORS;
         const authResult = await ensureAuthenticated(url, indicators);
@@ -77,12 +77,12 @@ export class BrowserSubAgent {
         }
       }
 
-      // 4. URL 컨텍스트를 instruction에 추가
+      // 4. URL  instruction 
       const enrichedInstruction = url
         ? `[Target URL: ${url}]\n\n${instruction}`
         : instruction;
 
-      // 5. 서브에이전트용 도구에 BrowserClient 바인딩
+      // 5. agent  BrowserClient 
       const client = getSubAgentBrowserClient();
       const boundTools = this.bindToolsToClient(client);
 
@@ -113,13 +113,13 @@ export class BrowserSubAgent {
         error: `Browser sub-agent error: ${errorMsg}`,
       };
     } finally {
-      // 브라우저 프로세스 정리 (headless 회색 창 방지)
+      //    (headless   )
       await closeSubAgentBrowser().catch(() => {});
     }
   }
 
   /**
-   * config.json에서 서비스 URL 찾기
+   * config.json  URL 
    */
   private resolveServiceUrl(): string | undefined {
     try {
@@ -133,7 +133,7 @@ export class BrowserSubAgent {
   }
 
   /**
-   * URL 미설정 시 안내 메시지
+   * URL    
    */
   private getUrlNotConfiguredMessage(): string {
     const typeLabel = this.config.serviceType === 'confluence' ? 'Confluence' : 'Jira';
@@ -148,9 +148,9 @@ export class BrowserSubAgent {
   }
 
   /**
-   * 서브에이전트용 도구에 BrowserClient를 바인딩
-   * browser-tools.ts의 도구들은 싱글톤 browserClient를 사용하므로,
-   * 서브에이전트 전용 client로 교체한 새 도구 배열을 생성
+   * agent  BrowserClient 
+   * browser-tools.ts  singleton browserClient ,
+   * agent dedicated client     
    */
   private bindToolsToClient(client: import('../../tools/browser/browser-client.js').BrowserClient): LLMSimpleTool[] {
     return this.tools.map(tool => ({
@@ -163,7 +163,7 @@ export class BrowserSubAgent {
   }
 
   /**
-   * BrowserClient 메소드를 직접 호출하여 도구 실행
+   * BrowserClient     
    */
   private async executeToolWithClient(
     toolName: string,
@@ -224,7 +224,7 @@ export class BrowserSubAgent {
         return { success: false, error: result.error || 'Unknown error' };
       }
 
-      // 결과를 문자열로 변환
+      //   
       const { success: _, error: _err, ...rest } = result;
       const resultText = Object.keys(rest).length > 0
         ? JSON.stringify(rest, null, 2)

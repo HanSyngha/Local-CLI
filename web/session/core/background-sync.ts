@@ -31,8 +31,8 @@ export type AutoSyncNotifyCallback = (result: AutoSyncResult) => void;
 // =============================================================================
 
 /**
- * 최근 메시지에서 간결한 요약 추출 (토큰 절약용)
- * tool_calls는 이름+결과만, 전체 인자는 생략
+ *      ( )
+ * tool_calls +,   
  */
 export function buildCompactHistory(messages: Message[], maxMessages = 8): string {
   const recent = messages.slice(-maxMessages);
@@ -68,7 +68,7 @@ export function buildCompactHistory(messages: Message[], maxMessages = 8): strin
 // =============================================================================
 
 /**
- * TODO 완료 시 백그라운드에서 노트/보고/작업 자동 저장.
+ * TODO    //task  .
  * No-op for local-web.
  */
 export async function handleTodoCompleteAutoSync(_params: {
@@ -85,7 +85,7 @@ export async function handleTodoCompleteAutoSync(_params: {
 }
 
 /**
- * AutoSyncResult를 한 줄 메시지로 포맷
+ * AutoSyncResult    
  */
 export function formatAutoSyncMessage(_result: AutoSyncResult): string {
   // No-op: local-web has no ONCE/FREE/Dashboard services

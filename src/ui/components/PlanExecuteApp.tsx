@@ -114,12 +114,12 @@ const STARTUP_TIPS = [
   {
     icon: '🔧',
     en: { prefix: 'Optional tools available! Use ', cmd: '/tool', suffix: ' to enable browser automation and more.' },
-    ko: { prefix: '선택적 도구를 사용할 수 있습니다. ', cmd: '/tool', suffix: ' 명령어로 브라우저 자동화 등을 활성화하세요.' },
+    ko: { prefix: '    . ', cmd: '/tool', suffix: '     .' },
   },
   {
     icon: '🎯',
     en: { prefix: 'Switch models anytime! Use ', cmd: '/model', suffix: ' to select your preferred LLM.' },
-    ko: { prefix: '언제든 모델을 변경할 수 있습니다. ', cmd: '/model', suffix: ' 명령어로 선호하는 LLM을 선택하세요.' },
+    ko: { prefix: '    . ', cmd: '/model', suffix: '   LLM .' },
   },
 ];
 
@@ -202,7 +202,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
   // Planning mode is always 'auto' - mode selection has been removed
   const planningMode: PlanningMode = 'auto';
 
-  // LLM Client state - 모델 변경 시 새로운 클라이언트로 교체
+  // LLM Client state -      
   const [llmClient, setLlmClient] = useState<LLMClient | null>(initialLlmClient);
 
   // Activity tracking for detailed status display
@@ -352,7 +352,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       addLog({
         type: 'tool_start',
         content: toolName,
-        details: reason,  // reason은 축약하지 않음
+        details: reason,  // reason  
         toolArgs: args,
       });
       logger.debug('Tool execution started', { toolName, reason, args });
@@ -369,7 +369,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       // Clear current tool when done
       setCurrentToolName(null);
 
-      // diff 내용 파싱 시도
+      // diff   
       let diff: string[] | undefined;
       try {
         const parsed = JSON.parse(result);
@@ -387,7 +387,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       addLog({
         type: 'tool_result',
         content: toolName,
-        details: result,  // 전체 내용 보존
+        details: result,  //   
         success,
         diff,
         toolArgs: savedArgs || undefined,  // Pass args for create_file
@@ -405,7 +405,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
     setTellToUserCallback((message) => {
       addLog({
         type: 'tell_user',
-        content: message,  // 축약하지 않음
+        content: message,  //  
       });
       logger.debug('Message to user', { message });
     });
@@ -545,7 +545,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       });
     });
 
-    // todo_complete 로그 제거 - TodoPanel에서 이미 상태 표시 중이므로 중복
+    // todo_complete   - TodoPanel     
     setTodoCompleteCallback(() => {
       // No-op: TodoPanel handles visual feedback
     });
@@ -764,7 +764,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       }
       addLog({
         type: 'assistant_message',
-        content: `실행 모드 변경: ${newMode === 'auto' ? '🚀 Auto Mode (자율 실행)' : '👁️ Supervised Mode (승인 필요)'}`,
+        content: `  : ${newMode === 'auto' ? '🚀 Auto Mode ( )' : '👁️ Supervised Mode ( )'}`,
       });
       logger.debug('Execution mode toggled', { newMode });
     }
@@ -799,7 +799,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       const sessionData = await sessionManager.loadSession(sessionId);
 
       if (!sessionData) {
-        const errorMessage = `세션을 찾을 수 없습니다: ${sessionId}`;
+        const errorMessage = `   : ${sessionId}`;
         logger.warn('Session not found', { sessionId });
         setMessages(prev => [
           ...prev,
@@ -842,12 +842,12 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
 
       // Build restore details message
       const detailParts: string[] = [];
-      detailParts.push(`${sessionData.messages.length}개 메시지`);
+      detailParts.push(`${sessionData.messages.length} `);
       if (sessionData.logEntries?.length) {
-        detailParts.push(`${sessionData.logEntries.length}개 로그`);
+        detailParts.push(`${sessionData.logEntries.length} `);
       }
       if (hasTodos) {
-        detailParts.push(`${sessionData.todos!.length}개 TODO 복구`);
+        detailParts.push(`${sessionData.todos!.length} TODO `);
       }
 
       // Restore log entries if available
@@ -857,7 +857,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
           {
             id: `log-restored-header`,
             type: 'session_restored',
-            content: `세션 복구됨: ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
+            content: ` : ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
             details: detailParts.join(', '),
           },
           ...sessionData.logEntries.map((entry, idx) => ({
@@ -875,8 +875,8 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
             {
               id: `log-restored-header`,
               type: 'session_restored',
-              content: `세션 복구됨: ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
-              details: detailParts.join(', ') + ' (메시지에서 복원)',
+              content: ` : ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
+              details: detailParts.join(', ') + ' ( won)',
             },
             ...reconstructed.map((entry, idx) => ({
               ...entry,
@@ -889,13 +889,13 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
           clearLogs();
           addLog({
             type: 'session_restored',
-            content: `세션 복구됨: ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
+            content: ` : ${new Date(sessionData.metadata.updatedAt).toLocaleString('ko-KR')}`,
             details: detailParts.join(', '),
           });
         }
       }
     } catch (error) {
-      const errorMessage = `세션 로드 실패: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      const errorMessage = `  : ${error instanceof Error ? error.message : 'Unknown error'}`;
       logger.error(`Session load failed (sessionId: ${sessionId})`, error as Error);
       setMessages(prev => [
         ...prev,
@@ -963,7 +963,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
           endpoint: endpoint.baseUrl,
         });
 
-        // 새로운 LLMClient 생성 (configManager에 이미 저장되어 있으므로 새로 생성하면 됨)
+        //  LLMClient  (configManager      )
         try {
           const newClient = createLLMClient();
           setLlmClient(newClient);
@@ -980,7 +980,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         ...prev,
         {
           role: 'assistant' as const,
-          content: `모델이 변경되었습니다: ${model?.name || modelId} (${endpoint?.name || endpointId})`,
+          content: ` : ${model?.name || modelId} (${endpoint?.name || endpointId})`,
         },
       ]);
       logger.exit('handleModelSelect', { model: model?.name });
@@ -1019,16 +1019,16 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       logger.flow('User message queued for mid-execution injection', { message: queuedMessage });
       addLog({
         type: 'user_input',
-        content: `(→ 다음 호출에 전달) ${queuedMessage}`,
+        content: `(→   ) ${queuedMessage}`,
       });
       setInput('');
       return;
     }
 
-    // Retry pending: 빈 Enter로 LLM 재시도
+    // Retry pending:  Enter LLM 
     if (!value.trim() && planExecutionState.retryPending) {
       planExecutionState.setRetryPending(false);
-      // 마지막 유저 메시지를 찾아 재시도
+      //     
       const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
       if (lastUserMsg && llmClient) {
         setIsProcessing(true);
@@ -1060,7 +1060,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       logger.warn('LLM client not configured');
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant' as const, content: 'LLM이 설정되지 않았습니다. /settings → LLMs에서 설정해주세요.' },
+        { role: 'assistant' as const, content: 'LLM  . /settings → LLMs .' },
       ]);
       return;
     }
@@ -1082,7 +1082,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       if (!shellCommand) {
         addLog({
           type: 'assistant_message',
-          content: '사용법: !<명령어> (예: !ls -la, !dir)',
+          content: ': !<> (: !ls -la, !dir)',
         });
         return;
       }
@@ -1222,12 +1222,12 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
     // Reset interrupt flag for new operation
     if (llmClient) {
       llmClient.resetInterrupt();
-      // 카운트다운 콜백 설정 (LLM 확장 retry 2분 대기 표시)
+      //    (LLM  retry 2  )
       llmClient.countdownCallback = (remainingSeconds: number) => {
         if (remainingSeconds > 0) {
-          setActivityDetail(`서버 응답 대기... ${remainingSeconds}초`);
+          setActivityDetail(`  ... ${remainingSeconds}`);
         } else {
-          setActivityDetail('재시도 중...');
+          setActivityDetail(' ...');
         }
       };
     }
@@ -1576,17 +1576,17 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         return (
           <Box key={entry.id} marginTop={0} marginBottom={0} flexDirection="column">
             <Text color="yellow"> 🔀 {entry.content}</Text>
-            <Text color="gray">    Git 저장소가 감지되었습니다! 커밋 지원이 활성화됩니다.</Text>
+            <Text color="gray">    Git  !  won .</Text>
           </Box>
         );
 
       case 'tool_start': {
-        // tell_to_user는 tell_user 로그에서 표시, final_response는 assistant response로 표시
+        // tell_to_user tell_user  , final_response assistant response 
         if (entry.content === 'tell_to_user' || entry.content === 'final_response') return null;
 
-        // Tool별 아이콘 매핑
+        // Tool  
         const getToolIcon = (toolName: string): string => {
-          // Office 도구 (prefix 매칭)
+          // Office  (prefix )
           if (toolName.startsWith('word_')) return '📄';       // Word
           if (toolName.startsWith('excel_')) return '📊';      // Excel
           if (toolName.startsWith('powerpoint_')) return '📽️';  // PowerPoint
@@ -1594,39 +1594,39 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
 
           switch (toolName) {
             case 'read_file':
-              return '📖';  // 읽기
+              return '📖';  // 
             case 'create_file':
-              return '📝';  // 새 파일 생성
+              return '📝';  //   
             case 'edit_file':
-              return '✏️';   // 편집
+              return '✏️';   // 
             case 'list_files':
-              return '📂';  // 폴더 목록
+              return '📂';  //  
             case 'find_files':
-              return '🔍';  // 검색
+              return '🔍';  // 
             case 'tell_to_user':
-              return '💬';  // 메시지
+              return '💬';  // 
             case 'bash':
-              return '⚡';  // 터미널/쉘 명령어
+              return '⚡';  // / 
             default:
-              return '🔧';  // 기본 도구
+              return '🔧';  //  
           }
         };
 
-        // Tool별 핵심 파라미터 추출
+        // Tool   
         const getToolParams = (toolName: string, args: Record<string, unknown> | undefined): string => {
           if (!args) return '';
 
-          // Office 도구 파라미터 (prefix 매칭)
+          // Office   (prefix )
           if (toolName.startsWith('word_') || toolName.startsWith('excel_') || toolName.startsWith('powerpoint_')) {
-            // 파일 경로가 있으면 표시
+            //    
             const filePath = args['file_path'] as string;
             if (filePath) return filePath;
-            // 셀/범위가 있으면 표시
+            // /  
             const cell = args['cell'] as string;
             const range = args['range'] as string;
             if (cell) return cell;
             if (range) return range;
-            // 슬라이드 번호가 있으면 표시
+            //    
             const slideNumber = args['slide_number'] as number;
             if (slideNumber) return `slide ${slideNumber}`;
             return '';
@@ -1653,7 +1653,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
               return dir ? `${pattern} in ${dir}` : pattern;
             }
             case 'tell_to_user':
-              return '';  // tell_to_user는 파라미터 표시 안함
+              return '';  // tell_to_user   
             case 'bash':
               return args['command'] as string || '';
             default:
@@ -1670,7 +1670,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         const maxReasonLen = Math.max(20, termWidth - 10);
         const truncatedReason = clampText(reason, maxReasonLen);
 
-        // 모든 도구 통일된 2줄 포맷
+        //    2 
         return (
           <Box key={entry.id} flexDirection="column" marginTop={1}>
             <Box>
@@ -1689,7 +1689,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
       }
 
       case 'tool_result':
-        // tool_result 표시 제거 - tool_start에서 reason만 표시
+        // tool_result   - tool_start reason 
         return null;
 
       case 'shell_result':
@@ -1733,7 +1733,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         return (
           <Box key={entry.id} marginLeft={2}>
             <Text color="gray">⎿  </Text>
-            <Text color="green">✓ 완료</Text>
+            <Text color="green">✓ </Text>
           </Box>
         );
 
@@ -1741,7 +1741,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         return (
           <Box key={entry.id} marginLeft={2}>
             <Text color="gray">⎿  </Text>
-            <Text color="red">✗ 실패</Text>
+            <Text color="red">✗ </Text>
           </Box>
         );
 
@@ -1773,7 +1773,7 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
         return (
           <Box key={entry.id} flexDirection="column" marginTop={1}>
             <Box>
-              <Text color="yellow" bold>⚠️ 승인 요청: </Text>
+              <Text color="yellow" bold>⚠️  : </Text>
               <Text color="cyan" bold>{entry.content}</Text>
             </Box>
             {entry.details && (
@@ -1802,11 +1802,11 @@ export const PlanExecuteApp: React.FC<PlanExecuteAppProps> = ({ llmClient: initi
             <Text color="gray">⎿ </Text>
             {entry.success ? (
               <Text color="green">
-                ✓ {entry.details === 'always_approved' ? '항상 승인됨' : '승인됨'}
+                ✓ {entry.details === 'always_approved' ? ' ' : ''}
               </Text>
             ) : (
               <Text color="red">
-                ✗ 거부됨{entry.details && entry.details !== 'rejected' ? `: ${entry.details}` : ''}
+                ✗ {entry.details && entry.details !== 'rejected' ? `: ${entry.details}` : ''}
               </Text>
             )}
           </Box>

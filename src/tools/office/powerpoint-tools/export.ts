@@ -41,7 +41,7 @@ async function executePowerPointSave(args: Record<string, unknown>): Promise<Too
           const lastSlideResp = await powerpointClient.powerpointGetShapeList(slideCount);
           const shapeCount = lastSlideResp?.['count'] ?? (Array.isArray(lastSlideResp?.['shapes']) ? lastSlideResp['shapes'].length : 0);
           if (Number(shapeCount) < 2) {
-            closingWarning = ` ⚠ WARNING: Your LAST slide (slide ${slideCount}) has only ${shapeCount} shape(s) — it does NOT look like a proper closing slide. You MUST add a closing slide with "감사합니다"/"Thank You" text and a colored background BEFORE finishing. Do NOT call "complete" yet — build the closing slide first!`;
+            closingWarning = ` ⚠ WARNING: Your LAST slide (slide ${slideCount}) has only ${shapeCount} shape(s) — it does NOT look like a proper closing slide. You MUST add a closing slide with ""/"Thank You" text and a colored background BEFORE finishing. Do NOT call "complete" yet — build the closing slide first!`;
           }
         }
       }

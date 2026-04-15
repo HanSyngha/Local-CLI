@@ -1,7 +1,7 @@
 /**
  * External Services Tools Index
  *
- * ONCE (노트/지식 관리) 및 FREE (업무 기록) 도구 통합 export
+ * ONCE (/ )  FREE ( )   export
  *
  * CLI parity: electron/main/tools/llm/simple/external-services/index.ts
  */

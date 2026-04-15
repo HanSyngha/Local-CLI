@@ -124,7 +124,7 @@ $excel.DisplayAlerts = $true
     const sheetScript = sheet ? `$sheet = $workbook.Sheets('${sheet.replace(/'/g, "''")}')` : '$sheet = $workbook.ActiveSheet';
 
     // Auto-detect Korean and set font
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(strValue);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(strValue);
     const fontName = options?.fontName || (hasKorean ? 'Malgun Gothic' : '');
 
     const formatScript: string[] = [];
@@ -184,7 +184,7 @@ $value = $sheet.Range('${cell}').Value2
 
   async excelWriteRange(startCell: string, values: unknown[][], sheet?: string): Promise<OfficeResponse> {
     const rows = values.length;
-    // 모든 행 중 최대 열 수로 계산 (첫 행만 보면 #N/A 발생)
+    //        (   #N/A )
     const cols = Math.max(...values.map(row => (row ? row.length : 0)), 0);
     const sheetScript = sheet ? `$sheet = $workbook.Sheets('${sheet.replace(/'/g, "''")}')` : '$sheet = $workbook.ActiveSheet';
 
@@ -194,7 +194,7 @@ $value = $sheet.Range('${cell}').Value2
     // Helper to convert value to PowerShell format
     const toPsValue = (v: unknown): string => {
       const str = String(v);
-      if (/[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(str)) hasKorean = true;
+      if (/[-ㄱ-ㅎㅏ-ㅣ]/.test(str)) hasKorean = true;
 
       // Numbers: output without quotes
       if (typeof v === 'number' || (str !== '' && !isNaN(Number(str)) && str.trim() !== '')) {
@@ -761,7 +761,7 @@ $img.Dispose()
     };
     const xlChartType = chartTypeMap[chartType] ?? 51;
     const escapedTitle = options?.title?.replace(/'/g, "''") || '';
-    const hasKorean = options?.title ? /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(options.title) : false;
+    const hasKorean = options?.title ? /[-ㄱ-ㅎㅏ-ㅣ]/.test(options.title) : false;
 
     const sheetScript = options?.sheet ?
       `$sheet = $excel.ActiveWorkbook.Worksheets('${options.sheet.replace(/'/g, "''")}')` :
@@ -816,7 +816,7 @@ ${koreanFontScript}
 
   async excelSetChartTitle(chartIndex: number, title: string, sheet?: string): Promise<OfficeResponse> {
     const escapedTitle = title.replace(/'/g, "''");
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(title);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(title);
     const sheetScript = sheet ?
       `$sheet = $excel.ActiveWorkbook.Worksheets('${sheet.replace(/'/g, "''")}')` :
       '$sheet = $excel.ActiveWorkbook.ActiveSheet';
@@ -2752,7 +2752,7 @@ foreach ($shape in $sheet.Shapes) {
     const sheetScript = sheet ?
       `$sheet = $workbook.Sheets('${sheet.replace(/'/g, "''")}')` :
       '$sheet = $workbook.ActiveSheet';
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(newText);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(newText);
 
     return this.executePowerShell(`
 $excel = [Runtime.InteropServices.Marshal]::GetActiveObject("Excel.Application")

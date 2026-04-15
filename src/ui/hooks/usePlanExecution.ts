@@ -1,8 +1,8 @@
 /**
  * usePlanExecution Hook
  *
- * Plan & Execute 상태 관리 React Hook
- * 비즈니스 로직은 orchestration/plan-executor.ts에서 처리
+ * Plan & Execute   React Hook
+ *   orchestration/plan-executor.ts 
  */
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
@@ -58,7 +58,7 @@ export function usePlanExecution(pendingMessageCallbacks?: PendingMessageCallbac
     resolve: (response: AskUserResponse) => void;
   } | null>(null);
 
-  // Retry pending state (LLM 확장 retry 전부 실패 시)
+  // Retry pending state (LLM  retry   )
   const [retryPending, setRetryPending] = useState(false);
 
   // Refs
@@ -91,7 +91,7 @@ export function usePlanExecution(pendingMessageCallbacks?: PendingMessageCallbac
     // Pending message callbacks for mid-execution user input injection
     getPendingMessage: pendingMessageCallbacks?.getPendingMessage,
     clearPendingMessage: pendingMessageCallbacks?.clearPendingMessage,
-    // LLM retry exhausted — UI에서 Enter로 재시도 대기
+    // LLM retry exhausted — UI Enter  
     setRetryPending,
   }), [pendingMessageCallbacks]);
 
@@ -110,7 +110,7 @@ export function usePlanExecution(pendingMessageCallbacks?: PendingMessageCallbac
 
     logger.flow('Setting up TODO tool callbacks');
 
-    // write_todos callback: 전체 목록 교체
+    // write_todos callback:   
     const writeCallback = async (newTodos: TodoInput[]): Promise<boolean> => {
       logger.enter('todoWriteCallback', { todoCount: newTodos.length });
 

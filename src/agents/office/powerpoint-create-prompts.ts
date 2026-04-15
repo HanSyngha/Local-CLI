@@ -66,10 +66,10 @@ Given the user's instruction, produce a JSON object with a visual design system 
 ═══ TITLE & CLOSING FORMAT ═══
 ⚠ Title slide:
   • title: Company/topic name ONLY — max 3-4 words (rendered at 96px)
-    ✓ "Acme Corp"  ✓ "프로젝트 알파"  ✗ "Acme Corp - 2025 혁신 전략 보고서" (too long)
+    ✓ "Acme Corp"  ✓ " "  ✗ "Acme Corp - 2025   " (too long)
   • content_direction: The actual subtitle/tagline TEXT (1-2 lines, under 120 chars)
 ⚠ Closing slide:
-  • title: "감사합니다" (Korean) / "Thank You" (English)
+  • title: "" (Korean) / "Thank You" (English)
   • content_direction: Company/topic name
 
 ═══ SLIDE STRUCTURE STRATEGY ═══
@@ -91,10 +91,10 @@ Given the user's instruction, produce a JSON object with a visual design system 
 ⚠ content_direction MUST describe ONE focused topic per slide.
   If a topic has 4+ sub-items, SPLIT into 2 slides.
 ⚠ NEVER include layout/CSS instructions in content_direction. Just the DATA.
-  ✓ GOOD: "2024년 국내 시장 규모 4.8조 원. 전년 대비 23% 성장. 주요 성장 동력: 신규 고객 유입 35% 증가, 기존 고객 유지율 89%, 프리미엄 세그먼트 매출 비중 41%. 2027년 시장 전망 7.2조 원."
-  ✓ GOOD: "핵심 제품 A: 월간 구독형 서비스. 기본 플랜 월 29만원, 프로 플랜 월 59만원, 엔터프라이즈 맞춤 견적. 주요 기능: 실시간 분석 대시보드, 자동 보고서 생성, API 연동. 도입 기업 120개사, 평균 고객 만족도 94.2%."
-  ✗ BAD: "3개 서비스 소개. Layout: cards" ← Too sparse, has layout hint!
-  ✗ BAD: "왼쪽에 텍스트, 오른쪽에 차트" ← Layout instruction!
+  ✓ GOOD: "2024    4.8 won.   23% .   :    35% ,    89%,     41%. 2027   7.2 won."
+  ✓ GOOD: "  A: monthly subscription service. basic plan monthly 29won, pro plan monthly 59won, enterprise custom quote. key features:   dashboard, automated report generation, API integration. adopting companies 120companies, average customer satisfaction 94.2%."
+  ✗ BAD: "3  . Layout: cards" ← Too sparse, has layout hint!
+  ✗ BAD: " ,  " ← Layout instruction!
 
 ═══ SLIDE CONTENT VARIETY ═══
 ⚠ Each slide's content should naturally suggest a DIFFERENT visual treatment.
@@ -117,8 +117,8 @@ Given the user's instruction, produce a JSON object with a visual design system 
 ⚠ ALL titles and content_direction MUST be in the SAME language as the user's instruction
 ⚠ content_direction with NO real data = FAILURE
 ⚠ HARD MAXIMUM: 13 slides. Slides beyond 13 are DISCARDED.
-⚠ NEVER use "스크린샷", "screenshot", "이미지", "사진", "placeholder" in content_direction
-⚠ Do NOT create a separate "연락처" slide — closing handles this.
+⚠ NEVER use "", "screenshot", "", "", "placeholder" in content_direction
+⚠ Do NOT create a separate "" slide — closing handles this.
 
 Output ONLY the JSON object.`;
 
@@ -484,15 +484,15 @@ export function validateSlideHtml(html: string, _layoutType?: string): { pass: b
     /Segment name/i,
     /Lorem ipsum/i,
     /\[placeholder\]/i,
-    /\[내용\]/i,
-    /\[.{2,20}을\s*입력/i,       // [팀명을 입력하세요] etc.
-    /\[YYYY/i,                    // [YYYY년 MM월]
-    /\[이메일/i,                  // [이메일 주소]
-    /\[작성자/i,                  // [작성자명]
-    /\[직급/i,                    // [직급/소속]
+    /\[\]/i,
+    /\[.{2,20}\s*/i,       // [ ] etc.
+    /\[YYYY/i,                    // [YYYY MMmonthly]
+    /\[/i,                  // [ ]
+    /\[/i,                  // []
+    /\[/i,                    // [/]
     /\[NNNN\]/i,                  // [NNNN]
-    /\[MM월/i,                    // [MM월 DD일]
-    /\[담당자\s*명\]/i,           // [담당자 명]
+    /\[MMmonthly/i,                    // [MMmonthly DD]
+    /\[\s*\]/i,           // [ ]
   ];
   for (const pattern of placeholderPatterns) {
     if (pattern.test(html)) {
@@ -1660,7 +1660,7 @@ Complete: complete (call AFTER saving)
 ═══ CONTENT QUALITY ═══
 • ALL text MUST be in the same language as the user's instruction
 • Korean input → Korean titles, bullets, table headers, everything
-• NEVER use placeholder text like "[내용]", "XXX", "lorem ipsum"
+• NEVER use placeholder text like "[]", "XXX", "lorem ipsum"
 • Generate REAL, specific, professional content with concrete data
 
 ═══ RULES ═══

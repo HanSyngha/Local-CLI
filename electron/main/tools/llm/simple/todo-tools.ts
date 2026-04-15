@@ -4,7 +4,7 @@
  * TODO list management tools
  * CLI parity: src/tools/llm/simple/todo-tools.ts
  *
- * Category: LLM Simple Tools - LLM이 tool_call로 호출, Sub-LLM 없음
+ * Category: LLM Simple Tools - LLM tool_call , Sub-LLM 
  */
 
 import type { ToolDefinition } from '../../../core';

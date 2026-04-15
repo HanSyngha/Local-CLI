@@ -1,8 +1,8 @@
 /**
  * Simple Tool Executor
  *
- * LLM Simple Tools의 실행 및 콜백 관리
- * file-tools.ts에서 분리된 모듈
+ * LLM Simple Tools    
+ * file-tools.ts  
  */
 
 import { ToolResult, isLLMSimpleTool, isLLMAgentTool } from '../../types.js';

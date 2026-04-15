@@ -1,8 +1,8 @@
 /**
  * Jarvis Mode - Manager LLM Prompts
  *
- * Manager LLM은 '매니저'로서 직접 코드를 작성하지 않고,
- * Planner/Executor에게 일을 위임하고 결과를 관리한다.
+ * Manager LLM ''    ,
+ * Planner/Executor    .
  */
 
 import type { JarvisMemoryEntry } from './jarvis-types';
@@ -41,7 +41,7 @@ You delegate work to the Planner/Executor system and manage the results.
 4. After completing a task, ALWAYS review your memory and add/update/delete as needed.
 5. When greeting the user, be warm and concise. Mention what you plan to work on today.
 6. If the sub-LLM (Planner/Executor) asks you a question, try to answer from your memory and context first. Only escalate to the user via ask_to_user if you truly cannot answer.
-7. Communicate in Korean (한국어) when talking to the user.
+7. Communicate in Korean () when talking to the user.
 8. When delegating tasks, write instructions in Korean for clarity.
 9. **Always provide tangible, user-visible deliverables — never just say "done".** If files were created, include the file path or open them directly. If information was retrieved, summarize the key content as text. If there are links, include them. A report the user cannot visually verify is not a report.`;
 
@@ -54,17 +54,17 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'delegate_to_planner',
-      description: 'Planner/Executor에게 작업을 위임합니다. 최대한 구체적으로 작성하세요. Blocking — 실행 완료까지 대기합니다.',
+      description: 'Planner/Executor task .   . Blocking —   .',
       parameters: {
         type: 'object',
         properties: {
           task_description: {
             type: 'string',
-            description: '구체적인 작업 지시. 컨텍스트, 파일 경로, 기대 결과를 포함하세요.',
+            description: ' task . ,  ,   .',
           },
           working_directory: {
             type: 'string',
-            description: '작업 디렉토리 경로 (선택). 기본값은 현재 디렉토리.',
+            description: 'task   ().   .',
           },
         },
         required: ['task_description'],
@@ -75,13 +75,13 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'report_to_user',
-      description: '사용자에게 보고합니다 (인사, 상태, 결과 알림). 비동기 — 응답 대기 없이 다음 동작.',
+      description: '  (, ,  ).  —     .',
       parameters: {
         type: 'object',
         properties: {
           message: {
             type: 'string',
-            description: '사용자에게 보낼 메시지 (한국어)',
+            description: '   ()',
           },
         },
         required: ['message'],
@@ -92,13 +92,13 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'request_approval',
-      description: '사용자에게 승인을 요청합니다. Blocking — OK/Cancel 응답까지 대기.',
+      description: '  . Blocking — OK/Cancel  .',
       parameters: {
         type: 'object',
         properties: {
           message: {
             type: 'string',
-            description: '승인 요청 메시지 (한국어). 무엇을 할 것인지 명확히.',
+            description: '   ().    .',
           },
         },
         required: ['message'],
@@ -109,18 +109,18 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'ask_to_user',
-      description: '사용자에게 질문합니다. Blocking — 응답까지 대기.',
+      description: ' . Blocking —  .',
       parameters: {
         type: 'object',
         properties: {
           question: {
             type: 'string',
-            description: '질문 내용 (한국어)',
+            description: '  ()',
           },
           options: {
             type: 'array',
             items: { type: 'string' },
-            description: '선택지 목록 (선택). 제공하면 사용자가 선택 가능.',
+            description: '  ().    .',
           },
         },
         required: ['question'],
@@ -131,17 +131,17 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'add_memory',
-      description: '영구 기억에 새 항목을 추가합니다.',
+      description: '    .',
       parameters: {
         type: 'object',
         properties: {
           key: {
             type: 'string',
-            description: '기억의 키/제목 (예: "kickoff_doc_completed", "user_prefers_markdown")',
+            description: ' / (: "kickoff_doc_completed", "user_prefers_markdown")',
           },
           content: {
             type: 'string',
-            description: '기억 내용',
+            description: ' ',
           },
         },
         required: ['key', 'content'],
@@ -152,17 +152,17 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'update_memory',
-      description: '기존 영구 기억을 수정합니다.',
+      description: '   .',
       parameters: {
         type: 'object',
         properties: {
           id: {
             type: 'string',
-            description: '수정할 기억의 ID',
+            description: '  ID',
           },
           content: {
             type: 'string',
-            description: '새로운 내용',
+            description: ' ',
           },
         },
         required: ['id', 'content'],
@@ -173,13 +173,13 @@ export const JARVIS_MANAGER_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'delete_memory',
-      description: '오래되었거나 부정확한 영구 기억을 삭제합니다.',
+      description: '    .',
       parameters: {
         type: 'object',
         properties: {
           id: {
             type: 'string',
-            description: '삭제할 기억의 ID',
+            description: '  ID',
           },
         },
         required: ['id'],
@@ -193,7 +193,7 @@ export const JARVIS_MANAGER_TOOLS = [
 // =============================================================================
 
 /**
- * Manager LLM에게 전달할 user prompt 구성
+ * Manager LLM  user prompt 
  */
 export function buildManagerUserPrompt(params: {
   trigger: 'poll' | 'user_message' | 'greeting';
@@ -217,7 +217,7 @@ export function buildManagerUserPrompt(params: {
 
   // 2. Current Data
   parts.push('<CURRENT_DATA>');
-  parts.push(`현재 시각: ${params.currentTime}`);
+  parts.push(` : ${params.currentTime}`);
   parts.push('</CURRENT_DATA>');
   parts.push('');
 
@@ -229,7 +229,7 @@ export function buildManagerUserPrompt(params: {
     parts.push('');
   }
 
-  // 4. Pending messages (실행 중 대기열에 쌓인 사용자 메시지)
+  // 4. Pending messages (     )
   if (params.pendingMessages && params.pendingMessages.length > 0) {
     parts.push('<PENDING_USER_MESSAGES>');
     for (const msg of params.pendingMessages) {
@@ -241,11 +241,11 @@ export function buildManagerUserPrompt(params: {
 
   // 5. Trigger context
   if (params.trigger === 'greeting') {
-    parts.push('The app just started. Greet the user with: "안녕하세요! 저는 24시간 깨어있는 사용자님의 개인 AI 비서입니다. 무엇이든 맡겨주세요!" then check today\'s tasks.');
+    parts.push('The app just started. Greet the user with: "!  24    AI .  !" then check today\'s tasks.');
   } else if (params.trigger === 'poll') {
-    parts.push('주기적 체크 시간입니다. 할 일 목록과 업무기록을 분석하고, 필요한 작업이 있으면 진행하세요.');
+    parts.push('  .     ,  task  .');
   } else if (params.trigger === 'user_message' && params.userMessage) {
-    parts.push(`사용자 메시지: "${params.userMessage}"`);
+    parts.push(` : "${params.userMessage}"`);
   }
 
   return parts.join('\n');

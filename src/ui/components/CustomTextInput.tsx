@@ -262,7 +262,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
     // Any other edit clears collapsed view
     setIsCollapsedViewRef.current(false);
 
-    // Regular character input (printable characters including multi-byte UTF-8 like 한글)
+    // Regular character input (printable characters including multi-byte UTF-8 like )
     // Filter out control characters (0x00-0x1F and 0x7F) but allow everything else
     // This allows ASCII printable chars, extended ASCII, and multi-byte UTF-8 characters
     const charCode = str.charCodeAt(0);

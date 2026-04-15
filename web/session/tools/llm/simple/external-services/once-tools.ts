@@ -1,12 +1,12 @@
 /**
  * ONCE Tools (Execution Loop)
  *
- * ONCE — AI 기반 노트/지식 관리 시스템
+ * ONCE — AI  /  
  *
  * 1 tool available in the execution loop:
- * - once_search (AI 검색)
+ * - once_search (AI )
  *
- * once_note_add는 background-sync에서 자동 실행
+ * once_note_add background-sync  
  *
  * CLI parity: electron/main/tools/llm/simple/external-services/once-tools.ts
  */
@@ -79,7 +79,7 @@ const onceSearchTool: LLMSimpleTool = {
 
 /**
  * ONCE tools available in execution loop.
- * once_note_add는 background-sync에서 자동 실행.
+ * once_note_add background-sync  .
  */
 export const ONCE_TOOLS: LLMSimpleTool[] = [
   onceSearchTool,

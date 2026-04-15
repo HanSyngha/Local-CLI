@@ -1,11 +1,11 @@
 /**
  * Read Image Tool (Vision Language Model)
  *
- * LLM Simple Tool로 구현하되, 내부에서 VL 모델에 직접 HTTP 호출.
- * 메인 LLM이 read_image를 호출하면 VL 모델에 이미지+프롬프트를 보내고
- * 텍스트 분석 결과만 반환.
+ * LLM Simple Tool ,  VL   HTTP .
+ *  LLM read_image  VL  + 
+ *    return.
  *
- * 핵심: 메인 LLM 파이프라인 변경 없음. Message 타입 변경 없음.
+ * :  LLM   . Message   .
  */
 
 import fs from 'fs';

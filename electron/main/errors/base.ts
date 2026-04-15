@@ -1,7 +1,7 @@
 /**
  * Base Error Class
  *
- * 모든 커스텀 에러의 기본 클래스
+ *     
  */
 
 export interface ErrorDetails {
@@ -16,7 +16,7 @@ export interface ErrorOptions {
 }
 
 /**
- * BaseError - 모든 커스텀 에러의 기본 클래스
+ * BaseError -     
  */
 export class BaseError extends Error {
   public readonly code: string;
@@ -41,12 +41,12 @@ export class BaseError extends Error {
     this.userMessage = options.userMessage ?? message;
     this.timestamp = new Date();
 
-    // 스택 트레이스 설정
+    //   
     Error.captureStackTrace(this, this.constructor);
   }
 
   /**
-   * 에러 정보를 JSON으로 변환
+   *   JSON 
    */
   toJSON(): Record<string, unknown> {
     return {
@@ -66,14 +66,14 @@ export class BaseError extends Error {
   }
 
   /**
-   * 사용자에게 표시할 메시지 반환
+   *    return
    */
   getUserMessage(): string {
     return this.userMessage;
   }
 
   /**
-   * 에러가 복구 가능한지 확인
+   *    
    */
   canRecover(): boolean {
     return this.isRecoverable;

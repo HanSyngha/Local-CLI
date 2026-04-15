@@ -1,7 +1,7 @@
 /**
  * LLM Tools Index
  *
- * LLM이 tool_call로 호출하는 모든 도구들
+ * LLM tool_call   
  */
 
 // Simple Tools (No Sub-LLM)

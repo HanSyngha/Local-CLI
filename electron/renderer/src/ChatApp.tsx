@@ -186,7 +186,7 @@ const ChatApp: React.FC = () => {
         if (typeof configAny?.autoFileView === 'boolean') {
           setAutoFileView(configAny.autoFileView);
         }
-        // UI 스케일
+        // UI 
         if (configAny?.uiScale && typeof configAny.uiScale === 'number') {
           document.documentElement.style.setProperty('--ui-scale', String(configAny.uiScale));
         }
@@ -202,7 +202,7 @@ const ChatApp: React.FC = () => {
               directoryRestored = true;
             }
           } catch {
-            // fs.exists 실패 시 fallback
+            // fs.exists   fallback
           }
         }
         if (!directoryRestored && dirResult.success && dirResult.directory) {
@@ -218,7 +218,7 @@ const ChatApp: React.FC = () => {
     init();
   }, []);
 
-  // Appearance change listener (Settings에서 변경 시 실시간 반영)
+  // Appearance change listener (Settings    )
   useEffect(() => {
     const unsub = window.electronAPI?.theme?.onAppearanceChange?.((data: { key: string; value: unknown }) => {
       if (data.key === 'fontSize' && typeof data.value === 'number') {
@@ -366,18 +366,18 @@ const ChatApp: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isModelDropdownOpen]);
 
-  // Handle model selection (endpoint 내 개별 모델 선택)
+  // Handle model selection (endpoint    )
   const handleSelectModel = useCallback(async (endpointId: string, modelId?: string) => {
     if (!window.electronAPI?.llm) return;
     try {
-      // endpoint가 다르면 먼저 endpoint 변경
+      // endpoint   endpoint 
       if (endpointId !== currentEndpointId) {
         const epResult = await window.electronAPI.llm.setCurrentEndpoint(endpointId);
         if (epResult.success) {
           setCurrentEndpointId(endpointId);
         }
       }
-      // 모델 선택
+      //  
       if (modelId) {
         const result = await window.electronAPI.llm.setCurrentModel(modelId);
         if (result.success) {
@@ -650,7 +650,7 @@ const ChatApp: React.FC = () => {
   // Mark tab as running/not running (called from agent events)
   // CRITICAL: Short-circuit when value hasn't changed. Without this, every tool call
   // triggers setOpenTabs → new array → ChatApp re-render → BottomPanel re-render
-  // → ALL ChatPanels re-render → Korean IME composition breaks ("입력 분할").
+  // → ALL ChatPanels re-render → Korean IME composition breaks (" ").
   const setTabRunning = useCallback((sessionId: string, isRunning: boolean) => {
     setOpenTabs(prev => {
       const tab = prev.find(t => t.sessionId === sessionId);

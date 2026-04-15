@@ -1,8 +1,8 @@
 /**
  * Session Browser Component
- * - 세션 목록 표시
- * - 세션 로드/삭제/내보내기
- * - 세션 검색
+ * -   
+ * -  //
+ * -  
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -38,7 +38,7 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     sessionId: null,
   });
 
-  // 세션 목록 로드
+  //   
   const loadSessions = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -56,7 +56,7 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     }
   }, []);
 
-  // 세션 검색
+  //  
   const searchSessions = useCallback(async (query: string) => {
     if (!query.trim()) {
       loadSessions();
@@ -76,13 +76,13 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     }
   }, [loadSessions]);
 
-  // 세션 삭제 확인 모달 열기
+  //     
   const handleDeleteSession = useCallback((sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setDeleteConfirm({ isOpen: true, sessionId });
   }, []);
 
-  // 실제 세션 삭제 수행
+  //    
   const confirmDeleteSession = useCallback(async () => {
     const sessionId = deleteConfirm.sessionId;
     if (!sessionId) return;
@@ -93,7 +93,7 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
       if (selectedSession === sessionId) {
         setSelectedSession(null);
       }
-      // 현재 세션을 삭제한 경우 부모에게 알림
+      //      
       if (currentSessionId === sessionId) {
         onDeleteCurrentSession?.();
       }
@@ -101,18 +101,18 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     setDeleteConfirm({ isOpen: false, sessionId: null });
   }, [deleteConfirm.sessionId, loadSessions, selectedSession, currentSessionId, onDeleteCurrentSession]);
 
-  // 삭제 취소
+  //  
   const cancelDeleteSession = useCallback(() => {
     setDeleteConfirm({ isOpen: false, sessionId: null });
   }, []);
 
-  // 세션 내보내기
+  //  
   const handleExportSession = useCallback(async (sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
     const result = await window.electronAPI.session.export(sessionId);
     if (result.success && result.data) {
-      // 파일 저장 다이얼로그
+      //   
       const saveResult = await window.electronAPI.dialog.saveFile({
         title: t('session.exportTitle'),
         defaultPath: `session-${sessionId}.json`,
@@ -130,13 +130,13 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     }
   }, []);
 
-  // 세션 로드
+  //  
   const handleLoadSession = useCallback((sessionId: string) => {
     onLoadSession(sessionId);
     onClose();
   }, [onLoadSession, onClose]);
 
-  // 세션 가져오기
+  //  
   const handleImportSession = useCallback(async () => {
     const result = await window.electronAPI.dialog.openFile({
       title: t('session.importTitle'),
@@ -165,14 +165,14 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     }
   }, [loadSessions]);
 
-  // 컴포넌트 마운트 시 세션 로드
+  //     
   useEffect(() => {
     if (isOpen) {
       loadSessions();
     }
   }, [isOpen, loadSessions]);
 
-  // 검색 디바운스
+  //  
   useEffect(() => {
     const timer = setTimeout(() => {
       searchSessions(searchQuery);
@@ -181,7 +181,7 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
     return () => clearTimeout(timer);
   }, [searchQuery, searchSessions]);
 
-  // ESC 키로 닫기
+  // ESC  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -195,7 +195,7 @@ const SessionBrowser: React.FC<SessionBrowserProps> = ({
 
   if (!isOpen) return null;
 
-  // 날짜 포맷팅
+  //  
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
     const now = new Date();

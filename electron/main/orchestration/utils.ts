@@ -213,9 +213,9 @@ export function markTodoFailed(todos: TodoItem[], todoId: string, error?: string
  * Some LLMs mix XML parameter syntax into JSON argument values
  *
  * Example malformed:
- *   "reason": "목차 정렬합니다.\"\n<parameter name=\"alignment\">left"
+ *   "reason": " .\"\n<parameter name=\"alignment\">left"
  * Should become:
- *   "reason": "목차 정렬합니다."
+ *   "reason": " ."
  */
 function sanitizeReason(reason: unknown): string {
   if (typeof reason !== 'string') {

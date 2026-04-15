@@ -1,11 +1,11 @@
 /**
  * ResizablePanel Component
- * 드래그로 크기 조절 가능한 패널
- * - 최소/최대 크기 제한
- * - 더블클릭으로 기본 크기 복원
- * - 패널 접기/펼치기
- * - 60fps 성능 최적화
- * - 터치 디바이스 지원
+ *     
+ * - /  
+ * -    won
+ * -  /
+ * - 60fps  
+ * -   won
  */
 
 import React, { useRef, useEffect } from 'react';
@@ -16,33 +16,33 @@ import './ResizablePanel.css';
 export type ResizeDirection = 'left' | 'right' | 'top' | 'bottom';
 
 export interface ResizablePanelProps {
-  /** 패널 ID (저장용) */
+  /**  ID () */
   id: string;
-  /** 자식 컴포넌트 */
+  /**   */
   children: React.ReactNode;
-  /** 리사이즈 방향 */
+  /**   */
   direction: ResizeDirection;
-  /** 기본 크기 (px) */
+  /**   (px) */
   defaultSize?: number;
-  /** 최소 크기 (px) */
+  /**   (px) */
   minSize?: number;
-  /** 최대 크기 (px) */
+  /**   (px) */
   maxSize?: number;
-  /** 접힌 상태에서의 크기 */
+  /**    */
   collapsedSize?: number;
-  /** 초기 접힌 상태 */
+  /**    */
   defaultCollapsed?: boolean;
-  /** 접기 버튼 표시 여부 */
+  /**     */
   showCollapseButton?: boolean;
-  /** 크기 변경 콜백 */
+  /**    */
   onSizeChange?: (size: number) => void;
-  /** 접기/펼치기 변경 콜백 */
+  /** /   */
   onCollapsedChange?: (collapsed: boolean) => void;
-  /** 추가 클래스 */
+  /**   */
   className?: string;
-  /** 비율 기반 크기 조절 */
+  /**     */
   useRatio?: boolean;
-  /** 헤더 컨텐츠 */
+  /**   */
   header?: React.ReactNode;
 }
 
@@ -65,13 +65,13 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
   const panelRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
 
-  // 방향에 따른 orientation 결정
+  //   orientation 
   const orientation: 'horizontal' | 'vertical' =
     direction === 'left' || direction === 'right' ? 'horizontal' : 'vertical';
 
-  // useResizable 훅 사용
-  // 부모에서 onCollapsedChange를 전달하면 부모가 visibility를 제어하므로
-  // 항상 expanded 상태로 시작 (localStorage 무시)
+  // useResizable  
+  //  onCollapsedChange   visibility 
+  //  expanded   (localStorage )
   const resizableConfig: ResizableConfig = {
     storageKey: `panel-${id}`,
     defaultSize,
@@ -92,12 +92,12 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
   } = useResizable(resizableConfig);
   void _resetToDefault; // Suppress unused warning - available for future use
 
-  // 크기 변경 콜백
+  //   
   useEffect(() => {
     onSizeChange?.(size);
   }, [size, onSizeChange]);
 
-  // 접기/펼치기 변경 콜백 (첫 렌더링 시에는 호출하지 않음 - 부모 상태와 충돌 방지)
+  // /   (     -    )
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -106,23 +106,23 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
     onCollapsedChange?.(isCollapsed);
   }, [isCollapsed, onCollapsedChange]);
 
-  // 실제 표시 크기 계산
+  //    
   const displaySize = isCollapsed ? collapsedSize : size;
 
-  // 스타일 계산
+  //  
   const panelStyle: React.CSSProperties = {
     [orientation === 'horizontal' ? 'width' : 'height']: displaySize,
     [orientation === 'horizontal' ? 'minWidth' : 'minHeight']: isCollapsed ? collapsedSize : minSize,
     [orientation === 'horizontal' ? 'maxWidth' : 'maxHeight']: isCollapsed ? collapsedSize : maxSize,
   };
 
-  // 리사이즈 핸들 위치 클래스
+  //    
   const handlePositionClass = `resize-handle-${direction}`;
 
-  // 접기 버튼 아이콘
+  //   
   const getCollapseIcon = () => {
     if (isCollapsed) {
-      // 펼치기 아이콘
+      //  
       switch (direction) {
         case 'left':
           return (
@@ -150,7 +150,7 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
           );
       }
     } else {
-      // 접기 아이콘
+      //  
       switch (direction) {
         case 'left':
           return (
@@ -187,7 +187,7 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
       style={panelStyle}
       data-direction={direction}
     >
-      {/* 패널 헤더 (옵션) */}
+      {/*   () */}
       {(header || showCollapseButton) && (
         <div className="resizable-panel-header">
           <div className="resizable-panel-header-content">
@@ -205,12 +205,12 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
         </div>
       )}
 
-      {/* 패널 컨텐츠 */}
+      {/*   */}
       <div className={`resizable-panel-content ${isCollapsed ? 'hidden' : ''}`}>
         {children}
       </div>
 
-      {/* 리사이즈 핸들 */}
+      {/*   */}
       {!isCollapsed && (
         <div
           className={`resize-handle ${handlePositionClass}`}

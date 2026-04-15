@@ -1,7 +1,7 @@
 /**
  * LLM Simple Tools Index
  *
- * LLM이 tool_call로 호출하는 도구들 (Sub-LLM 없음)
+ * LLM tool_call   (Sub-LLM )
  * CLI parity: src/tools/llm/simple/index.ts
  *
  * Note: Electron uses PowerShell instead of bash (Windows native)

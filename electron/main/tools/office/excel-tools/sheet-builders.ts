@@ -40,15 +40,15 @@ const COLOR_PRESETS: Record<string, ColorConfig> = {
 };
 
 const FONT_PRESETS: Record<string, FontConfig> = {
-  MODERN_GREEN: { title: 'Segoe UI', body: '맑은 고딕' },
-  WARM_AMBER: { title: 'Georgia', body: '맑은 고딕' },
-  MINIMAL_SLATE: { title: '맑은 고딕', body: '돋움' },
-  CORPORATE_BLUE: { title: 'Calibri', body: '맑은 고딕' },
-  VIBRANT_CORAL: { title: 'Arial', body: '맑은 고딕' },
-  DEEP_PURPLE: { title: 'Segoe UI', body: '맑은 고딕' },
+  MODERN_GREEN: { title: 'Segoe UI', body: ' ' },
+  WARM_AMBER: { title: 'Georgia', body: ' ' },
+  MINIMAL_SLATE: { title: ' ', body: '' },
+  CORPORATE_BLUE: { title: 'Calibri', body: ' ' },
+  VIBRANT_CORAL: { title: 'Arial', body: ' ' },
+  DEEP_PURPLE: { title: 'Segoe UI', body: ' ' },
 };
 
-const DEFAULT_FONTS: FontConfig = { title: 'Segoe UI', body: '맑은 고딕' };
+const DEFAULT_FONTS: FontConfig = { title: 'Segoe UI', body: ' ' };
 
 /** Check if a hex color is too light (luminance > threshold) */
 function isColorTooLight(hex: string, threshold = 180): boolean {
@@ -86,7 +86,7 @@ function resolveColors(args: Record<string, unknown>): ColorConfig {
 function resolveFonts(args: Record<string, unknown>): FontConfig {
   if (args['fonts'] && typeof args['fonts'] === 'object') {
     const f = args['fonts'] as Record<string, string>;
-    return { title: f['title'] || 'Segoe UI', body: f['body'] || '맑은 고딕' };
+    return { title: f['title'] || 'Segoe UI', body: f['body'] || ' ' };
   }
   if (typeof args['fonts'] === 'string') {
     return FONT_PRESETS[args['fonts']] ?? DEFAULT_FONTS;
@@ -330,7 +330,7 @@ const EXCEL_BUILD_SUMMARY_ROW_DEF: ToolDefinition = {
       type: 'object',
       properties: {
         sheet_name: { type: 'string', description: 'Target sheet name' },
-        label: { type: 'string', description: 'Label text (e.g., "합계", "Total")' },
+        label: { type: 'string', description: 'Label text (e.g., "", "Total")' },
         label_column: { type: 'string', description: 'Column for the label (default: "A")' },
         target_row: { type: 'number', description: 'Row number for summary' },
         formulas: {
@@ -359,7 +359,7 @@ async function executeBuildSummaryRow(args: Record<string, unknown>): Promise<To
     const colors = resolveColors(args);
     const fonts = resolveFonts(args);
     const sheetName = (args['sheet_name'] as string) || 'Sheet1';
-    const label = (args['label'] as string) || '합계';
+    const label = (args['label'] as string) || '';
     const labelCol = (args['label_column'] as string) || 'A';
     const targetRow = (args['target_row'] as number) || 10;
     const formulas = (args['formulas'] as Array<Record<string, string>>) || [];

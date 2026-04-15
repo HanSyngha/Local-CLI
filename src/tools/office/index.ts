@@ -1,8 +1,8 @@
 /**
  * Office Automation Module
  *
- * Microsoft Office (Word, Excel, PowerPoint) 자동화 도구
- * PowerShell COM 자동화를 통해 직접 Office 애플리케이션과 통신
+ * Microsoft Office (Word, Excel, PowerPoint)  
+ * PowerShell COM    Office  
  */
 
 export { officeClient } from './office-client.js';

@@ -1,8 +1,8 @@
 /**
  * LLM Simple Tools Index
  *
- * LLM이 tool_call로 호출하는 도구들 (Sub-LLM 없음)
- * 플랫폼에 따라 적절한 shell 도구를 export
+ * LLM tool_call   (Sub-LLM )
+ *    shell  export
  */
 
 import { isNativeWindows } from '../../../utils/platform-utils.js';

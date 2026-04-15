@@ -16,10 +16,10 @@ export enum LogLevel {
   VERBOSE = 4,
 }
 
-// LLM 로깅 전용 플래그 (--llm-log 모드)
+// LLM  dedicated  (--llm-log )
 let llmLogEnabled = false;
 
-// 대시보드 텔레메트리 콜백 (순환 참조 방지를 위한 콜백 패턴)
+// dashboard   (     )
 type ErrorReportCallback = (error: unknown, context?: Record<string, unknown>) => void;
 let errorReportCallback: ErrorReportCallback | null = null;
 
@@ -43,8 +43,8 @@ export interface LoggerOptions {
   level?: LogLevel;
   prefix?: string;
   timestamp?: boolean;
-  showLocation?: boolean; // 파일명, 함수명, 라인 표시
-  showPid?: boolean; // 프로세스 ID 표시
+  showLocation?: boolean; // , ,  
+  showPid?: boolean; //  ID 
 }
 
 export interface CallLocation {
@@ -274,12 +274,12 @@ export class Logger {
       jsonLogger.logError(error || new Error(message), this.prefix || 'logger');
     }
 
-    // 대시보드 텔레메트리에 보고 (fire-and-forget)
+    // dashboard   (fire-and-forget)
     if (errorReportCallback) {
       const reportErr = error instanceof Error ? error : new Error(message);
       const ctx: Record<string, unknown> = { source: 'errorSilent', message };
       if (error && !(error instanceof Error)) {
-        ctx['data'] = error; // plain object는 context에 포함
+        ctx['data'] = error; // plain object context 
       }
       errorReportCallback(reportErr, ctx);
     }
@@ -426,7 +426,7 @@ export class Logger {
   }
 
   /**
-   * Log flow - 실행 흐름 추적 (함수 호출, 분기 등)
+   * Log flow -    ( ,  )
    */
   flow(message: string, context?: Record<string, unknown>): void {
     // Always log to file first (for Ctrl+O LogBrowser)
@@ -461,7 +461,7 @@ export class Logger {
   }
 
   /**
-   * Log variables - 변수 값 추적
+   * Log variables -   
    */
   vars(...variables: VariableLog[]): void {
     // Always log to file first (for Ctrl+O LogBrowser)
@@ -2655,28 +2655,28 @@ export class Logger {
 /**
  * Global logger instance
  *
- * 기본값은 ERROR 레벨 (Normal 모드에서 로그 출력 없음)
- * CLI argument로 레벨 조정:
- * - Normal mode (open): ERROR (로그 출력 없음, UI로만 피드백)
+ *  ERROR  (Normal    )
+ * CLI argument  :
+ * - Normal mode (open): ERROR (  , UI )
  * - Verbose mode (open --verbose): WARN
  * - Debug mode (open --debug): VERBOSE
  */
 export const logger = new Logger({
-  level: LogLevel.ERROR, // Normal 모드: 로그 출력 없음 (ERROR만 표시)
-  prefix: '한설',
+  level: LogLevel.ERROR, // Normal :    (ERROR )
+  prefix: '',
   timestamp: true,
-  showLocation: false, // setLogLevel()에서 동적으로 변경
-  showPid: false, // 필요시 환경 변수로 활성화
+  showLocation: false, // setLogLevel()  
+  showPid: false, //    
 });
 
 /**
  * Set global log level from CLI or config
- * DEBUG 이상일 때 자동으로 위치 정보 표시
+ * DEBUG      
  */
 export function setLogLevel(level: LogLevel): void {
   logger.setLevel(level);
 
-  // DEBUG 이상이면 위치 정보 자동 표시
+  // DEBUG     
   if (level >= LogLevel.DEBUG) {
     logger['showLocation'] = true;
   }
@@ -2759,9 +2759,9 @@ export async function setupLogging(options: {
 
   // Set log level based on CLI options
   // Normal mode (no flags): ERROR
-  // --verbose: DEBUG (상세 로깅)
-  // --debug: VERBOSE (최대 디버그 로깅 + 위치 정보)
-  // --llm-log: ERROR (LLM 요청/응답만 표시)
+  // --verbose: DEBUG ( )
+  // --debug: VERBOSE (   +  )
+  // --llm-log: ERROR (LLM / )
   if (options.debug) {
     setLogLevel(LogLevel.VERBOSE);
     logger.debug('🔍 Debug mode enabled - maximum logging with location tracking');

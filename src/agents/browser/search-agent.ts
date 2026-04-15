@@ -1,8 +1,8 @@
 /**
  * Search Work Request Tool
  *
- * LLMAgentTool: Execution LLM에게는 tool로 제공, 내부는 BrowserSubAgent로 동작.
- * 인증 불필요 (항상 headless).
+ * LLMAgentTool: Execution LLM tool ,  BrowserSubAgent .
+ *   ( headless).
  * Supports additional research URLs from config (Confluence, internal wikis, etc.)
  */
 

@@ -1,9 +1,9 @@
 /**
  * Bash Tool (WSL/Linux Only)
  *
- * LLM이 bash shell 명령어를 실행할 수 있게 해주는 도구
- * WSL 및 Native Linux 환경에서만 등록됨
- * Native Windows에서는 powershell 도구를 사용
+ * LLM bash shell      
+ * WSL  Native Linux  
+ * Native Windows powershell  
  */
 
 import { spawn } from 'child_process';
@@ -14,7 +14,7 @@ import { logger } from '../../../utils/logger.js';
 import { isNativeWindows, isDangerousBashCommand } from '../../../utils/platform-utils.js';
 
 /**
- * Bash 명령어 실행 (WSL/Linux only)
+ * Bash   (WSL/Linux only)
  */
 async function executeBash(
   command: string,

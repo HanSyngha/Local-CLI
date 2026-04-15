@@ -1,7 +1,7 @@
 /**
  * Hanseol Web Session Constants
  *
- * Docker 컨테이너 내 웹 세션용 상수 정의
+ * Docker      
  */
 
 import * as path from 'path';
@@ -12,7 +12,7 @@ import * as path from 'path';
 export const WORKSPACE_DIR = '/workspace';
 
 /**
- * Hanseol Web 홈 디렉토리
+ * Hanseol Web  
  * /workspace/.hanseol-web/
  */
 export const LOCAL_HOME_DIR = '/workspace/.hanseol-web/';
@@ -21,27 +21,27 @@ export const LOCAL_HOME_DIR = '/workspace/.hanseol-web/';
 export const OPEN_HOME_DIR = LOCAL_HOME_DIR;
 
 /**
- * 설정 파일 경로
+ *   
  */
 export const CONFIG_FILE_PATH = path.join(LOCAL_HOME_DIR, 'config.json');
 
 /**
- * 문서 디렉토리
+ *  
  */
 export const DOCS_DIR = path.join(LOCAL_HOME_DIR, 'docs');
 
 /**
- * 백업 디렉토리
+ *  
  */
 export const BACKUPS_DIR = path.join(LOCAL_HOME_DIR, 'backups');
 
 /**
- * 프로젝트별 로그 디렉토리
+ *   
  */
 export const PROJECTS_DIR = path.join(LOCAL_HOME_DIR, 'projects');
 
 /**
- * Dashboard 인증 정보 파일 경로
+ * Dashboard    
  */
 export const CREDENTIALS_FILE_PATH = path.join(LOCAL_HOME_DIR, 'credentials.json');
 
@@ -51,7 +51,7 @@ export const CREDENTIALS_FILE_PATH = path.join(LOCAL_HOME_DIR, 'credentials.json
 export const APP_NAME = 'local-web';
 
 /**
- * LLM 요청 시 X-Service-Id 헤더로 전송
+ * LLM   X-Service-Id  
  */
 export const SERVICE_ID = 'local-web';
 

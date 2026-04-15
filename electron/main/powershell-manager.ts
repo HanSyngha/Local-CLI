@@ -1,23 +1,23 @@
 /**
  * PowerShell Manager for Electron Main Process
- * - PowerShell 프로세스 생성/관리
- * - 명령어 실행 및 결과 수신
- * - 스트리밍 출력 지원
- * - 에러 핸들링
+ * - PowerShell  /
+ * -     
+ * -   won
+ * -  
  */
 
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { EventEmitter } from 'events';
 import { logger } from './utils/logger';
 
-// PowerShell 출력 타입
+// PowerShell  
 export interface PowerShellOutput {
   type: 'stdout' | 'stderr' | 'error' | 'exit';
   data: string;
   timestamp: number;
 }
 
-// PowerShell 실행 결과
+// PowerShell  
 export interface PowerShellResult {
   success: boolean;
   stdout: string;
@@ -27,7 +27,7 @@ export interface PowerShellResult {
   duration: number;
 }
 
-// PowerShell 세션 상태
+// PowerShell  
 export enum SessionState {
   IDLE = 'idle',
   RUNNING = 'running',
@@ -36,7 +36,7 @@ export enum SessionState {
   TERMINATED = 'terminated',
 }
 
-// PowerShell 세션 정보
+// PowerShell  
 export interface SessionInfo {
   id: string;
   state: SessionState;
@@ -45,7 +45,7 @@ export interface SessionInfo {
   lastActivity: number;
 }
 
-// PowerShell Manager 설정
+// PowerShell Manager 
 export interface PowerShellConfig {
   shell: string;
   encoding: BufferEncoding;
@@ -55,23 +55,23 @@ export interface PowerShellConfig {
   env?: NodeJS.ProcessEnv;
 }
 
-// PowerShell 경로 찾기
+// PowerShell  
 function findPowerShell(): string {
   if (process.platform !== 'win32') {
     return 'pwsh';
   }
 
-  // Windows에서 PowerShell 경로 탐색
+  // Windows PowerShell  
   const systemRoot = process.env.SystemRoot || 'C:\\Windows';
   const possiblePaths = [
     `${systemRoot}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`,
     `${systemRoot}\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe`,
     'C:\\Program Files\\PowerShell\\7\\pwsh.exe',
     'C:\\Program Files (x86)\\PowerShell\\7\\pwsh.exe',
-    'powershell.exe', // PATH에 있을 경우
+    'powershell.exe', // PATH  
   ];
 
-  // 존재하는 첫 번째 경로 반환
+  //     return
   for (const p of possiblePaths) {
     try {
       const fs = require('fs');
@@ -86,13 +86,13 @@ function findPowerShell(): string {
   return 'powershell.exe';
 }
 
-// UNC 경로 또는 임시 디렉토리를 안전한 경로로 변환
+// UNC       
 function normalizeWorkingDirectory(dir: string): string {
-  // WSL UNC 경로는 Windows에서 PowerShell 시작 디렉토리로 사용 불가
+  // WSL UNC  Windows PowerShell    
   if (dir.startsWith('\\\\wsl')) {
     return process.env.USERPROFILE || process.env.HOME || 'C:\\';
   }
-  // Portable 실행 시 temp 추출 경로 감지 → 홈 디렉토리로 교체
+  // Portable   temp    →   
   const lower = dir.toLowerCase();
   const tempDir = (process.env.TEMP || process.env.TMP || '').toLowerCase();
   if (tempDir && lower.startsWith(tempDir)) {
@@ -104,16 +104,16 @@ function normalizeWorkingDirectory(dir: string): string {
   return dir;
 }
 
-// 기본 설정
+//  
 const DEFAULT_CONFIG: PowerShellConfig = {
   shell: findPowerShell(),
   encoding: 'utf-8',
-  timeout: 300000, // 5분
+  timeout: 300000, // 5
   maxBuffer: 50 * 1024 * 1024, // 50MB
 };
 
 /**
- * PowerShell Manager 클래스
+ * PowerShell Manager 
  */
 export class PowerShellManager extends EventEmitter {
   private config: PowerShellConfig;
@@ -142,14 +142,14 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 유니크 ID 생성
+   *  ID 
    */
   private generateId(): string {
     return `ps_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
-   * 마커 생성
+   *  
    */
   private generateMarkers(): void {
     const uniqueId = Math.random().toString(36).substr(2, 16);
@@ -159,7 +159,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * PowerShell 세션 시작
+   * PowerShell  
    */
   async startSession(): Promise<SessionInfo> {
     if (this.process && this.state !== SessionState.TERMINATED) {
@@ -183,7 +183,7 @@ export class PowerShellManager extends EventEmitter {
       '-',
     ];
 
-    // UNC 경로 정상화
+    // UNC  
     const safeCwd = normalizeWorkingDirectory(this.currentDirectory);
 
     logger.info('Starting PowerShell session', {
@@ -206,19 +206,19 @@ export class PowerShellManager extends EventEmitter {
         shell: false,
       });
 
-      // stdout 처리
+      // stdout 
       this.process.stdout.on('data', (data: Buffer) => {
         const text = data.toString(this.config.encoding);
         this.handleOutput('stdout', text);
       });
 
-      // stderr 처리
+      // stderr 
       this.process.stderr.on('data', (data: Buffer) => {
         const text = data.toString(this.config.encoding);
         this.handleOutput('stderr', text);
       });
 
-      // 프로세스 종료 처리
+      //   
       this.process.on('close', (code) => {
         logger.info('PowerShell session closed', { sessionId: this.sessionId, code });
         this.state = SessionState.TERMINATED;
@@ -227,7 +227,7 @@ export class PowerShellManager extends EventEmitter {
         this.process = null;
       });
 
-      // 에러 처리
+      //  
       this.process.on('error', (err) => {
         logger.error('PowerShell process error', { sessionId: this.sessionId, error: err.message });
         this.state = SessionState.ERROR;
@@ -235,7 +235,7 @@ export class PowerShellManager extends EventEmitter {
         this.rejectPendingCommands(err);
       });
 
-      // 초기화 명령 실행 (UTF-8 설정)
+      //    (UTF-8 )
       await this.initializeSession();
 
       return this.getSessionInfo();
@@ -247,16 +247,16 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 세션 초기화
+   *  
    */
   private async initializeSession(): Promise<void> {
     const initCommands = [
-      // UTF-8 출력 설정
+      // UTF-8  
       '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
       '$OutputEncoding = [System.Text.Encoding]::UTF8',
-      // 프롬프트 비활성화
+      //  
       'function prompt { "" }',
-      // 에러 포맷 설정
+      //   
       '$ErrorActionPreference = "Continue"',
     ];
 
@@ -264,12 +264,12 @@ export class PowerShellManager extends EventEmitter {
       this.writeToProcess(cmd);
     }
 
-    // 초기화 완료 대기
+    //   
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   /**
-   * 프로세스에 직접 쓰기
+   *   
    */
   private writeToProcess(command: string): void {
     if (this.process?.stdin.writable) {
@@ -278,7 +278,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 출력 처리
+   *  
    */
   private handleOutput(type: 'stdout' | 'stderr', data: string): void {
     this.lastActivity = Date.now();
@@ -289,28 +289,28 @@ export class PowerShellManager extends EventEmitter {
       timestamp: Date.now(),
     };
 
-    // 명령 응답 처리
+    //   
     if (this.isProcessingCommand) {
       this.outputBuffer += data;
 
-      // 명령 종료 마커 확인
+      //    
       if (this.outputBuffer.includes(this.commandEndMarker)) {
         this.processCommandResponse();
       }
     }
 
-    // 스트리밍 출력 이벤트 발생
+    //    
     this.emit('output', output);
   }
 
   /**
-   * 명령 응답 처리
+   *   
    */
   private processCommandResponse(): void {
     const currentCommand = this.commandQueue[0];
     if (!currentCommand) return;
 
-    // 마커 사이의 출력 추출
+    //    
     const startIdx = this.outputBuffer.indexOf(this.commandStartMarker);
     const endIdx = this.outputBuffer.indexOf(this.commandEndMarker);
 
@@ -335,13 +335,13 @@ export class PowerShellManager extends EventEmitter {
       this.outputBuffer = '';
       this.isProcessingCommand = false;
 
-      // 다음 명령 처리
+      //   
       this.processNextCommand();
     }
   }
 
   /**
-   * 다음 명령 처리
+   *   
    */
   private processNextCommand(): void {
     if (this.commandQueue.length === 0 || this.isProcessingCommand) return;
@@ -353,7 +353,7 @@ export class PowerShellManager extends EventEmitter {
     this.isProcessingCommand = true;
     this.outputBuffer = '';
 
-    // 마커로 감싼 명령 실행
+    //    
     const wrappedCommand = [
       `Write-Output '${this.commandStartMarker}'`,
       nextCommand.command,
@@ -362,7 +362,7 @@ export class PowerShellManager extends EventEmitter {
 
     this.writeToProcess(wrappedCommand);
 
-    // 타임아웃 설정
+    //  
     setTimeout(() => {
       if (this.isProcessingCommand && this.commandQueue[0] === nextCommand) {
         const duration = Date.now() - nextCommand.startTime;
@@ -375,7 +375,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 대기 중인 명령 모두 실패 처리
+   *      
    */
   private rejectPendingCommands(error: Error): void {
     for (const cmd of this.commandQueue) {
@@ -386,7 +386,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 명령 실행 (큐잉 방식)
+   *   ( )
    */
   async execute(command: string): Promise<PowerShellResult> {
     if (!this.process || this.state === SessionState.TERMINATED) {
@@ -411,7 +411,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 단일 명령 실행 (새 프로세스)
+   *    ( )
    */
   async executeOnce(command: string, cwd?: string): Promise<PowerShellResult> {
     const startTime = Date.now();
@@ -477,7 +477,7 @@ export class PowerShellManager extends EventEmitter {
         });
       });
 
-      // 타임아웃
+      // 
       setTimeout(() => {
         proc.kill();
         reject(new Error(`Command timed out after ${this.config.timeout}ms`));
@@ -486,7 +486,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 인터랙티브 입력 전송
+   *   
    */
   sendInput(input: string): boolean {
     if (!this.process?.stdin.writable) {
@@ -500,7 +500,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 현재 작업 디렉토리 변경
+   *  task  
    */
   async changeDirectory(newPath: string): Promise<boolean> {
     try {
@@ -518,7 +518,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 현재 작업 디렉토리 가져오기
+   *  task  
    */
   async getCurrentDirectory(): Promise<string> {
     try {
@@ -533,7 +533,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 세션 정보 가져오기
+   *   
    */
   getSessionInfo(): SessionInfo {
     return {
@@ -546,20 +546,20 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 세션 상태 확인
+   *   
    */
   isRunning(): boolean {
     return this.process !== null && this.state === SessionState.RUNNING;
   }
 
   /**
-   * CTRL+C 시그널 전송
+   * CTRL+C  
    */
   sendInterrupt(): void {
     if (this.process) {
-      // Windows에서는 SIGINT 대신 CTRL+C 시뮬레이션
+      // Windows SIGINT  CTRL+C 
       if (process.platform === 'win32') {
-        // 새 PowerShell로 현재 프로세스에 CTRL+C 전송
+        //  PowerShell   CTRL+C 
         spawn('powershell.exe', [
           '-NoProfile',
           '-Command',
@@ -572,16 +572,16 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 세션 종료
+   *  
    */
   async terminate(): Promise<void> {
     if (this.process) {
       logger.info('Terminating PowerShell session', { sessionId: this.sessionId });
 
-      // 정상 종료 시도
+      //   
       this.writeToProcess('exit');
 
-      // 1초 후에도 종료되지 않으면 강제 종료
+      // 1     
       await new Promise<void>((resolve) => {
         const timeout = setTimeout(() => {
           if (this.process) {
@@ -607,7 +607,7 @@ export class PowerShellManager extends EventEmitter {
   }
 
   /**
-   * 세션 재시작
+   *  
    */
   async restart(): Promise<SessionInfo> {
     await this.terminate();
@@ -615,5 +615,5 @@ export class PowerShellManager extends EventEmitter {
   }
 }
 
-// 기본 PowerShell Manager 인스턴스
+//  PowerShell Manager 
 export const powerShellManager = new PowerShellManager();

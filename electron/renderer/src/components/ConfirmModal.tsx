@@ -1,6 +1,6 @@
 /**
  * Confirm Modal Component
- * 커스텀 확인 다이얼로그
+ *   
  */
 
 import React, { useEffect, useRef, memo } from 'react';

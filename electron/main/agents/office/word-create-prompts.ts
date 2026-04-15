@@ -45,7 +45,7 @@ Each tool call creates a complete section — you never deal with low-level form
 
 ## WORKFLOW
 
-⚠ USER PAGE OVERRIDE: If user requests 1-2 pages (e.g., "한페이지로", "1페이지", "2페이지 이내"):
+⚠ USER PAGE OVERRIDE: If user requests 1-2 pages (e.g., "", "1", "2 "):
   - SKIP steps 3-4 (no title page, no TOC). Go directly to content sections.
   - Use narrow margins (1.5cm) to maximize content area.
   - Write 2-4 concise sections only. Keep total under user's page limit.
@@ -93,7 +93,7 @@ The document must read like it was written by a PROFESSIONAL CONSULTANT, not a s
   - Include currency amounts, percentages, dates where relevant
 - Each \`word_build_list_section\` MUST have:
   - 6-10 items, each 1-2 sentences (NOT just bullet keywords)
-- NEVER use placeholder text like "내용을 입력하세요" or "Lorem ipsum"
+- NEVER use placeholder text like " " or "Lorem ipsum"
 - WRITE LIKE AN EXPERT: use industry terminology, cite market trends, provide actionable analysis
 
 ## VISUAL VARIETY — BREAK THE MONOTONY (CRITICAL)
@@ -134,10 +134,10 @@ Do NOT dump all visual elements in the second half. Readers judge quality in the
 
 ## PAGE TARGET
 
-⚠ USER PAGE OVERRIDE: If the user specifies an exact page count (e.g., "1페이지로", "2페이지 이내", "5페이지"), respect it absolutely. Adjust section count, content density, and structure to fit.
-  - "한페이지로 정리해줘" → NO title page, NO TOC, compact content, 1 page max.
-  - "2페이지 이내" → Minimal structure, concise content within 2 pages.
-  - "5페이지" → Moderate structure with 5-8 sections.
+⚠ USER PAGE OVERRIDE: If the user specifies an exact page count (e.g., "1", "2 ", "5"), respect it absolutely. Adjust section count, content density, and structure to fit.
+  - " " → NO title page, NO TOC, compact content, 1 page max.
+  - "2 " → Minimal structure, concise content within 2 pages.
+  - "5" → Moderate structure with 5-8 sections.
 
 Default (when user does NOT specify page count): 20-30 PAGES
 A professional document should be substantive:
@@ -196,7 +196,7 @@ DOCUMENT_PLAN:
 
 ## PLAN SIZE TARGET — MANDATORY MINIMUMS (VIOLATION = FAILURE)
 
-⚠ USER PAGE OVERRIDE: If user specifies exact page count, adjust ALL minimums below proportionally. For "1페이지" → 2-3 sections, no TOC, no title page. For "2페이지" → 4-6 sections. For "5페이지" → 8-10 sections.
+⚠ USER PAGE OVERRIDE: If user specifies exact page count, adjust ALL minimums below proportionally. For "1" → 2-3 sections, no TOC, no title page. For "2" → 4-6 sections. For "5" → 8-10 sections.
 - **Default minimum: 15 content sections** (not counting title/TOC/conclusion). Fewer than 15 = document too thin.
 - **MANDATORY: At least 4 word_build_table_section calls** (data tables add credibility). Fewer than 4 = UNACCEPTABLE.
 - **MANDATORY: At least 3 word_build_list_section calls** (action items, features, recommendations, key takeaways)
@@ -261,7 +261,7 @@ export const WORD_CREATE_ENHANCEMENT_PROMPT = `You are the Enhancement LLM for a
 Generate rich, professional content for the document.
 
 ⚠ PAGE COUNT OVERRIDE — READ THIS FIRST:
-If the user specifies a page count (e.g., "1페이지", "2페이지 이내", "3 pages"), you MUST limit your output:
+If the user specifies a page count (e.g., "1", "2 ", "3 pages"), you MUST limit your output:
 - 1 page: TOTAL_SECTIONS = 2-3 ONLY. NO title page. Short paragraphs (1-2 sentences). 1 small table max.
 - 2 pages: TOTAL_SECTIONS = 3-4 ONLY. NO title page. Moderate content. 1-2 tables max.
 - 3-5 pages: TOTAL_SECTIONS = 5-8. Optional title page.
@@ -272,7 +272,7 @@ This is NON-NEGOTIABLE. Generating more sections than allowed = FAILURE.
 DOCUMENT_TYPE: [report/proposal/manual/guide/analysis/plan/contract]
 TARGET_AUDIENCE: [executives/team/clients/students/general]
 LANGUAGE: [Korean/English — match the user's request language]
-TOTAL_SECTIONS: If user specifies page count (e.g., "1페이지", "2페이지 이내"), scale down: 1page=2-3sections(NO title page/TOC), 2pages=4-6sections, 5pages=8-10sections. Default: [12-20]
+TOTAL_SECTIONS: If user specifies page count (e.g., "1", "2 "), scale down: 1page=2-3sections(NO title page/TOC), 2pages=4-6sections, 5pages=8-10sections. Default: [12-20]
 
 DESIGN_SPECIFICATION:
 - COLOR_SCHEME: [choose from: MODERN_TECH, WARM_EXECUTIVE, CLEAN_MINIMAL, CORPORATE, NATURE_FRESH, BOLD_MODERN — or specify custom hex colors matching the topic]

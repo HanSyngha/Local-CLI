@@ -1,7 +1,7 @@
 /**
  * Browser Sub-Agent Module
  *
- * Confluence, Jira, Search 전문 브라우저 에이전트.
+ * Confluence, Jira, Search   agent.
  */
 
 export { createConfluenceRequestTool } from './confluence-agent.js';

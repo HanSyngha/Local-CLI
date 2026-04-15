@@ -2,7 +2,7 @@
 /**
  * Ink UI Entry Point
  *
- * ESM으로 Ink UI를 직접 실행
+ * ESM Ink UI  
  */
 
 import React from 'react';
@@ -13,20 +13,20 @@ import { configManager } from '../core/config/config-manager.js';
 import { initializeOptionalTools } from '../tools/registry.js';
 import { logger } from '../utils/logger.js';
 
-// Async 초기화
+// Async 
 (async () => {
   try {
-    // ConfigManager 초기화
+    // ConfigManager 
     await configManager.initialize();
 
     // Load saved optional tool states (e.g., browser tools, Office tools)
     await initializeOptionalTools();
 
-    // LLM Client 생성
+    // LLM Client 
     const llmClient = createLLMClient();
     const modelInfo = llmClient.getModelInfo();
 
-    // Ink UI 렌더링 (PlanExecuteApp supports both direct and plan-execute modes)
+    // Ink UI  (PlanExecuteApp supports both direct and plan-execute modes)
     // exitOnCtrlC: false - Ctrl+C is handled manually in PlanExecuteApp for smart behavior
     render(<PlanExecuteApp llmClient={llmClient} modelInfo={modelInfo} />, { exitOnCtrlC: false });
   } catch (error) {

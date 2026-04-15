@@ -1,8 +1,8 @@
 /**
  * Configuration Manager
  *
- * LOCAL-CLI 설정 관리 시스템
- * ~/.local-cli/ 디렉토리 및 설정 파일 관리
+ * LOCAL-CLI   
+ * ~/.local-cli/     
  */
 
 import { OpenConfig, EndpointConfig, ModelInfo } from '../../types/index.js';
@@ -22,7 +22,7 @@ import {
 import { logger } from '../../utils/logger.js';
 
 /**
- * 기본 설정 (빈 엔드포인트)
+ *   ( )
  */
 const DEFAULT_CONFIG: OpenConfig = {
   version: '0.1.0',
@@ -38,17 +38,17 @@ const DEFAULT_CONFIG: OpenConfig = {
 };
 
 /**
- * ConfigManager 클래스
+ * ConfigManager 
  *
- * 설정 파일 및 디렉토리 관리
+ *     
  */
 export class ConfigManager {
   private config: OpenConfig | null = null;
   private initialized = false;
 
   /**
-   * LOCAL-CLI 초기화
-   * ~/.local-cli/ 디렉토리 및 설정 파일 생성
+   * LOCAL-CLI 
+   * ~/.local-cli/     
    */
   async initialize(): Promise<void> {
     logger.enter('ConfigManager.initialize');
@@ -57,15 +57,15 @@ export class ConfigManager {
       return;
     }
 
-    // 홈 디렉토리 생성
+    //   
     await ensureDirectory(OPEN_HOME_DIR);
 
-    // 하위 디렉토리 생성
+    //   
     await ensureDirectory(DOCS_DIR);
     await ensureDirectory(BACKUPS_DIR);
     await ensureDirectory(PROJECTS_DIR);
 
-    // 설정 파일 로드 또는 생성
+    //     
     await this.loadOrCreateConfig();
 
     this.initialized = true;
@@ -73,7 +73,7 @@ export class ConfigManager {
   }
 
   /**
-   * 설정 파일 로드 또는 기본 설정 생성
+   *       
    */
   private async loadOrCreateConfig(): Promise<void> {
     const existingConfig = await readJsonFile<OpenConfig>(CONFIG_FILE_PATH);
@@ -81,14 +81,14 @@ export class ConfigManager {
     if (existingConfig) {
       this.config = existingConfig;
     } else {
-      // 기본 설정 생성
+      //   
       this.config = { ...DEFAULT_CONFIG };
       await this.saveConfig();
     }
   }
 
   /**
-   * 설정 저장
+   *  
    */
   async saveConfig(): Promise<void> {
     if (!this.config) {
@@ -102,7 +102,7 @@ export class ConfigManager {
   }
 
   /**
-   * 현재 설정 가져오기
+   *   
    */
   getConfig(): OpenConfig {
     if (!this.config) {
@@ -113,7 +113,7 @@ export class ConfigManager {
   }
 
   /**
-   * 현재 엔드포인트 가져오기
+   *   
    */
   getCurrentEndpoint(): EndpointConfig | null {
     const config = this.getConfig();
@@ -126,7 +126,7 @@ export class ConfigManager {
   }
 
   /**
-   * 현재 모델 정보 가져오기
+   *    
    */
   getCurrentModel(): ModelInfo | null {
     const endpoint = this.getCurrentEndpoint();
@@ -139,19 +139,19 @@ export class ConfigManager {
   }
 
   /**
-   * 모든 엔드포인트 가져오기
+   *   
    */
   getAllEndpoints(): EndpointConfig[] {
     return this.getConfig().endpoints;
   }
 
   /**
-   * 엔드포인트 추가
+   *  
    */
   async addEndpoint(endpoint: EndpointConfig): Promise<void> {
     const config = this.getConfig();
 
-    // ID 중복 체크
+    // ID  
     const exists = config.endpoints.some((ep) => ep.id === endpoint.id);
     if (exists) {
       throw new Error(`Endpoint with ID ${endpoint.id} already exists`);
@@ -162,19 +162,19 @@ export class ConfigManager {
   }
 
   /**
-   * 엔드포인트 삭제
+   *  
    */
   async removeEndpoint(endpointId: string): Promise<void> {
     const config = this.getConfig();
 
     config.endpoints = config.endpoints.filter((ep) => ep.id !== endpointId);
 
-    // 현재 엔드포인트가 삭제된 경우 첫 번째 엔드포인트로 변경 (또는 undefined)
+    //         ( undefined)
     if (config.currentEndpoint === endpointId) {
       const firstEndpoint = config.endpoints[0];
       config.currentEndpoint = firstEndpoint?.id;
 
-      // 첫 번째 엔드포인트의 첫 번째 모델로 변경
+      //       
       if (firstEndpoint) {
         const firstModel = firstEndpoint.models.find((m) => m.enabled);
         config.currentModel = firstModel?.id;
@@ -187,7 +187,7 @@ export class ConfigManager {
   }
 
   /**
-   * 현재 엔드포인트 변경
+   *   
    */
   async setCurrentEndpoint(endpointId: string): Promise<void> {
     const config = this.getConfig();
@@ -199,7 +199,7 @@ export class ConfigManager {
 
     config.currentEndpoint = endpointId;
 
-    // 해당 엔드포인트의 첫 번째 활성 모델로 변경
+    //       
     const activeModel = endpoint.models.find((m) => m.enabled);
     if (activeModel) {
       config.currentModel = activeModel.id;
@@ -209,7 +209,7 @@ export class ConfigManager {
   }
 
   /**
-   * 현재 모델 변경
+   *   
    */
   async setCurrentModel(modelId: string): Promise<void> {
     const config = this.getConfig();
@@ -240,7 +240,7 @@ export class ConfigManager {
   }
 
   /**
-   * 설정 값 업데이트
+   *   
    */
   async updateSettings(settings: Partial<OpenConfig['settings']>): Promise<void> {
     const config = this.getConfig();
@@ -249,14 +249,14 @@ export class ConfigManager {
   }
 
   /**
-   * 홈 디렉토리 존재 여부 확인
+   *     
    */
   async isInitialized(): Promise<boolean> {
     return await directoryExists(OPEN_HOME_DIR);
   }
 
   /**
-   * 엔드포인트 존재 여부 확인
+   *    
    */
   hasEndpoints(): boolean {
     if (!this.config) {
@@ -266,19 +266,19 @@ export class ConfigManager {
   }
 
   /**
-   * 초기 엔드포인트 생성
-   * 첫 번째 엔드포인트를 추가하고 자동으로 현재 엔드포인트/모델로 설정
+   *   
+   *       / 
    */
   async createInitialEndpoint(endpoint: EndpointConfig): Promise<void> {
     const config = this.getConfig();
 
-    // 첫 엔드포인트 추가
+    //   
     config.endpoints.push(endpoint);
 
-    // 자동으로 현재 엔드포인트/모델로 설정
+    //   / 
     config.currentEndpoint = endpoint.id;
 
-    // 첫 번째 활성 모델을 현재 모델로 설정
+    //       
     const activeModel = endpoint.models.find((m) => m.enabled);
     if (activeModel) {
       config.currentModel = activeModel.id;
@@ -288,7 +288,7 @@ export class ConfigManager {
   }
 
   /**
-   * 설정 초기화 (공장 초기화)
+   *   ( )
    */
   async reset(): Promise<void> {
     this.config = { ...DEFAULT_CONFIG };
@@ -296,7 +296,7 @@ export class ConfigManager {
   }
 
   /**
-   * 엔드포인트 업데이트
+   *  
    */
   async updateEndpoint(
     endpointId: string,
@@ -320,7 +320,7 @@ export class ConfigManager {
   }
 
   /**
-   * 모델 health 상태 업데이트
+   *  health  
    */
   async updateModelHealth(
     endpointId: string,
@@ -347,7 +347,7 @@ export class ConfigManager {
   }
 
   /**
-   * 모든 모델의 health 상태 일괄 업데이트
+   *   health   
    */
   async updateAllHealthStatus(
     healthResults: Map<string, { modelId: string; healthy: boolean; latency?: number }[]>
@@ -371,7 +371,7 @@ export class ConfigManager {
   }
 
   /**
-   * 모든 healthy 모델 목록 조회
+   *  healthy   
    */
   getHealthyModels(): { endpoint: EndpointConfig; model: ModelInfo }[] {
     const config = this.getConfig();
@@ -389,7 +389,7 @@ export class ConfigManager {
   }
 
   /**
-   * 모든 모델 목록 조회 (엔드포인트 정보 포함)
+   *     (  )
    */
   getAllModels(): { endpoint: EndpointConfig; model: ModelInfo; isCurrent: boolean }[] {
     const config = this.getConfig();
@@ -452,6 +452,6 @@ export class ConfigManager {
 }
 
 /**
- * ConfigManager 싱글톤 인스턴스
+ * ConfigManager singleton 
  */
 export const configManager = new ConfigManager();

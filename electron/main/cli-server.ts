@@ -1,8 +1,8 @@
 /**
  * CLI Server
  *
- * Electron 내부 HTTP 서버. CLI에서 POST 요청 수신 → 에이전트/Jarvis 실행 → SSE 스트리밍.
- * VSCode의 `code` 명령 패턴: CLI가 실행 중인 Electron 앱에 명령을 전달.
+ * Electron  HTTP . CLI POST   → agent/Jarvis  → SSE .
+ * VSCode `code`  : CLI   Electron   .
  */
 
 import http from 'http';
@@ -19,7 +19,7 @@ import type { Message } from './core/llm';
 
 let server: http.Server | null = null;
 
-// 윈도우 참조 (index.ts에서 설정)
+//   (index.ts )
 let chatWindow: BrowserWindow | null = null;
 let taskWindow: BrowserWindow | null = null;
 let jarvisWindow: BrowserWindow | null = null;
@@ -35,7 +35,7 @@ export function setCliServerWindows(
 }
 
 /**
- * CLI Server 시작
+ * CLI Server 
  */
 export function startCliServer(): void {
   if (server) return;
@@ -80,7 +80,7 @@ export function startCliServer(): void {
 }
 
 /**
- * CLI Server 종료
+ * CLI Server 
  */
 export function stopCliServer(): void {
   if (server) {
@@ -118,14 +118,14 @@ async function handleChat(res: http.ServerResponse, body: string): Promise<void>
     return;
   }
 
-  // SSE 시작
+  // SSE 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
   });
 
-  // Chat 윈도우 show & focus
+  // Chat  show & focus
   if (chatWindow && !chatWindow.isDestroyed()) {
     if (!chatWindow.isVisible()) chatWindow.show();
     chatWindow.focus();
@@ -134,11 +134,11 @@ async function handleChat(res: http.ServerResponse, body: string): Promise<void>
   sendSSE(res, 'status', { phase: 'starting' });
 
   try {
-    // 현재 세션의 메시지 가져오기
+    //    
     const currentSession = sessionManager.getCurrentSession();
     const existingMessages: Message[] = currentSession?.messages || [];
 
-    // Agent 실행 (Worker 기반 또는 Legacy)
+    // Agent  (Worker   Legacy)
     const sessionId = currentSession?.id;
 
     sendSSE(res, 'status', { phase: 'planning' });
@@ -154,7 +154,7 @@ async function handleChat(res: http.ServerResponse, body: string): Promise<void>
         sendSSE(res, 'tool_result', { name: toolName, success });
       },
       onAskUser: async (request) => {
-        // CLI에서는 자동 답변 (첫 번째 옵션 선택)
+        // CLI   (   )
         sendSSE(res, 'ask_user', { question: request.question, options: request.options });
         return {
           selectedOption: request.options[0] || 'Yes',
@@ -173,11 +173,11 @@ async function handleChat(res: http.ServerResponse, body: string): Promise<void>
     let result: AgentResult;
 
     if (sessionId && workerManager.hasWorker(sessionId)) {
-      // Worker 기반 실행
+      // Worker  
       workerManager.setChatWindow(chatWindow);
       workerManager.setTaskWindow(taskWindow);
 
-      // Bridge로 이벤트 수신하여 SSE로 포워딩
+      // Bridge   SSE 
       const bridgeHandler = (channel: string, ...args: unknown[]) => {
         if (channel === 'agent:todoUpdate') sendSSE(res, 'todo', args[0]);
         if (channel === 'agent:toolCall') sendSSE(res, 'tool', args[0]);
@@ -223,14 +223,14 @@ async function handleJarvis(res: http.ServerResponse, body: string): Promise<voi
     return;
   }
 
-  // SSE 시작
+  // SSE 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
   });
 
-  // Jarvis 윈도우 show & focus
+  // Jarvis  show & focus
   if (jarvisWindow && !jarvisWindow.isDestroyed()) {
     if (!jarvisWindow.isVisible()) jarvisWindow.show();
     jarvisWindow.focus();
@@ -239,7 +239,7 @@ async function handleJarvis(res: http.ServerResponse, body: string): Promise<voi
   sendSSE(res, 'status', { phase: 'starting' });
 
   try {
-    // Bridge 이벤트 수신하여 SSE로 포워딩
+    // Bridge   SSE 
     let finalResponse = '';
     const messageHandler = (msg: { type: string; content: string }) => {
       if (msg.type === 'jarvis' || msg.type === 'system') {
@@ -258,7 +258,7 @@ async function handleJarvis(res: http.ServerResponse, body: string): Promise<voi
     cliBridge.on('jarvis:message', messageHandler);
     cliBridge.on('jarvis:complete', completeHandler);
 
-    // Jarvis에 메시지 전달
+    // Jarvis  
     await jarvisService.handleUserMessage(prompt);
 
     cliBridge.off('jarvis:message', messageHandler);

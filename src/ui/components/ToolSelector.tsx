@@ -150,7 +150,7 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({ onClose }) => {
           ⚠ Too many tools can slow down performance. Enable only what you need.
         </Text>
         <Text color="yellow" dimColor>
-          ⚠ 너무 많은 도구는 성능 저하를 야기합니다. 필요한 도구만 활성화하세요.
+          ⚠      .   .
         </Text>
       </Box>
 

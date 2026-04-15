@@ -1,15 +1,15 @@
 /**
  * Tool Types and Interfaces
  *
- * 6가지 도구 분류 시스템의 타입 정의
+ * 6     
  *
  * Categories:
- * 1. LLM Simple Tools - LLM이 tool_call로 호출, Sub-LLM 없음
- * 2. LLM Agent Tools - LLM이 tool_call로 호출, Sub-LLM 사용
- * 3. System Simple Tools - 로직에서 조건에 따라 호출, Sub-LLM 없음
- * 4. System Agent Tools - 로직에서 조건에 따라 호출, Sub-LLM 사용
- * 5. User Commands - 사용자 /슬래시 명령어
- * 6. MCP Tools - Model Context Protocol 도구
+ * 1. LLM Simple Tools - LLM tool_call , Sub-LLM 
+ * 2. LLM Agent Tools - LLM tool_call , Sub-LLM 
+ * 3. System Simple Tools -    , Sub-LLM 
+ * 4. System Agent Tools -    , Sub-LLM 
+ * 5. User Commands -  / 
+ * 6. MCP Tools - Model Context Protocol 
  */
 
 import { ToolDefinition } from '../types/index.js';
@@ -21,7 +21,7 @@ import { LLMClient } from '../core/llm/llm-client.js';
 export type ToolCategory =
   | 'llm-simple'
   | 'llm-agent'
-  | 'llm-planning'  // Planning LLM 전용 tools
+  | 'llm-planning'  // Planning LLM dedicated tools
   | 'system-simple'
   | 'system-agent'
   | 'user-command'
@@ -50,8 +50,8 @@ export interface SystemContext {
 
 /**
  * 1. LLM Simple Tool Interface
- * - LLM이 tool_call로 호출
- * - Sub-LLM 사용하지 않음
+ * - LLM tool_call 
+ * - Sub-LLM  
  */
 export interface LLMSimpleTool {
   /** Tool definition for LLM */
@@ -66,8 +66,8 @@ export interface LLMSimpleTool {
 
 /**
  * 2. LLM Agent Tool Interface
- * - LLM이 tool_call로 호출
- * - Sub-LLM을 사용하여 복잡한 작업 수행
+ * - LLM tool_call 
+ * - Sub-LLM   task 
  */
 export interface LLMAgentTool {
   /** Tool definition for LLM */
@@ -84,8 +84,8 @@ export interface LLMAgentTool {
 
 /**
  * 3. System Simple Tool Interface
- * - 로직에서 조건에 따라 자동 호출
- * - Sub-LLM 사용하지 않음
+ * -     
+ * - Sub-LLM  
  */
 export interface SystemSimpleTool {
   /** Unique tool name */
@@ -102,8 +102,8 @@ export interface SystemSimpleTool {
 
 /**
  * 4. System Agent Tool Interface
- * - 로직에서 조건에 따라 자동 호출
- * - Sub-LLM을 사용하여 복잡한 작업 수행
+ * -     
+ * - Sub-LLM   task 
  */
 export interface SystemAgentTool {
   /** Unique tool name */
@@ -122,7 +122,7 @@ export interface SystemAgentTool {
 
 /**
  * 5. User Command Interface
- * - 사용자가 /슬래시 명령어로 직접 호출
+ * -  /   
  */
 export interface UserCommand {
   /** Command name (e.g., '/help', '/settings') */
@@ -161,8 +161,8 @@ export interface UserCommandResult {
 
 /**
  * 6. MCP Tool Interface
- * - Model Context Protocol 도구
- * - 외부 서버와 통신
+ * - Model Context Protocol 
+ * -   
  */
 export interface MCPTool {
   /** Tool definition for MCP */

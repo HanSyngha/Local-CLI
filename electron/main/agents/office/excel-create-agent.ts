@@ -39,7 +39,7 @@ export function createExcelCreateRequestTool(): LLMAgentTool {
     },
     execute: async (args, llmClient) => {
       const instruction = args['instruction'] as string;
-      const isSmallSheet = /(?:한\s*시트|1\s*시트|한\s*장|1\s*sheet)/i.test(instruction);
+      const isSmallSheet = /(?:\s*|1\s*|\s*|1\s*sheet)/i.test(instruction);
       const agent = new SubAgent(
         llmClient,
         'excel-create',

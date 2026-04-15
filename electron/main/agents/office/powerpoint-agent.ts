@@ -44,7 +44,7 @@ export function createPowerPointModifyRequestTool(): LLMAgentTool {
           planningPrompt: POWERPOINT_PLANNING_PROMPT,
           enhancementPrompt: POWERPOINT_ENHANCEMENT_PROMPT,
           minToolCallsBeforeComplete: 80,
-          executionRules: 'CRITICAL RULES:\n1. Build the EXACT layout type assigned in the plan. If the plan says "Layout: B", build two columns — NEVER substitute with Layout A.\n2. Layout A is MAX 3 slides total. After your 3rd Layout A, ALL remaining slides MUST be B/C/D/E/F.\n3. The LAST slide MUST be a CLOSING slide ("감사합니다"/"Thank You"). NEVER end with a content slide.\n4. Before calling powerpoint_save, verify: Is my last slide CLOSING? If not, build it NOW.',
+          executionRules: 'CRITICAL RULES:\n1. Build the EXACT layout type assigned in the plan. If the plan says "Layout: B", build two columns — NEVER substitute with Layout A.\n2. Layout A is MAX 3 slides total. After your 3rd Layout A, ALL remaining slides MUST be B/C/D/E/F.\n3. The LAST slide MUST be a CLOSING slide (""/"Thank You"). NEVER end with a content slide.\n4. Before calling powerpoint_save, verify: Is my last slide CLOSING? If not, build it NOW.',
         }
       );
       return agent.run(args['instruction'] as string);

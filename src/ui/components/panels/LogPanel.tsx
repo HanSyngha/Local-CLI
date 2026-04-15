@@ -25,10 +25,10 @@ interface LogFile {
   path: string;
   size: number;
   modifiedAt: number;
-  category?: LogCategory | 'all' | 'error'; // 카테고리 정보
+  category?: LogCategory | 'all' | 'error'; //  
 }
 
-// 카테고리 색상
+//  
 const CATEGORY_COLORS: Record<string, string> = {
   all: 'white',
   chat: 'green',
@@ -42,7 +42,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   error: 'red',
 };
 
-// 카테고리 레이블
+//  
 const CATEGORY_LABELS: Record<string, string> = {
   all: '📋 All',
   chat: '💬 Chat',
@@ -71,7 +71,7 @@ const LOG_LEVEL_COLORS: Record<string, string> = {
 };
 
 export const LogBrowser: React.FC<LogBrowserProps> = ({ onClose }) => {
-  // 파일 목록을 먼저 표시 (사용자가 선택하도록)
+  //     ( )
   const [logSource, setLogSource] = useState<LogSource>('list');
   const [logFiles, setLogFiles] = useState<LogFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -87,7 +87,7 @@ export const LogBrowser: React.FC<LogBrowserProps> = ({ onClose }) => {
     return join(PROJECTS_DIR, safeCwd);
   }, []);
 
-  // 파일명에서 카테고리 추출
+  //   
   const getCategoryFromFileName = (fileName: string): LogFile['category'] => {
     if (fileName.endsWith('_log.json')) return 'all';
     if (fileName.endsWith('_error.json')) return 'error';
@@ -112,7 +112,7 @@ export const LogBrowser: React.FC<LogBrowserProps> = ({ onClose }) => {
       const logFileList: LogFile[] = [];
 
       for (const file of files) {
-        // 모든 JSON 로그 파일 포함 (카테고리별 파일 포함)
+        //  JSON    (  )
         if (file.endsWith('.json') && (
           file.endsWith('_log.json') ||
           file.endsWith('_error.json') ||

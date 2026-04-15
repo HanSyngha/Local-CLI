@@ -1,13 +1,13 @@
 /**
  * Validation Error Classes
  *
- * 유효성 검증 관련 에러들
+ *    
  */
 
 import { BaseError, ErrorOptions } from './base';
 
 /**
- * ValidationError - 일반 유효성 검증 에러
+ * ValidationError -    
  */
 export class ValidationError extends BaseError {
   public readonly field?: string;
@@ -30,7 +30,7 @@ export class ValidationError extends BaseError {
           value,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `입력값이 유효하지 않습니다${field ? ` (필드: ${field})` : ''}.`,
+        userMessage: options.userMessage ?? `  ${field ? ` (: ${field})` : ''}.`,
       }
     );
     this.field = field;
@@ -39,7 +39,7 @@ export class ValidationError extends BaseError {
 }
 
 /**
- * InputError - 사용자 입력 에러
+ * InputError -   
  */
 export class InputError extends BaseError {
   constructor(message: string, options: ErrorOptions = {}) {
@@ -49,14 +49,14 @@ export class InputError extends BaseError {
       {
         ...options,
         isRecoverable: true,
-        userMessage: options.userMessage ?? '입력값을 확인해주세요.',
+        userMessage: options.userMessage ?? ' .',
       }
     );
   }
 }
 
 /**
- * RequiredFieldError - 필수 필드 누락 에러
+ * RequiredFieldError -    
  */
 export class RequiredFieldError extends BaseError {
   public readonly field: string;
@@ -72,7 +72,7 @@ export class RequiredFieldError extends BaseError {
           field,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `필수 항목이 누락되었습니다: ${field}`,
+        userMessage: options.userMessage ?? `  : ${field}`,
       }
     );
     this.field = field;
@@ -80,7 +80,7 @@ export class RequiredFieldError extends BaseError {
 }
 
 /**
- * InvalidFormatError - 잘못된 형식 에러
+ * InvalidFormatError -   
  */
 export class InvalidFormatError extends BaseError {
   public readonly expected: string;
@@ -102,7 +102,7 @@ export class InvalidFormatError extends BaseError {
           actual,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `잘못된 형식입니다. 올바른 형식: ${expected}`,
+        userMessage: options.userMessage ?? ` .  : ${expected}`,
       }
     );
     this.expected = expected;

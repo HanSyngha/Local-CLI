@@ -1,10 +1,10 @@
 /**
  * Electron Main Process
- * - 모던한 프레임리스 디자인
- * - 커스텀 타이틀바 지원
- * - 다크/라이트 테마 지원
- * - 보안 best practices
- * - 전역 에러 핸들링
+ * -   
+ * -   won
+ * - /  won
+ * -  best practices
+ * -   
  */
 
 import { app, BrowserWindow, shell, nativeTheme, crashReporter, screen } from 'electron';
@@ -25,31 +25,31 @@ import { startCliServer, stopCliServer, setCliServerWindows } from './cli-server
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// GPU 가속 활성화 (성능 최적화)
-// 참고: disable-gpu를 사용하면 모든 렌더링이 CPU에서 처리되어 매우 느려짐
+// GPU   ( )
+// : disable-gpu    CPU   
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
-app.commandLine.appendSwitch('ignore-gpu-blocklist'); // 블랙리스트 무시하고 GPU 사용
+app.commandLine.appendSwitch('ignore-gpu-blocklist'); //   GPU 
 
-// Electron-vite에서 제공하는 환경 변수
+// Electron-vite   
 const RENDERER_DIST = path.join(__dirname, '../renderer');
 const VITE_DEV_SERVER_URL = process.env['ELECTRON_RENDERER_URL'];
 const isDev = !!VITE_DEV_SERVER_URL;
 
-// 윈도우 참조 (Chat: 메인, Task: 보조, Jarvis: 비서)
+//   (Chat: , Task: , Jarvis: )
 let chatWindow: BrowserWindow | null = null;
 let taskWindow: BrowserWindow | null = null;
 let jarvisWindow: BrowserWindow | null = null;
 
-// Jarvis 모드 관련
+// Jarvis  
 import { DEFAULT_JARVIS_CONFIG, jarvisService } from './jarvis';
 import { JarvisTray } from './jarvis/jarvis-tray';
 let jarvisTray: JarvisTray | null = null;
 const isJarvisOnlyMode = process.argv.includes('--jarvis-only');
-let isAppQuitting = false; // app.quit() 호출 시 true → chatWindow close 핸들러가 hide 대신 close 허용
+let isAppQuitting = false; // app.quit()   true → chatWindow close  hide  close 
 
 
-// ============ 작업 디렉토리 보정 (Portable 실행 시 temp 경로 방지) ============
+// ============ task   (Portable   temp  ) ============
 
 const cwd = process.cwd();
 const tempDir = os.tmpdir().toLowerCase();
@@ -63,16 +63,16 @@ if (cwd.toLowerCase().startsWith(tempDir) || cwd.toLowerCase().includes('\\temp\
   }
 }
 
-// ============ 크래시 리포터 설정 ============
+// ============    ============
 
 crashReporter.start({
   productName: 'Local CLI (For Windows)',
-  submitURL: '', // 크래시 리포트 서버 URL (선택적)
-  uploadToServer: false, // 로컬에만 저장
+  submitURL: '', //    URL ()
+  uploadToServer: false, //  
   compress: true,
 });
 
-// ============ 전역 에러 핸들링 ============
+// ============    ============
 
 process.on('uncaughtException', (error) => {
   logger.fatal('Uncaught Exception', {
@@ -81,7 +81,7 @@ process.on('uncaughtException', (error) => {
   });
   reportError(error, { type: 'uncaughtException' }).catch(() => {});
 
-  // 개발 모드에서는 에러 표시
+  //    
   if (isDev) {
     console.error('Uncaught Exception:', error);
   }
@@ -99,20 +99,20 @@ process.on('unhandledRejection', (reason, promise) => {
   }
 });
 
-// ============ 보안 설정 ============
+// ============   ============
 
-// 참고: app.disableHardwareAcceleration()은 성능을 심하게 저하시키므로 사용하지 않음
-// GPU 가속이 활성화되어야 부드러운 스크롤, 애니메이션, 타이핑 반응이 가능함
+// : app.disableHardwareAcceleration()     
+// GPU    , ,   
 
-// 렌더러 프로세스 재사용 비활성화 (보안)
+//     ()
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 
-// Windows 전용 최적화
+// Windows dedicated 
 if (process.platform === 'win32') {
   app.setAppUserModelId('com.local-bot.windows');
 }
 
-// ============ 공통 webPreferences ============
+// ============  webPreferences ============
 
 const commonWebPreferences = {
   preload: path.join(__dirname, '../preload/index.mjs'),
@@ -129,7 +129,7 @@ const appIcon = app.isPackaged
   ? path.join(process.resourcesPath, process.platform === 'win32' ? 'icon.ico' : 'icon.png')
   : path.join(__dirname, '../../build', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
 
-// 윈도우 URL 로드 헬퍼
+//  URL  
 function loadWindowURL(win: BrowserWindow, windowType: string): void {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(`${VITE_DEV_SERVER_URL}?window=${windowType}`);
@@ -140,7 +140,7 @@ function loadWindowURL(win: BrowserWindow, windowType: string): void {
   }
 }
 
-// 윈도우 bounds 저장/복원
+//  bounds /won
 function saveWindowBounds(key: string, win: BrowserWindow): void {
   try {
     const bounds = win.getBounds();
@@ -159,7 +159,7 @@ function getWindowBounds(key: string): Electron.Rectangle | null {
   }
 }
 
-// ============ Chat 윈도우 생성 (메인) ============
+// ============ Chat   () ============
 
 async function createChatWindow(): Promise<void> {
   const savedBounds = getWindowBounds('chat');
@@ -167,7 +167,7 @@ async function createChatWindow(): Promise<void> {
   const defaultHeight = 620;
   const taskWindowWidth = 400;
 
-  // 저장된 bounds가 없으면 Chat + Task 양쪽이 화면에 들어오도록 배치
+  //  bounds  Chat + Task    
   let chatX: number | undefined = savedBounds?.x;
   let chatY: number | undefined = savedBounds?.y;
   let shouldCenter = false;
@@ -177,11 +177,11 @@ async function createChatWindow(): Promise<void> {
     const totalWidth = defaultWidth + 10 + taskWindowWidth; // Chat + gap + Task
 
     if (totalWidth <= workArea.width) {
-      // 두 윈도우가 모두 들어감 → Chat을 왼쪽에 배치
+      //     → Chat  
       chatX = workArea.x + Math.floor((workArea.width - totalWidth) / 2);
       chatY = workArea.y + Math.floor((workArea.height - defaultHeight) / 2);
     } else {
-      // 공간 부족 → Chat만 중앙 배치
+      //   → Chat  
       shouldCenter = true;
     }
   }
@@ -247,17 +247,17 @@ async function createChatWindow(): Promise<void> {
 
   loadWindowURL(chatWindow, 'chat');
 
-  // Chat 닫기 동작: Jarvis 활성화 시 hide, 비활성화 시 종료
-  // app.quit() 시에는 isAppQuitting=true → hide 대신 정상 close 허용
+  // Chat  : Jarvis   hide,   
+  // app.quit()  isAppQuitting=true → hide   close 
   chatWindow.on('close', (e) => {
     saveWindowBounds('chat', chatWindow!);
 
-    // app.quit() 호출 시에는 무조건 close 허용 (hide 방지)
+    // app.quit()    close  (hide )
     if (isAppQuitting) return;
 
     const jarvisConfig = configManager.get('jarvis') || DEFAULT_JARVIS_CONFIG;
     if (jarvisConfig.enabled && jarvisTray?.isCreated()) {
-      // Jarvis 활성화 → hide (트레이에서 계속 동작)
+      // Jarvis  → hide (  )
       e.preventDefault();
       chatWindow!.hide();
       if (taskWindow && !taskWindow.isDestroyed()) {
@@ -271,12 +271,12 @@ async function createChatWindow(): Promise<void> {
   chatWindow.on('closed', () => {
     logger.windowClose({ windowId: 'chat' });
     chatWindow = null;
-    // Task 윈도우도 정리 후 종료
+    // Task    
     if (taskWindow && !taskWindow.isDestroyed()) {
       taskWindow.destroy();
       taskWindow = null;
     }
-    // Jarvis도 정리
+    // Jarvis 
     destroyJarvis();
     app.quit();
   });
@@ -291,12 +291,12 @@ async function createChatWindow(): Promise<void> {
   });
 }
 
-// ============ Task 윈도우 생성 (보조) ============
+// ============ Task   () ============
 
 async function createTaskWindow(): Promise<void> {
   const savedBounds = getWindowBounds('task');
 
-  // 저장된 bounds 없으면 Chat 윈도우 오른쪽에 배치 (화면 경계 검사 포함)
+  //  bounds  Chat    (   )
   const taskWidth = savedBounds?.width || 400;
   const taskHeight = savedBounds?.height || 600;
   let x: number | undefined = savedBounds?.x;
@@ -306,19 +306,19 @@ async function createTaskWindow(): Promise<void> {
     const display = screen.getDisplayMatching(chatBounds);
     const workArea = display.workArea;
 
-    // Chat 오른쪽에 배치 시도
+    // Chat   
     const idealX = chatBounds.x + chatBounds.width + 10;
     if (idealX + taskWidth <= workArea.x + workArea.width) {
       x = idealX;
       y = chatBounds.y;
     } else {
-      // 오른쪽에 공간 없으면 Chat 왼쪽에 배치
+      //    Chat  
       const leftX = chatBounds.x - taskWidth - 10;
       if (leftX >= workArea.x) {
         x = leftX;
         y = chatBounds.y;
       } else {
-        // 양쪽 다 불가능하면 화면 오른쪽 끝에 정렬
+        //       
         x = workArea.x + workArea.width - taskWidth;
         y = chatBounds.y;
       }
@@ -339,7 +339,7 @@ async function createTaskWindow(): Promise<void> {
     transparent: false,
     icon: appIcon,
     webPreferences: commonWebPreferences,
-    show: true, // 앱 시작 시 Task 윈도우도 함께 표시
+    show: true, //    Task   
   });
 
   setTaskWindow(taskWindow);
@@ -370,14 +370,14 @@ async function createTaskWindow(): Promise<void> {
 
   loadWindowURL(taskWindow, 'task');
 
-  // Task 닫기 = hide (destroy가 아님, 재표시 가능)
+  // Task  = hide (destroy ,  )
   taskWindow.on('close', (e) => {
     if (chatWindow && !chatWindow.isDestroyed()) {
       e.preventDefault();
       saveWindowBounds('task', taskWindow!);
       taskWindow!.hide();
     }
-    // Chat이 이미 닫힌 경우에는 정상적으로 destroy됨
+    // Chat     destroy
   });
 
   logger.windowCreate({
@@ -390,12 +390,12 @@ async function createTaskWindow(): Promise<void> {
   });
 }
 
-// ============ Jarvis 윈도우 생성 (비서) ============
+// ============ Jarvis   () ============
 
 async function createJarvisWindow(): Promise<void> {
   const savedBounds = getWindowBounds('jarvis');
 
-  // 기본: 화면 오른쪽 하단에 배치
+  // :    
   const primaryDisplay = screen.getPrimaryDisplay();
   const workArea = primaryDisplay.workArea;
   const jarvisWidth = savedBounds?.width || 400;
@@ -418,7 +418,7 @@ async function createJarvisWindow(): Promise<void> {
     transparent: false,
     icon: appIcon,
     webPreferences: commonWebPreferences,
-    show: false, // 기본 hidden, 트레이/IPC로 show
+    show: false, //  hidden, /IPC show
     skipTaskbar: false,
     resizable: true,
   });
@@ -442,11 +442,11 @@ async function createJarvisWindow(): Promise<void> {
   setIpcJarvisWindow(jarvisWindow);
   loadWindowURL(jarvisWindow, 'jarvis');
 
-  // Jarvis 닫기 = hide (destroy 아님). 단, app.quit() 시에는 허용.
+  // Jarvis  = hide (destroy ). , app.quit()  .
   let jarvisQuitting = false;
   app.on('before-quit', () => { jarvisQuitting = true; });
   jarvisWindow.on('close', (e) => {
-    if (jarvisQuitting) return; // app.quit() 시에는 정상 종료 허용
+    if (jarvisQuitting) return; // app.quit()    
     e.preventDefault();
     saveWindowBounds('jarvis', jarvisWindow!);
     jarvisWindow!.hide();
@@ -458,7 +458,7 @@ async function createJarvisWindow(): Promise<void> {
   });
 }
 
-// ============ Jarvis 트레이 + 라이프사이클 ============
+// ============ Jarvis  +  ============
 
 function initializeJarvis(): void {
   const jarvisConfig = configManager.get('jarvis') || DEFAULT_JARVIS_CONFIG;
@@ -467,14 +467,14 @@ function initializeJarvis(): void {
 }
 
 /**
- * Jarvis 런타임 시작 (트레이 + 윈도우 + 서비스)
- * initializeJarvis()에서 호출되거나, Settings에서 실시간 활성화 시 호출됨
+ * Jarvis   ( +  + )
+ * initializeJarvis() , Settings    
  */
 function startJarvisRuntime(): void {
-  // 이미 동작 중이면 스킵
+  //    
   if (jarvisTray?.isCreated()) return;
 
-  // 트레이 생성
+  //  
   jarvisTray = new JarvisTray({
     onShowJarvisWindow: () => {
       if (jarvisWindow && !jarvisWindow.isDestroyed()) {
@@ -487,7 +487,7 @@ function startJarvisRuntime(): void {
         chatWindow.show();
         chatWindow.focus();
       } else {
-        // --jarvis-only 모드에서 채팅 열기 요청 시 새로 생성
+        // --jarvis-only       
         createChatWindow().then(() => {
           createTaskWindow();
         });
@@ -499,13 +499,13 @@ function startJarvisRuntime(): void {
       );
     },
     onDisableJarvis: async () => {
-      // 자비스만 끄기 (config 저장 + 런타임 정리)
+      //   (config  +  )
       const current = configManager.get('jarvis') || DEFAULT_JARVIS_CONFIG;
       await configManager.set('jarvis', { ...current, enabled: false });
       updateAutoStartSettings();
       destroyJarvis();
       logger.info('[Jarvis] Disabled via tray menu');
-      // 채팅 창이 있으면 보여주기, 없으면 앱 종료
+      //    ,   
       if (chatWindow && !chatWindow.isDestroyed()) {
         chatWindow.show();
         chatWindow.focus();
@@ -520,16 +520,16 @@ function startJarvisRuntime(): void {
   });
   jarvisTray.create();
 
-  // Jarvis 윈도우 생성 (hidden)
+  // Jarvis   (hidden)
   createJarvisWindow();
 
-  // JarvisService에 윈도우 연결 + 시작
+  // JarvisService   + 
   jarvisService.setWindow(jarvisWindow);
   jarvisService.start().catch(err =>
     logger.errorSilent('[Jarvis] Service start failed', { error: String(err) })
   );
 
-  // 최초 활성화 시 창 표시
+  //     
   if (jarvisWindow && !jarvisWindow.isDestroyed()) {
     jarvisWindow.show();
     jarvisWindow.focus();
@@ -552,14 +552,14 @@ function destroyJarvis(): void {
   }
 }
 
-// ============ 테마 변경 감지 ============
+// ============    ============
 
 nativeTheme.on('updated', () => {
   const isDark = nativeTheme.shouldUseDarkColors;
   const themeValue = isDark ? 'dark' : 'light';
   const bgColor = isDark ? '#1e1e1e' : '#ffffff';
 
-  // 모든 윈도우에 테마 변경 전달
+  //     
   chatWindow?.webContents.send('theme:change', themeValue);
   taskWindow?.webContents.send('theme:change', themeValue);
   jarvisWindow?.webContents.send('theme:change', themeValue);
@@ -572,10 +572,10 @@ nativeTheme.on('updated', () => {
   logger.systemThemeChange({ theme: themeValue, isDark });
 });
 
-// ============ Auto Updater 설정 ============
+// ============ Auto Updater  ============
 
 function setupAutoUpdater(): void {
-  // 개발 모드에서는 비활성화
+  //   
   if (isDev) {
     logger.info('Auto-updater disabled in development mode');
     return;
@@ -588,13 +588,13 @@ function setupAutoUpdater(): void {
     return;
   }
 
-  // 업데이트 이벤트를 chatWindow + jarvisWindow 양쪽에 전송
+  //   chatWindow + jarvisWindow  
   const sendUpdateEvent = (channel: string, ...args: unknown[]) => {
     chatWindow?.webContents.send(channel, ...args);
     jarvisWindow?.webContents.send(channel, ...args);
   };
 
-  // 로그 설정
+  //  
   autoUpdater.logger = {
     info: (message: string) => logger.info(`[AutoUpdater] ${message}`),
     warn: (message: string) => logger.warn(`[AutoUpdater] ${message}`),
@@ -602,54 +602,54 @@ function setupAutoUpdater(): void {
     debug: (message: string) => logger.debug(`[AutoUpdater] ${message}`),
   };
 
-  // 강제 업데이트: 자동 다운로드 + 완료 시 자동 설치
+  //  :   +    
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
-  // 업데이트 확인 시작
+  //   
   autoUpdater.on('checking-for-update', () => {
     logger.updateCheckStart();
     sendUpdateEvent('update:checking');
   });
 
-  // 업데이트 가능 - renderer로 전달 (커스텀 UI 사용)
+  //   - renderer  ( UI )
   autoUpdater.on('update-available', (info) => {
     logger.updateAvailable({ version: info.version, releaseDate: info.releaseDate });
     sendUpdateEvent('update:available', info);
   });
 
-  // 업데이트 없음
+  //  
   autoUpdater.on('update-not-available', () => {
     logger.info('No updates available');
     sendUpdateEvent('update:not-available');
   });
 
-  // 다운로드 진행률
+  //  
   autoUpdater.on('download-progress', (progress) => {
     logger.updateDownloadProgress({ percent: progress.percent, bytesPerSecond: progress.bytesPerSecond, transferred: progress.transferred, total: progress.total });
     sendUpdateEvent('update:download-progress', progress);
   });
 
-  // 다운로드 완료 → renderer에서 재시작 버튼 클릭 시 silent install
+  //   → renderer     silent install
   autoUpdater.on('update-downloaded', (info) => {
     logger.updateDownloadComplete({ version: info.version });
     sendUpdateEvent('update:downloaded', info);
   });
 
-  // 에러 처리
+  //  
   autoUpdater.on('error', (error) => {
     logger.updateError({ error: error.message, stack: error.stack });
     sendUpdateEvent('update:error', error.message);
   });
 
-  // 앱 시작 후 업데이트 확인 (5초 후)
+  //      (5 )
   setTimeout(() => {
     autoUpdater.checkForUpdates().catch((error) => {
       logger.errorSilent('Failed to check for updates', { error: error.message });
     });
   }, 5000);
 
-  // 30분마다 주기적 업데이트 체크
+  // 30   
   setInterval(() => {
     autoUpdater.checkForUpdates().catch((error) => {
       logger.errorSilent('Failed to check for updates (periodic)', { error: error.message });
@@ -657,25 +657,25 @@ function setupAutoUpdater(): void {
   }, 30 * 60 * 1000);
 }
 
-// ============ 앱 초기화 ============
+// ============   ============
 
 app.whenReady().then(async () => {
-  // 로거 초기화
+  //  
   await logger.initialize({
     logLevel: isDev ? LogLevel.DEBUG : LogLevel.INFO,
     consoleOutput: isDev,
   });
 
-  // Config 초기화
+  // Config 
   await configManager.initialize();
 
-  // Session Manager 초기화
+  // Session Manager 
   await sessionManager.initialize();
 
-  // Tool Manager 초기화 (저장된 도구 그룹 활성화)
+  // Tool Manager  (   )
   await toolManager.initialize();
 
-  // appReady 로깅 (상세 시스템 이벤트)
+  // appReady  (  )
   logger.appReady({
     version: app.getVersion(),
     platform: process.platform,
@@ -688,53 +688,53 @@ app.whenReady().then(async () => {
     chromeVersion: process.versions.chrome,
   });
 
-  // IPC 핸들러 등록
+  // IPC  
   setupIpcHandlers();
 
-  // Auto-start 설정 동기화 (디폴트 ON 반영)
+  // Auto-start   ( ON )
   updateAutoStartSettings();
 
-  // Jarvis 실시간 활성화/비활성화 콜백 등록
+  // Jarvis  /  
   setJarvisLifecycleCallbacks({
     onEnable: () => startJarvisRuntime(),
     onDisable: () => destroyJarvis(),
   });
 
-  // 윈도우 생성 — 항상 Chat/Task를 먼저 (사용자가 앱을 볼 수 있게)
-  // --jarvis-only 모드에서만 스킵
+  //   —  Chat/Task  (    )
+  // --jarvis-only  
   if (!isJarvisOnlyMode) {
     await createChatWindow();
     await createTaskWindow();
   }
 
-  // Jarvis 초기화 (chatWindow 생성 후에 — Jarvis 실패해도 앱은 정상 동작)
+  // Jarvis  (chatWindow   — Jarvis    )
   try {
     initializeJarvis();
   } catch (err) {
     logger.errorSilent('[Jarvis] Initialization failed, continuing without Jarvis', { error: String(err) });
   }
 
-  // --jarvis-only 모드: chatWindow 없이 jarvisWindow만
+  // --jarvis-only : chatWindow  jarvisWindow
   if (isJarvisOnlyMode) {
     const jarvisConfig = configManager.get('jarvis') || DEFAULT_JARVIS_CONFIG;
     if (jarvisConfig.enabled && jarvisWindow && !jarvisWindow.isDestroyed()) {
       jarvisWindow.show();
     } else {
-      // Jarvis 비활성화 상태 → 정상적으로 Chat/Task 생성
+      // Jarvis   →  Chat/Task 
       logger.info('[Jarvis] --jarvis-only but Jarvis disabled, creating Chat/Task');
       await createChatWindow();
       await createTaskWindow();
     }
   }
 
-  // CLI Server 시작 (CLI → Electron 통신)
+  // CLI Server  (CLI → Electron )
   setCliServerWindows(chatWindow, taskWindow, jarvisWindow);
   startCliServer();
 
-  // Auto Updater 설정
+  // Auto Updater 
   setupAutoUpdater();
 
-  // macOS: 독 아이콘 클릭 시 창 재생성
+  // macOS:      
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       await createChatWindow();
@@ -743,12 +743,12 @@ app.whenReady().then(async () => {
   });
 });
 
-// ============ 앱 종료 처리 ============
+// ============    ============
 
-// 모든 창이 닫히면 앱 종료 (macOS 제외)
-// Jarvis가 트레이에서 동작 중이면 종료하지 않음
+//      (macOS )
+// Jarvis     
 app.on('window-all-closed', () => {
-  // Jarvis 활성화 시 트레이에서 계속 동작 (앱 종료하지 않음)
+  // Jarvis      (  )
   const jarvisConfig = configManager.get('jarvis') || DEFAULT_JARVIS_CONFIG;
   if (jarvisConfig.enabled && jarvisTray?.isCreated()) return;
   if (process.platform !== 'darwin') {
@@ -756,13 +756,13 @@ app.on('window-all-closed', () => {
   }
 });
 
-// 앱 종료 전 정리
+//    
 // Electron does NOT await async before-quit handlers, so we use
 // preventDefault + async cleanup + re-quit pattern to ensure
 // sessions are fully saved before the process exits.
 let cleanupDone = false;
 app.on('before-quit', (event) => {
-  isAppQuitting = true; // 반드시 첫 줄 — chatWindow close 핸들러가 hide 대신 close 허용
+  isAppQuitting = true; //    — chatWindow close  hide  close 
 
   if (cleanupDone) return; // Already cleaned up — let quit proceed
 
@@ -772,7 +772,7 @@ app.on('before-quit', (event) => {
   logger.appBeforeQuit({ reason: 'user_initiated' });
 
   (async () => {
-    // Worker threads 종료 (멀티 세션)
+    // Worker threads  ( )
     try {
       const { workerManager } = await import('./workers/worker-manager');
       await workerManager.terminateAll();
@@ -780,19 +780,19 @@ app.on('before-quit', (event) => {
       logger.errorSilent('Failed to terminate workers', err);
     }
 
-    // CLI Server 종료
+    // CLI Server 
     stopCliServer();
 
-    // Jarvis 정리
+    // Jarvis 
     destroyJarvis();
 
-    // PowerShell 세션 종료
+    // PowerShell  
     await powerShellManager.terminate();
 
-    // IPC 핸들러 정리 (내부에서 sessionManager.cleanup() 호출 — 세션 저장 포함)
+    // IPC   ( sessionManager.cleanup()  —   )
     await cleanupIpcHandlers();
 
-    // 이미지 임시 파일 정리
+    //    
     try {
       const tempImageDir = path.join(os.tmpdir(), 'local-cli-images');
       if (fs.existsSync(tempImageDir)) {
@@ -802,7 +802,7 @@ app.on('before-quit', (event) => {
       logger.errorSilent('Failed to clean up temp image directory', err);
     }
 
-    // 로거 종료
+    //  
     await logger.shutdown();
 
     // Now allow quit to proceed
@@ -815,20 +815,20 @@ app.on('before-quit', (event) => {
   });
 });
 
-// 렌더러 프로세스 크래시 처리
+//    
 app.on('render-process-gone', (_event, _webContents, details) => {
   logger.fatal('Renderer process crashed', {
     reason: details.reason,
     exitCode: details.exitCode,
   });
 
-  // 개발 모드에서는 자동 재시작
+  //    
   if (isDev && chatWindow) {
     chatWindow.reload();
   }
 });
 
-// GPU 프로세스 크래시 처리
+// GPU   
 app.on('child-process-gone', (_event, details) => {
   if (details.type === 'GPU') {
     logger.error('GPU process crashed', {
@@ -838,7 +838,7 @@ app.on('child-process-gone', (_event, details) => {
   }
 });
 
-// ============ 싱글 인스턴스 보장 ============
+// ============    ============
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -846,8 +846,8 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    // 두 번째 인스턴스 실행 시 Chat 창 포커스
-    // Jarvis 활성화 시 hide 상태일 수 있으므로 show() 호출 필수
+    //      Chat  
+    // Jarvis   hide    show()  
     if (chatWindow) {
       if (!chatWindow.isVisible()) {
         chatWindow.show();
@@ -856,7 +856,7 @@ if (!gotTheLock) {
         chatWindow.restore();
       }
       chatWindow.focus();
-      // Task 윈도우도 함께 표시
+      // Task   
       if (taskWindow && !taskWindow.isDestroyed() && !taskWindow.isVisible()) {
         taskWindow.show();
       }

@@ -1,10 +1,10 @@
 /**
  * FREE Tools
  *
- * FREE — AI 기반 업무 기록 시스템
+ * FREE — AI    
  *
- * free_work_add는 백그라운드 자동 동기화 전용.
- * LLM execution loop에 등록하지 않음.
+ * free_work_add    dedicated.
+ * LLM execution loop  .
  *
  * CLI parity: electron/main/tools/llm/simple/external-services/free-tools.ts
  */

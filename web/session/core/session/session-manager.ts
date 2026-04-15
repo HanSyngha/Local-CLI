@@ -1,7 +1,7 @@
 /**
  * Session Manager
  *
- * 대화 세션을 파일로 저장하고 복구하는 기능
+ *      
  * - Atomic writes (write to .tmp then rename) to prevent corruption on crash
  * - Backup (.bak) before each write for crash recovery
  * - Fallback load: try main file, then .bak if corrupted
@@ -19,7 +19,7 @@ import { logger } from '../../utils/logger.js';
 import { reportError } from '../telemetry/error-reporter.js';
 
 /**
- * 세션 메타데이터 인터페이스
+ *   
  */
 export interface SessionMetadata {
   id: string;
@@ -59,7 +59,7 @@ export interface SessionTodoItem {
 }
 
 /**
- * 세션 데이터 인터페이스
+ *   
  */
 export interface SessionData {
   metadata: SessionMetadata;
@@ -69,7 +69,7 @@ export interface SessionData {
 }
 
 /**
- * 세션 요약 인터페이스 (목록 표시용)
+ *    ( )
  */
 export interface SessionSummary {
   id: string;
@@ -141,7 +141,7 @@ export function reconstructLogEntries(messages: Message[]): SessionLogEntry[] {
  */
 const ERROR_MESSAGE_PATTERNS = [
   /^\[ABORTED BY USER\]$/,
-  /^LLM 서버가 응답하지 않습니다/,
+  /^LLM   /,
   /^Execution error:\n/,
   /^⚠️.*error/i,
   /^Error:/i,
@@ -217,7 +217,7 @@ async function readFileWithFallback(filePath: string): Promise<string> {
 }
 
 /**
- * Session Manager 클래스
+ * Session Manager 
  */
 export class SessionManager {
   private currentSessionId: string | null = null;
@@ -251,15 +251,15 @@ export class SessionManager {
         role: msg.role,
         content: msg.content,
       };
-      // tool_calls가 있으면 포함 (assistant 메시지)
+      // tool_calls   (assistant )
       if (msg.tool_calls && msg.tool_calls.length > 0) {
         normalized.tool_calls = msg.tool_calls;
       }
-      // tool_call_id가 있으면 포함 (tool 메시지)
+      // tool_call_id   (tool )
       if (msg.tool_call_id) {
         normalized.tool_call_id = msg.tool_call_id;
       }
-      // name이 있으면 포함 (tool 메시지)
+      // name   (tool )
       if (msg.name) {
         normalized.name = msg.name;
       }
@@ -389,7 +389,7 @@ export class SessionManager {
   }
 
   /**
-   * 세션 디렉토리 초기화
+   *   
    */
   async ensureSessionsDir(): Promise<void> {
     const sessionsDir = this.getSessionsDir();
@@ -401,23 +401,23 @@ export class SessionManager {
   }
 
   /**
-   * 세션 저장
+   *  
    */
   async saveSession(name: string, messages: Message[]): Promise<string> {
     logger.enter('saveSession', { name, messageCount: messages.length });
     await this.ensureSessionsDir();
 
-    // 세션 ID 생성
+    //  ID 
     const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-    // 현재 모델 정보 가져오기
+    //    
     const endpoint = configManager.getCurrentEndpoint();
     const model = configManager.getCurrentModel();
 
-    // 메시지 정규화 (tool_calls, tool_call_id 포함)
+    //   (tool_calls, tool_call_id )
     const normalizedMessages = this.normalizeMessages(messages);
 
-    // 세션 데이터 생성
+    //   
     const sessionData: SessionData = {
       metadata: {
         id: sessionId,
@@ -431,7 +431,7 @@ export class SessionManager {
       messages: normalizedMessages,
     };
 
-    // 파일로 저장 (atomic write)
+    //   (atomic write)
     const sessionsDir = this.getSessionsDir();
     const filePath = path.join(sessionsDir, `${sessionId}.json`);
     await writeFileAtomic(filePath, JSON.stringify(sessionData, null, 2));
@@ -441,7 +441,7 @@ export class SessionManager {
   }
 
   /**
-   * 세션 로드
+   *  
    */
   async loadSession(sessionId: string): Promise<SessionData | null> {
     logger.enter('loadSession', { sessionId });
@@ -463,16 +463,16 @@ export class SessionManager {
       sessionData.messages = cleanedMessages;
       sessionData.metadata.messageCount = cleanedMessages.length;
 
-      // updatedAt 갱신
+      // updatedAt 
       sessionData.metadata.updatedAt = new Date().toISOString();
       await writeFileAtomic(filePath, JSON.stringify(sessionData, null, 2));
 
-      // 현재 세션 ID를 로드된 세션으로 설정 (이후 대화가 이 세션에 저장되도록)
+      //   ID    (    )
       this.currentSessionId = sessionData.metadata.id;
       this.currentSessionCreatedAt = sessionData.metadata.createdAt;
       this.currentSessionName = sessionData.metadata.name || null;
 
-      // 로거를 해당 세션의 로그 파일로 재초기화 (append 모드)
+      //       (append )
       await initializeJsonStreamLogger(sessionData.metadata.id, true);
 
       logger.exit('loadSession', { sessionId, messageCount: sessionData.messages.length });
@@ -485,7 +485,7 @@ export class SessionManager {
   }
 
   /**
-   * 모든 세션 목록 가져오기
+   *    
    */
   async listSessions(): Promise<SessionSummary[]> {
     logger.enter('listSessions', { sessionsDir: this.getSessionsDir() });
@@ -494,7 +494,7 @@ export class SessionManager {
     try {
       const sessionsDir = this.getSessionsDir();
       const files = await fs.readdir(sessionsDir);
-      // 세션 파일만 필터링 (_log.json, _error.json, .bak, .tmp 제외)
+      //    (_log.json, _error.json, .bak, .tmp )
       const sessionFiles = files.filter((f) =>
         f.endsWith('.json') &&
         !f.endsWith('_log.json') &&
@@ -511,7 +511,7 @@ export class SessionManager {
           const content = await fs.readFile(filePath, 'utf-8');
           const sessionData = JSON.parse(content) as SessionData;
 
-          // 첫 번째 사용자 메시지 찾기
+          //     
           const firstUserMessage = sessionData.messages.find((m) => m.role === 'user');
 
           sessions.push({
@@ -530,7 +530,7 @@ export class SessionManager {
         }
       }
 
-      // 최근 업데이트 순으로 정렬
+      //    
       sessions.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
       logger.exit('listSessions', { sessionCount: sessions.length });
@@ -543,7 +543,7 @@ export class SessionManager {
   }
 
   /**
-   * 세션 삭제
+   *  
    */
   async deleteSession(sessionId: string): Promise<boolean> {
     logger.enter('deleteSession', { sessionId });
@@ -566,7 +566,7 @@ export class SessionManager {
   }
 
   /**
-   * 이름으로 세션 찾기
+   *   
    */
   async findSessionByName(name: string): Promise<SessionSummary | null> {
     const sessions = await this.listSessions();
@@ -574,7 +574,7 @@ export class SessionManager {
   }
 
   /**
-   * 세션 갱신 (메시지 추가)
+   *   ( )
    */
   async updateSession(sessionId: string, messages: Message[]): Promise<boolean> {
     logger.enter('updateSession', { sessionId, messageCount: messages.length });
@@ -586,7 +586,7 @@ export class SessionManager {
       return false;
     }
 
-    // 메시지 정규화 (tool_calls, tool_call_id 포함)
+    //   (tool_calls, tool_call_id )
     const normalizedMessages = this.normalizeMessages(messages);
 
     sessionData.messages = normalizedMessages;
@@ -622,8 +622,8 @@ export class SessionManager {
   }
 
   /**
-   * 현재 세션 자동 저장 (메시지가 추가될 때마다 호출)
-   * Fire-and-forget 방식으로 비동기 저장 (블로킹 없음)
+   *     (   )
+   * Fire-and-forget    ( )
    * If a save is already in progress, queues the latest messages for a follow-up save.
    */
   autoSaveCurrentSession(messages: Message[], logEntries?: SessionLogEntry[]): void {
@@ -642,7 +642,7 @@ export class SessionManager {
       return;
     }
 
-    // Fire-and-forget: 비동기 저장을 백그라운드에서 실행
+    // Fire-and-forget:    
     this.performAutoSave(messages).catch((err: unknown) => {
       // Silently log errors without blocking
       const error = err as Error;
@@ -651,7 +651,7 @@ export class SessionManager {
   }
 
   /**
-   * 실제 저장 작업 수행 (내부 메서드)
+   *   task  (internal method)
    * After completing, checks for queued (pending) save and runs it.
    */
   private async performAutoSave(messages: Message[]): Promise<void> {
@@ -661,14 +661,14 @@ export class SessionManager {
     try {
       await this.ensureSessionsDir();
 
-      // 현재 모델 정보 가져오기
+      //    
       const endpoint = configManager.getCurrentEndpoint();
       const model = configManager.getCurrentModel();
 
-      // 메시지 정규화 (tool_calls, tool_call_id 포함)
+      //   (tool_calls, tool_call_id )
       const normalizedMessages = this.normalizeMessages(messages);
 
-      // 세션 데이터 생성/업데이트
+      //   /
       const sessionData: SessionData = {
         metadata: {
           id: this.currentSessionId!,
@@ -707,28 +707,28 @@ export class SessionManager {
   }
 
   /**
-   * 현재 세션 ID 가져오기
+   *   ID 
    */
   getCurrentSessionId(): string | null {
     return this.currentSessionId;
   }
 
   /**
-   * 현재 세션 ID 설정
+   *   ID 
    */
   setCurrentSessionId(sessionId: string): void {
     this.currentSessionId = sessionId;
   }
 
   /**
-   * 현재 세션 이름 가져오기
+   *    
    */
   getCurrentSessionName(): string | null {
     return this.currentSessionName;
   }
 
   /**
-   * 현재 세션 이름 설정 (Planning LLM 타이틀 → 세션 이름)
+   *     (Planning LLM  →  )
    */
   setCurrentSessionName(name: string): void {
     this.currentSessionName = name;
@@ -736,6 +736,6 @@ export class SessionManager {
 }
 
 /**
- * SessionManager 싱글톤 인스턴스
+ * SessionManager singleton 
  */
 export const sessionManager = new SessionManager();

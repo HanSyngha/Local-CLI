@@ -1,8 +1,8 @@
 /**
  * Background PowerShell Tool (Native Windows Only)
  *
- * 백그라운드에서 PowerShell 프로세스를 실행하고 관리하는 도구
- * npm run dev, npm start 등 장시간 실행되는 명령어에 유용
+ *  PowerShell    
+ * npm run dev, npm start     
  */
 
 import { spawn, ChildProcess } from 'child_process';

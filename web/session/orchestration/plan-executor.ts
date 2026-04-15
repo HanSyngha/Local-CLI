@@ -1,10 +1,10 @@
 /**
  * Plan Executor
  *
- * Plan & Execute 워크플로우의 핵심 비즈니스 로직
- * React 의존성 없이 순수 로직만 포함
+ * Plan & Execute    
+ * React     
  *
- * 모든 실행은 Planning 기반 (Direct Mode 제거됨)
+ *   Planning  (Direct Mode )
  */
 
 import { Message, TodoItem } from '../types/index.js';
@@ -85,8 +85,8 @@ function buildSystemPrompt(): string {
 /**
  * Plan Executor
  *
- * 모든 요청을 Planning 기반으로 실행
- * chatCompletionWithTools가 내부적으로 tool loop를 처리하므로 외부 루프 불필요
+ *   Planning  
+ * chatCompletionWithTools  tool loop    
  */
 export class PlanExecutor {
 
@@ -96,8 +96,8 @@ export class PlanExecutor {
   }
 
   /**
-   * Plan Mode 실행 (TODO 기반 실행)
-   * 병렬로 Planning과 Docs Search Decision을 수행
+   * Plan Mode  (TODO  )
+   *  Planning Docs Search Decision 
    */
   async executePlanMode(
     userMessage: string,
@@ -263,24 +263,24 @@ export class PlanExecutor {
       callbacks.setCurrentActivity(activeTodo?.title || 'Working on tasks');
 
       // Build rebuildMessages callback for per-iteration message reconstruction
-      // 매 LLM 호출마다 [system, user(<CURRENT_TASK> + <CONVERSATION_HISTORY> + <CURRENT_REQUEST>)] 형태로 재구성
+      //  LLM  [system, user(<CURRENT_TASK> + <CONVERSATION_HISTORY> + <CURRENT_REQUEST>)]  
       const systemPrompt = buildSystemPrompt();
       const hasVision = toolRegistry.isToolGroupEnabled('vision');
       const criticalReminders = getCriticalReminders(hasVision, process.cwd(), undefined);
       let baseHistory: Message[] = [...historyBeforeExecution, { role: 'assistant' as const, content: planMessage }];
 
       const rebuildMessages = (toolLoopMessages: Message[]): Message[] => {
-        // userMessage를 history 흐름에 포함 (원래 요청이 사라지지 않도록)
+        // userMessage history   (won   )
         const allMessages = [...baseHistory, { role: 'user' as const, content: userMessage }, ...toolLoopMessages];
 
-        // HISTORY = 마지막 메시지 제외, CURRENT_REQUEST = 마지막 메시지
+        // HISTORY =   , CURRENT_REQUEST =  
         const historyMessages = allMessages.slice(0, -1);
         const lastMsg = allMessages[allMessages.length - 1]!; // allMessages always has at least userMessage
         const lastContent = typeof lastMsg.content === 'string' ? lastMsg.content : JSON.stringify(lastMsg.content);
         const lastTag = lastMsg.role === 'tool' ? '[TOOL_RESULT]' : lastMsg.role === 'user' ? '[USER]' : `[${lastMsg.role.toUpperCase()}]`;
 
         const historyText = flattenMessagesToHistory(historyMessages);
-        const todoContext = buildTodoContext(currentTodos); // 항상 최신 TODO 상태
+        const todoContext = buildTodoContext(currentTodos); //   TODO 
 
         let userContent = '';
         if (todoContext) {
@@ -301,7 +301,7 @@ export class PlanExecutor {
       const messagesForLLM = rebuildMessages([]);
 
       // LLM call with per-iteration message rebuilding
-      // 매 tool loop iteration마다 rebuildMessages가 호출되어 최신 TODO + history로 재구성
+      //  tool loop iteration rebuildMessages   TODO + history 
       const result = await llmClient.chatCompletionWithTools(messagesForLLM, tools, {
         getPendingMessage: callbacks.getPendingMessage,
         clearPendingMessage: callbacks.clearPendingMessage,
@@ -391,13 +391,13 @@ export class PlanExecutor {
         return;
       }
 
-      // LLM 확장 retry 전부 실패 → retryPending 콜백으로 UI에 알림
+      // LLM  retry   → retryPending  UI 
       if (error instanceof LLMRetryExhaustedError) {
         logger.errorSilent('LLM retry exhausted - notifying user', { error: error.message });
         callbacks.setMessages((prev: Message[]) => {
           const updatedMessages: Message[] = [
             ...prev,
-            { role: 'assistant' as const, content: `LLM 서버가 응답하지 않습니다.\n6회 재시도 + 2분 대기 후에도 실패했습니다.\n\nEnter를 눌러 재시도하세요.` }
+            { role: 'assistant' as const, content: `LLM   .\n6  + 2   .\n\nEnter  .` }
           ];
           sessionManager.autoSaveCurrentSession(updatedMessages);
           return updatedMessages;
@@ -412,7 +412,7 @@ export class PlanExecutor {
       const errorMessage = formatErrorMessage(error);
 
       callbacks.setMessages((prev: Message[]) => {
-        // 에러 보고에 최근 메시지 컨텍스트 업데이트
+        //      
         try { updateRecentMessagesForTelemetry(prev); } catch { /* ignore */ }
         const updatedMessages: Message[] = [
           ...prev,
@@ -431,7 +431,7 @@ export class PlanExecutor {
   }
 
   /**
-   * TODO 실행 재개
+   * TODO  
    */
   async resumeTodoExecution(
     userMessage: string,
@@ -492,17 +492,17 @@ export class PlanExecutor {
       let baseHistory: Message[] = [...messages]; // messages param = history without current userMessage
 
       const rebuildMessages = (toolLoopMessages: Message[]): Message[] => {
-        // userMessage를 history 흐름에 포함 (원래 요청이 사라지지 않도록)
+        // userMessage history   (won   )
         const allMessages = [...baseHistory, { role: 'user' as const, content: userMessage }, ...toolLoopMessages];
 
-        // HISTORY = 마지막 메시지 제외, CURRENT_REQUEST = 마지막 메시지
+        // HISTORY =   , CURRENT_REQUEST =  
         const historyMessages = allMessages.slice(0, -1);
         const lastMsg = allMessages[allMessages.length - 1]!; // allMessages always has at least userMessage
         const lastContent = typeof lastMsg.content === 'string' ? lastMsg.content : JSON.stringify(lastMsg.content);
         const lastTag = lastMsg.role === 'tool' ? '[TOOL_RESULT]' : lastMsg.role === 'user' ? '[USER]' : `[${lastMsg.role.toUpperCase()}]`;
 
         const historyText = flattenMessagesToHistory(historyMessages);
-        const todoContext = buildTodoContext(currentTodos); // 항상 최신 TODO 상태
+        const todoContext = buildTodoContext(currentTodos); //   TODO 
 
         let userContent = '';
         if (todoContext) {
@@ -606,13 +606,13 @@ export class PlanExecutor {
         return;
       }
 
-      // LLM 확장 retry 전부 실패 → retryPending 콜백으로 UI에 알림
+      // LLM  retry   → retryPending  UI 
       if (error instanceof LLMRetryExhaustedError) {
         logger.errorSilent('LLM retry exhausted during resume - notifying user', { error: error.message });
         callbacks.setMessages((prev: Message[]) => {
           const updatedMessages: Message[] = [
             ...prev,
-            { role: 'assistant' as const, content: `LLM 서버가 응답하지 않습니다.\n6회 재시도 + 2분 대기 후에도 실패했습니다.\n\nEnter를 눌러 재시도하세요.` }
+            { role: 'assistant' as const, content: `LLM   .\n6  + 2   .\n\nEnter  .` }
           ];
           sessionManager.autoSaveCurrentSession(updatedMessages);
           return updatedMessages;
@@ -638,8 +638,8 @@ export class PlanExecutor {
   }
 
   /**
-   * Auto Mode 실행 (Planning 기반으로 직접 실행)
-   * 분류 로직 제거됨 - 모든 요청을 Plan Mode로 처리
+   * Auto Mode  (Planning   )
+   *    -   Plan Mode 
    */
   async executeAutoMode(
     userMessage: string,
@@ -659,7 +659,7 @@ export class PlanExecutor {
   }
 
   /**
-   * 대화 압축 수행
+   *   
    */
   async performCompact(
     llmClient: LLMClient,
@@ -730,7 +730,7 @@ export class PlanExecutor {
   }
 
   /**
-   * 자동 압축이 필요한지 확인
+   *    
    */
   shouldAutoCompact(): boolean {
     const model = configManager.getCurrentModel();
@@ -739,7 +739,7 @@ export class PlanExecutor {
   }
 
   /**
-   * 컨텍스트 남은 비율 반환
+   *    return
    */
   getContextRemainingPercent(): number {
     const model = configManager.getCurrentModel();
@@ -749,7 +749,7 @@ export class PlanExecutor {
   }
 
   /**
-   * 컨텍스트 사용 정보 반환
+   *    return
    */
   getContextUsageInfo(): { tokens: number; percent: number } {
     const model = configManager.getCurrentModel();
@@ -762,9 +762,9 @@ export class PlanExecutor {
   }
 
   /**
-   * TODO 콜백 설정 (내부 헬퍼)
-   * write_todos: 전체 목록 교체 방식
-   * final_response: 최종 응답 전달 (모든 TODO 완료 필요)
+   * TODO   ( )
+   * write_todos:    
+   * final_response:    ( TODO  )
    */
   private setupTodoCallbacks(
     currentTodos: TodoItem[],
@@ -779,7 +779,7 @@ export class PlanExecutor {
     // Mutable reference for getTodos callback
     let todosRef = currentTodos;
 
-    // write_todos callback: 전체 목록 교체
+    // write_todos callback:   
     setTodoWriteCallback(async (newTodos: TodoInput[]) => {
       // Cap TODOs at 3 to prevent executor from creating excessive TODOs
       const MAX_WRITE_TODOS = 3;
@@ -817,7 +817,7 @@ export class PlanExecutor {
       updateLocalTodos(updatedTodos);
       callbacks.setTodos([...updatedTodos]);
 
-      // Background auto-sync: 모든 TODO 완료 시 1회만 실행 (fire-and-forget)
+      // Background auto-sync:  TODO   1  (fire-and-forget)
       const allComplete = updatedTodos.length > 0 && updatedTodos.every(t => t.status === 'completed');
       if (allComplete && autoSyncContext) {
         const completedTitles = updatedTodos.map(t => t.title).join(', ');
@@ -848,7 +848,7 @@ export class PlanExecutor {
   }
 
   /**
-   * 자동 압축 체크 및 수행 (내부 헬퍼)
+   *      ( )
    */
   private async checkAndPerformAutoCompact(
     llmClient: LLMClient,
@@ -889,5 +889,5 @@ export class PlanExecutor {
   }
 }
 
-// 싱글톤 인스턴스 (선택적 사용)
+// singleton  ( )
 export const planExecutor = new PlanExecutor();

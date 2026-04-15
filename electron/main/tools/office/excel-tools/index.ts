@@ -1,6 +1,6 @@
 /**
  * Excel Tools - Barrel Export
- * 모든 Excel 도구들을 통합하여 export
+ *  Excel   export
  */
 
 // Sheet builders (high-level, for Create Agent)
@@ -53,7 +53,7 @@ import { excelAddSheetTool, excelRenameSheetTool } from './sheets';
 import type { LLMSimpleTool } from '../../types';
 
 /**
- * 모든 Excel 도구 배열
+ *  Excel  
  */
 export const EXCEL_TOOLS: LLMSimpleTool[] = [
   ...launchTools,

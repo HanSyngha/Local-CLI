@@ -248,7 +248,7 @@ export default function Layout() {
             <button
               onClick={toggleLang}
               className="p-2 rounded-xl hover:bg-[var(--bg-tertiary)]/40 transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              title={i18n.language === 'ko' ? 'English' : '한국어'}
+              title={i18n.language === 'ko' ? 'English' : ''}
             >
               <Languages size={18} />
             </button>

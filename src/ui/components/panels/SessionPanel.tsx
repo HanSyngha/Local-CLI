@@ -63,7 +63,7 @@ export const SessionBrowser: React.FC<SessionBrowserProps> = ({
   if (loading) {
     return (
       <Box borderStyle="single" borderColor="cyan" paddingX={1} flexDirection="column">
-        <Text color="cyan">세션 목록 로딩 중...</Text>
+        <Text color="cyan">   ...</Text>
       </Box>
     );
   }
@@ -72,7 +72,7 @@ export const SessionBrowser: React.FC<SessionBrowserProps> = ({
   if (error) {
     return (
       <Box borderStyle="single" borderColor="red" paddingX={1} flexDirection="column">
-        <Text color="red">세션 로드 실패: {error}</Text>
+        <Text color="red">  : {error}</Text>
         <Text dimColor>Press ESC to cancel</Text>
       </Box>
     );
@@ -82,7 +82,7 @@ export const SessionBrowser: React.FC<SessionBrowserProps> = ({
   if (sessions.length === 0) {
     return (
       <Box borderStyle="single" borderColor="yellow" paddingX={1} flexDirection="column">
-        <Text color="yellow">저장된 세션이 없습니다.</Text>
+        <Text color="yellow">  .</Text>
         <Text dimColor>Press ESC to cancel</Text>
       </Box>
     );

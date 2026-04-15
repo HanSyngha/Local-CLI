@@ -117,7 +117,7 @@ class LLMClient {
   private abortController: AbortController | null = null;
   private isInterrupted: boolean = false;
 
-  /** 카운트다운 콜백 — UI에서 대기 시간 표시용 */
+  /**   — UI    */
   public countdownCallback: ((remainingSeconds: number) => void) | null = null;
 
   /** Default maximum retry attempts (CLI parity) */
@@ -135,7 +135,7 @@ class LLMClient {
 
     if (!endpoint || !model) {
       throw new ValidationError('No endpoint or model configured', undefined, undefined, {
-        userMessage: 'LLM 엔드포인트나 모델이 설정되지 않았습니다. Settings에서 설정해주세요.',
+        userMessage: 'LLM    . Settings .',
       });
     }
 
@@ -364,9 +364,9 @@ class LLMClient {
   }
 
   /**
-   * 카운트다운 대기 (확장 retry Phase 2)
-   * @param totalSeconds 총 대기 시간 (초)
-   * @returns true: 정상 완료, false: 인터럽트됨
+   *   ( retry Phase 2)
+   * @param totalSeconds    ()
+   * @returns true:  , false: 
    */
   private async waitWithCountdown(totalSeconds: number): Promise<boolean> {
     for (let remaining = totalSeconds; remaining > 0; remaining -= 10) {
@@ -555,7 +555,7 @@ class LLMClient {
       const data = await response.json() as LLMResponse;
 
       // Validate response structure (CLI parity)
-      // 502 Bad Gateway: LLM 서버가 유효하지 않은 응답을 반환한 경우 (retry 대상)
+      // 502 Bad Gateway: LLM     return  (retry )
       if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
         logger.errorSilent('Invalid response structure - missing or empty choices array', {
           hasChoices: !!data.choices,
@@ -563,7 +563,7 @@ class LLMClient {
           rawKeys: Object.keys(data || {}),
         });
         throw new APIError(
-          'LLM 응답 형식이 올바르지 않습니다. choices 배열이 없거나 비어있습니다.',
+          'LLM    . choices   .',
           502,
           url
         );
@@ -607,7 +607,7 @@ class LLMClient {
       // User abort (CLI parity)
       if (error instanceof Error && (error.name === 'AbortError' || this.isInterrupted)) {
         this.isInterrupted = false;
-        logger.flow('API 호출 취소됨 (사용자 인터럽트)');
+        logger.flow('API   ( )');
         logger.exit('chatCompletion', { success: false, aborted: true });
         throw new Error('INTERRUPTED');
       }
@@ -628,20 +628,20 @@ class LLMClient {
         });
       }
 
-      // Phase 1 (3회) 실패 → Phase 2 (2분 대기) → Phase 3 (3회 추가 retry)
+      // Phase 1 (3)  → Phase 2 (2 ) → Phase 3 (3  retry)
       if (currentAttempt >= maxRetries && !retryConfig?.disableRetry && !retryConfig?.extendedRetryDone && this.isRetryableError(error)) {
-        logger.warn(`Phase 1 (${maxRetries}회) 실패. 2분 대기 후 Phase 2 시작...`, {
+        logger.warn(`Phase 1 (${maxRetries}) . 2   Phase 2 ...`, {
           error: (error as Error).message,
         });
 
         const waited = await this.waitWithCountdown(120);
         if (!waited) {
-          logger.flow('카운트다운 중 인터럽트 감지');
+          logger.flow('   ');
           this.isInterrupted = false;
           throw new Error('INTERRUPTED');
         }
 
-        logger.warn('Phase 2 (2분 대기) 완료. Phase 3 (3회 추가 retry) 시작...');
+        logger.warn('Phase 2 (2 ) . Phase 3 (3  retry) ...');
         try {
           return await this.chatCompletion(options, {
             maxRetries,
@@ -653,7 +653,7 @@ class LLMClient {
           if (finalError.message === 'INTERRUPTED') {
             throw finalError;
           }
-          logger.errorSilent('Phase 3 (추가 3회) 실패. 최종 LLMRetryExhaustedError throw.', {
+          logger.errorSilent('Phase 3 ( 3) .  LLMRetryExhaustedError throw.', {
             error: finalError.message,
           });
           throw new LLMRetryExhaustedError(finalError);
@@ -873,7 +873,7 @@ class LLMClient {
 
       if (error instanceof Error && (error.name === 'AbortError' || this.isInterrupted)) {
         this.isInterrupted = false;
-        logger.flow('Stream 취소됨 (사용자 인터럽트)');
+        logger.flow('Stream  ( )');
         logger.exit('chatCompletionStream', { success: false, aborted: true });
         throw new Error('INTERRUPTED');
       }

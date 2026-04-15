@@ -93,8 +93,8 @@ export async function executeSlashCommand(
         { name: 'newCount', value: result.newMessageCount }
       );
       const compactMessage = result.success
-        ? `✅ 대화가 압축되었습니다. (${result.originalMessageCount}개 → ${result.newMessageCount}개 메시지)`
-        : `❌ 압축 실패: ${result.error}`;
+        ? `✅  . (${result.originalMessageCount} → ${result.newMessageCount} )`
+        : `❌  : ${result.error}`;
       // Use compacted messages if available, otherwise fall back to original
       const baseMessages = (result.success && result.compactedMessages)
         ? result.compactedMessages
@@ -113,7 +113,7 @@ export async function executeSlashCommand(
       };
     }
     // Fallback if no compact callback
-    const fallbackMessage = '/compact는 interactive mode에서만 사용할 수 있습니다.';
+    const fallbackMessage = '/compact interactive mode   .';
     const updatedMessages = [
       ...context.messages,
       { role: 'assistant' as const, content: fallbackMessage },
@@ -291,7 +291,7 @@ Note: All conversations are automatically saved.
       logger.vars({ name: 'availableSessions', value: sessions.length });
 
       if (sessions.length === 0) {
-        const noSessionMessage = '저장된 세션이 없습니다.';
+        const noSessionMessage = '  .';
         const updatedMessages = [
           ...context.messages,
           { role: 'assistant' as const, content: noSessionMessage },
@@ -320,10 +320,10 @@ Note: All conversations are automatically saved.
         // Fallback to text list (Classic CLI mode)
         const sessionList = sessions.map((session, index) => {
           const date = new Date(session.createdAt).toLocaleDateString('ko-KR');
-          return `${index + 1}. ${session.name} (${session.messageCount}개 메시지, ${date})`;
+          return `${index + 1}. ${session.name} (${session.messageCount} , ${date})`;
         }).join('\n');
 
-        const listMessage = `저장된 세션 목록:\n\n${sessionList}\n\n사용법: /load <번호> 또는 /load <세션ID>`;
+        const listMessage = `  :\n\n${sessionList}\n\n: /load <>  /load <ID>`;
         const updatedMessages = [
           ...context.messages,
           { role: 'assistant' as const, content: listMessage },
@@ -352,7 +352,7 @@ Note: All conversations are automatically saved.
       const sessionData = await sessionManager.loadSession(sessionId);
       if (!sessionData) {
         logger.warn('Session not found', { sessionIdOrIndex });
-        const errorMessage = `세션을 찾을 수 없습니다: ${sessionIdOrIndex}`;
+        const errorMessage = `   : ${sessionIdOrIndex}`;
         const updatedMessages = [
           ...context.messages,
           { role: 'assistant' as const, content: errorMessage },
@@ -382,7 +382,7 @@ Note: All conversations are automatically saved.
       };
     } catch (error) {
       logger.error('Session load failed', error as Error);
-      const errorMessage = `세션 로드 실패: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      const errorMessage = `  : ${error instanceof Error ? error.message : 'Unknown error'}`;
       const updatedMessages = [
         ...context.messages,
         { role: 'assistant' as const, content: errorMessage },

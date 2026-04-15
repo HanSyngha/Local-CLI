@@ -132,7 +132,7 @@ const POWERPOINT_ADD_TEXTBOX_DEFINITION: ToolDefinition = {
         top: { type: 'number', description: 'Top position in points (default: 100)' },
         width: { type: 'number', description: 'Width in points (default: 300)' },
         height: { type: 'number', description: 'Height in points (default: 50)' },
-        font_name: { type: 'string', description: 'Font name (e.g. "맑은 고딕")' },
+        font_name: { type: 'string', description: 'Font name (e.g. " ")' },
         font_size: { type: 'number', description: 'Font size in points' },
         bold: { type: 'boolean', description: 'Bold text' },
         italic: { type: 'boolean', description: 'Italic text' },

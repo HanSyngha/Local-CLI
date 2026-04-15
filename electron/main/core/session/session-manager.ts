@@ -1,8 +1,8 @@
 /**
  * Session Manager for Electron Main Process
- * - 세션 저장/로드/삭제
- * - 채팅 히스토리 관리
- * - 자동 저장 기능
+ * -  //
+ * -   
+ * -   
  * - Atomic writes (write to .tmp then rename) to prevent corruption on crash
  * - Backup (.bak) before each write for crash recovery
  * - Fallback load: try main file, then .bak if corrupted
@@ -36,7 +36,7 @@ import { reportError } from '../telemetry/error-reporter';
  */
 const ERROR_MESSAGE_PATTERNS = [
   /^\[ABORTED BY USER\]$/,
-  /^LLM 서버가 응답하지 않습니다/,
+  /^LLM   /,
   /^Execution error:\n/,
   /^⚠️.*error/i,
   /^Error:/i,
@@ -167,7 +167,7 @@ async function readFileWithFallback(filePath: string): Promise<string> {
 // Types (CLI parity)
 // =============================================================================
 
-// 메시지 타입
+//  
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'tool';
@@ -215,7 +215,7 @@ export interface SessionTodoItem {
   dependencies?: string[];
 }
 
-// 세션 타입
+//  
 export interface Session {
   id: string;
   name: string;
@@ -232,7 +232,7 @@ export interface Session {
   };
 }
 
-// 세션 요약 (목록용)
+//   ()
 export interface SessionSummary {
   id: string;
   name: string;
@@ -252,7 +252,7 @@ class SessionManager {
   private currentSession: Session | null = null;
   private initialized: boolean = false;
   private autoSaveTimer: NodeJS.Timeout | null = null;
-  private autoSaveInterval: number = 30000; // 30초
+  private autoSaveInterval: number = 30000; // 30
 
   // Current log entries and todos for auto-save (CLI parity)
   private currentLogEntries: SessionLogEntry[] = [];
@@ -271,19 +271,19 @@ class SessionManager {
         content: msg.content,
         timestamp: msg.timestamp,
       };
-      // tool_calls가 있으면 포함 (assistant 메시지)
+      // tool_calls   (assistant )
       if (msg.tool_calls && msg.tool_calls.length > 0) {
         normalized.tool_calls = msg.tool_calls;
       }
-      // tool_call_id가 있으면 포함 (tool 메시지)
+      // tool_call_id   (tool )
       if (msg.tool_call_id) {
         normalized.tool_call_id = msg.tool_call_id;
       }
-      // name이 있으면 포함 (tool 메시지)
+      // name   (tool )
       if (msg.name) {
         normalized.name = msg.name;
       }
-      // metadata가 있으면 포함
+      // metadata  
       if (msg.metadata) {
         normalized.metadata = msg.metadata;
       }
@@ -442,19 +442,19 @@ class SessionManager {
   }
 
   /**
-   * 세션 디렉토리 경로 반환
+   *    return
    */
   getSessionsDirectory(): string {
     return this.sessionsDir;
   }
 
   /**
-   * 초기화
+   * 
    */
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    // Sessions 디렉토리 경로 설정 (Windows: %APPDATA%\local-bot\sessions)
+    // Sessions    (Windows: %APPDATA%\local-bot\sessions)
     const electronApp = getElectronApp();
     const baseDir = process.platform === 'win32'
       ? path.join(process.env.APPDATA || (electronApp?.getPath('userData') ?? path.join(os.homedir(), '.local-bot')), 'local-bot')
@@ -465,7 +465,7 @@ class SessionManager {
       sessionsDir: this.sessionsDir,
     });
 
-    // Sessions 디렉토리 생성
+    // Sessions  
     await this.ensureSessionsDirectory();
 
     this.initialized = true;
@@ -473,7 +473,7 @@ class SessionManager {
   }
 
   /**
-   * Sessions 디렉토리 생성
+   * Sessions  
    */
   private async ensureSessionsDirectory(): Promise<void> {
     try {
@@ -485,14 +485,14 @@ class SessionManager {
   }
 
   /**
-   * 세션 파일 경로 생성
+   *    
    */
   private getSessionPath(sessionId: string): string {
     return path.join(this.sessionsDir, `${sessionId}.json`);
   }
 
   /**
-   * 새 세션 생성
+   *   
    */
   async createSession(name?: string, workingDirectory?: string): Promise<Session> {
     const id = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -514,10 +514,10 @@ class SessionManager {
       },
     };
 
-    // 저장
+    // 
     await this.saveSession(session);
 
-    // 현재 세션으로 설정
+    //   
     this.currentSession = session;
     this.startAutoSave();
 
@@ -535,7 +535,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 저장
+   *  
    */
   async saveSession(session: Session): Promise<boolean> {
     try {
@@ -573,7 +573,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 로드
+   *  
    */
   async loadSession(sessionId: string): Promise<Session | null> {
     try {
@@ -600,7 +600,7 @@ class SessionManager {
         this.currentTodos = [];
       }
 
-      // 현재 세션으로 설정
+      //   
       this.currentSession = session;
       this.startAutoSave();
 
@@ -619,7 +619,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 삭제
+   *  
    */
   async deleteSession(sessionId: string): Promise<boolean> {
     try {
@@ -628,7 +628,7 @@ class SessionManager {
       // Also clean up backup file
       await fs.promises.unlink(filePath + '.bak').catch(() => {});
 
-      // 현재 세션이면 해제
+      //   
       if (this.currentSession?.id === sessionId) {
         this.currentSession = null;
         this.stopAutoSave();
@@ -644,7 +644,7 @@ class SessionManager {
   }
 
   /**
-   * 모든 세션 목록 가져오기
+   *    
    */
   async listSessions(): Promise<SessionSummary[]> {
     try {
@@ -659,7 +659,7 @@ class SessionManager {
           const content = await fs.promises.readFile(filePath, 'utf-8');
           const session = JSON.parse(content) as Session;
 
-          // 마지막 메시지 미리보기
+          //   
           const lastMessage = session.messages[session.messages.length - 1];
           const preview = lastMessage
             ? lastMessage.content.slice(0, 100) + (lastMessage.content.length > 100 ? '...' : '')
@@ -680,7 +680,7 @@ class SessionManager {
         }
       }
 
-      // 최신순 정렬
+      //  
       sessions.sort((a, b) => b.updatedAt - a.updatedAt);
 
       return sessions;
@@ -692,14 +692,14 @@ class SessionManager {
   }
 
   /**
-   * 현재 세션 가져오기
+   *   
    */
   getCurrentSession(): Session | null {
     return this.currentSession;
   }
 
   /**
-   * 현재 세션 설정
+   *   
    */
   setCurrentSession(session: Session | null): void {
     this.currentSession = session;
@@ -711,7 +711,7 @@ class SessionManager {
   }
 
   /**
-   * 메시지 추가
+   *  
    */
   async addMessage(message: ChatMessage): Promise<boolean> {
     if (!this.currentSession) {
@@ -726,7 +726,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 이름 변경
+   *   
    */
   async renameSession(sessionId: string, newName: string): Promise<boolean> {
     try {
@@ -743,7 +743,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 복제
+   *  
    */
   async duplicateSession(sessionId: string): Promise<Session | null> {
     try {
@@ -751,7 +751,7 @@ class SessionManager {
       if (!original) return null;
 
       const newSession = await this.createSession(
-        `${original.name} (복사본)`,
+        `${original.name} ()`,
         original.workingDirectory
       );
 
@@ -767,7 +767,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 내보내기 (JSON)
+   *   (JSON)
    */
   async exportSession(sessionId: string): Promise<string | null> {
     try {
@@ -783,15 +783,15 @@ class SessionManager {
   }
 
   /**
-   * 세션 가져오기 (JSON)
+   *   (JSON)
    */
   async importSession(jsonData: string): Promise<Session | null> {
     try {
       const data = JSON.parse(jsonData) as Session;
 
-      // 새 ID 생성 (중복 방지)
+      //  ID  ( )
       data.id = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      data.name = `${data.name} (가져옴)`;
+      data.name = `${data.name} ()`;
       data.updatedAt = Date.now();
 
       await this.saveSession(data);
@@ -804,7 +804,7 @@ class SessionManager {
   }
 
   /**
-   * 자동 저장 시작
+   *   
    */
   private startAutoSave(): void {
     this.stopAutoSave();
@@ -817,7 +817,7 @@ class SessionManager {
   }
 
   /**
-   * 자동 저장 중지
+   *   
    */
   private stopAutoSave(): void {
     if (this.autoSaveTimer) {
@@ -827,7 +827,7 @@ class SessionManager {
   }
 
   /**
-   * 현재 세션 즉시 저장
+   *    
    */
   async saveCurrentSession(): Promise<boolean> {
     if (!this.currentSession) return false;
@@ -835,12 +835,12 @@ class SessionManager {
   }
 
   /**
-   * 정리 (앱 종료 시)
+   *  (  )
    */
   async cleanup(): Promise<void> {
     this.stopAutoSave();
 
-    // 현재 세션 저장
+    //   
     if (this.currentSession) {
       await this.saveSession(this.currentSession);
     }
@@ -849,7 +849,7 @@ class SessionManager {
   }
 
   /**
-   * 세션 검색
+   *  
    */
   async searchSessions(query: string): Promise<SessionSummary[]> {
     const sessions = await this.listSessions();
@@ -865,7 +865,7 @@ class SessionManager {
   }
 
   /**
-   * UI 상태 저장 (열린 탭 목록 — 앱 재시작 시 복원용)
+   * UI   (   —    won)
    */
   async saveUIState(state: { tabs: string[]; activeTabId: string | null }): Promise<void> {
     if (!this.sessionsDir) return;
@@ -879,7 +879,7 @@ class SessionManager {
   }
 
   /**
-   * UI 상태 로드 (앱 시작 시 이전 탭 복원)
+   * UI   (     won)
    */
   async loadUIState(): Promise<{ tabs: string[]; activeTabId: string | null } | null> {
     if (!this.sessionsDir) return null;
@@ -893,7 +893,7 @@ class SessionManager {
   }
 
   /**
-   * 오래된 세션 정리 (선택적)
+   *    ()
    */
   async cleanupOldSessions(maxAgeDays: number = 30): Promise<number> {
     const sessions = await this.listSessions();
@@ -916,7 +916,7 @@ class SessionManager {
 // Export
 // =============================================================================
 
-// 싱글톤 인스턴스
+// singleton 
 export const sessionManager = new SessionManager();
 
 // Default export for compatibility

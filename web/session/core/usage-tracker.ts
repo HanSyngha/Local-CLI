@@ -1,11 +1,11 @@
 /**
  * Usage Tracker
  *
- * Phase 3: 사용량 추적 기능
- * - 토큰 사용량 추적 (세션/작업 단위 취합)
- * - 세션별/일별/월별 통계
- * - 로컬 파일 저장
- * - 실시간 세션 토큰 추적
+ * Phase 3:   
+ * - Token usage tracking (/task  )
+ * - //monthly 
+ * -   
+ * -    
  */
 
 import * as fs from 'fs';
@@ -15,7 +15,7 @@ import { contextTracker } from './compact/context-tracker.js';
 import type { QuotaInfo } from '../errors/quota.js';
 
 /**
- * 단일 사용 기록
+ *   
  */
 export interface UsageRecord {
   timestamp: string;
@@ -27,7 +27,7 @@ export interface UsageRecord {
 }
 
 /**
- * 일별 사용량 집계
+ *   
  */
 export interface DailyUsage {
   date: string;
@@ -39,7 +39,7 @@ export interface DailyUsage {
 }
 
 /**
- * 전체 사용량 데이터
+ *   
  */
 export interface UsageData {
   records: UsageRecord[];
@@ -52,7 +52,7 @@ export interface UsageData {
 }
 
 /**
- * 사용량 요약
+ *  
  */
 export interface UsageSummary {
   today: DailyUsage | null;
@@ -71,7 +71,7 @@ export interface UsageSummary {
 }
 
 /**
- * 현재 세션/작업 사용량 (실시간 취합용)
+ *  /task  (For real-time aggregation)
  */
 export interface SessionUsage {
   inputTokens: number;
@@ -98,7 +98,7 @@ class UsageTrackerClass {
   private serverQuotaCache: { data: QuotaInfo; timestamp: number } | null = null;
   private readonly QUOTA_CACHE_TTL = 30000; // 30 seconds
 
-  // 현재 세션 사용량 (여러 LLM 호출 취합)
+  //    ( LLM  )
   private currentSession: SessionUsage = {
     inputTokens: 0,
     outputTokens: 0,
@@ -170,9 +170,9 @@ class UsageTrackerClass {
   }
 
   /**
-   * Record token usage (개별 LLM 호출마다)
-   * - 현재 세션 사용량 업데이트
-   * - 전체 통계 업데이트
+   * Record token usage ( LLM )
+   * -    
+   * -   
    * @param promptTokens - Optional: last prompt_tokens for context tracking
    */
   recordUsage(
@@ -188,7 +188,7 @@ class UsageTrackerClass {
     const date = timestamp.split('T')[0] || timestamp;
     const totalTokens = inputTokens + outputTokens;
 
-    // 현재 세션 사용량 업데이트 (실시간 취합)
+    //     ( )
     this.currentSession.inputTokens += inputTokens;
     this.currentSession.outputTokens += outputTokens;
     this.currentSession.totalTokens += totalTokens;
@@ -312,7 +312,7 @@ class UsageTrackerClass {
   }
 
   /**
-   * Get current session usage (실시간 취합된 값)
+   * Get current session usage (  )
    */
   getSessionUsage(): SessionUsage {
     return { ...this.currentSession };
@@ -326,7 +326,7 @@ class UsageTrackerClass {
   }
 
   /**
-   * Reset session usage (새 작업 시작 시 호출)
+   * Reset session usage ( task   )
    */
   resetSession(): void {
     logger.flow('Resetting session usage');
@@ -343,7 +343,7 @@ class UsageTrackerClass {
 
   /**
    * Format session usage for status bar display
-   * Claude Code 스타일: "✶ ~ 하는 중… (esc to interrupt · 2m 7s · ↑ 3.6k tokens)"
+   * Claude Code : "✶ ~  … (esc to interrupt · 2m 7s · ↑ 3.6k tokens)"
    */
   formatSessionStatus(currentActivity?: string): string {
     const elapsed = this.getSessionElapsedSeconds();
@@ -371,7 +371,7 @@ class UsageTrackerClass {
     }
 
     // Build status string
-    const activity = currentActivity || '처리 중';
+    const activity = currentActivity || ' ';
     return `✶ ${activity}… (esc to interrupt · ${timeStr} · ↑ ${tokenStr} tokens)`;
   }
 
@@ -384,36 +384,36 @@ class UsageTrackerClass {
     const summary = this.getSummary();
     const lines: string[] = [];
 
-    lines.push('📊 사용량 통계');
+    lines.push('📊  ');
     lines.push('');
 
     // Today
-    lines.push('📅 오늘');
+    lines.push('📅 ');
     if (summary.today) {
-      lines.push(`   요청: ${summary.today.requestCount}회`);
-      lines.push(`   입력 토큰: ${summary.today.totalInputTokens.toLocaleString()}`);
-      lines.push(`   출력 토큰: ${summary.today.totalOutputTokens.toLocaleString()}`);
-      lines.push(`   총 토큰: ${summary.today.totalTokens.toLocaleString()}`);
+      lines.push(`   : ${summary.today.requestCount}`);
+      lines.push(`    : ${summary.today.totalInputTokens.toLocaleString()}`);
+      lines.push(`    : ${summary.today.totalOutputTokens.toLocaleString()}`);
+      lines.push(`    : ${summary.today.totalTokens.toLocaleString()}`);
     } else {
-      lines.push('   사용 기록 없음');
+      lines.push('     ');
     }
     lines.push('');
 
     // This month
-    lines.push('📆 이번 달');
-    lines.push(`   요청: ${summary.thisMonth.totalRequests.toLocaleString()}회`);
-    lines.push(`   총 토큰: ${summary.thisMonth.totalTokens.toLocaleString()}`);
-    lines.push(`   활성 일수: ${summary.thisMonth.days}일`);
+    lines.push('📆  ');
+    lines.push(`   : ${summary.thisMonth.totalRequests.toLocaleString()}`);
+    lines.push(`    : ${summary.thisMonth.totalTokens.toLocaleString()}`);
+    lines.push(`    : ${summary.thisMonth.days}`);
     lines.push('');
 
     // All time
-    lines.push('📈 전체');
-    lines.push(`   총 요청: ${summary.allTime.totalRequests.toLocaleString()}회`);
-    lines.push(`   입력 토큰: ${summary.allTime.totalInputTokens.toLocaleString()}`);
-    lines.push(`   출력 토큰: ${summary.allTime.totalOutputTokens.toLocaleString()}`);
-    lines.push(`   총 토큰: ${summary.allTime.totalTokens.toLocaleString()}`);
+    lines.push('📈 ');
+    lines.push(`    : ${summary.allTime.totalRequests.toLocaleString()}`);
+    lines.push(`    : ${summary.allTime.totalInputTokens.toLocaleString()}`);
+    lines.push(`    : ${summary.allTime.totalOutputTokens.toLocaleString()}`);
+    lines.push(`    : ${summary.allTime.totalTokens.toLocaleString()}`);
     if (summary.allTime.firstUsed) {
-      lines.push(`   최초 사용: ${summary.allTime.firstUsed}`);
+      lines.push(`    : ${summary.allTime.firstUsed}`);
     }
 
     logger.exit('UsageTracker.formatUsageDisplay');

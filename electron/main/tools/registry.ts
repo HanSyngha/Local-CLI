@@ -1,13 +1,13 @@
 /**
  * Tool Registry
  *
- * 도구 중앙 등록 시스템
- * 모든 도구를 카테고리별로 등록하고 관리
+ *    
+ *     
  *
  * CLI parity: src/tools/registry.ts
  *
  * Features:
- * - Multi-category registration (한 도구가 여러 카테고리에 등록 가능)
+ * - Multi-category registration (     )
  * - Type-safe tool retrieval
  * - LLM tool definitions export
  * - Optional tools with enable/disable support

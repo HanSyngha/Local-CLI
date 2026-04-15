@@ -1,8 +1,8 @@
 /**
  * Jarvis Command
  *
- * CLI에서 Electron Jarvis에 명령을 전달하고 결과를 받는 서브커맨드.
- * `local-cli jarvis "오늘 할 일 정리해줘"` → Jarvis에서 실행 → stdout에 결과
+ * CLI Electron Jarvis     .
+ * `local-cli jarvis "   "` → Jarvis  → stdout 
  */
 
 import chalk from 'chalk';
@@ -16,12 +16,12 @@ function log(msg: string): void {
 export async function runJarvisCommand(prompt: string, specific: boolean): Promise<void> {
   const client = new ElectronClient(CLI_SERVER_PORT);
 
-  // Electron 실행 확인
+  // Electron  
   if (!await client.isRunning()) {
-    if (specific) log(chalk.dim('Electron 앱 시작 중...'));
+    if (specific) log(chalk.dim('Electron   ...'));
     try {
       await client.startElectron();
-      if (specific) log(chalk.dim('Electron 앱 시작됨'));
+      if (specific) log(chalk.dim('Electron  '));
     } catch (error) {
       console.error(chalk.red(error instanceof Error ? error.message : String(error)));
       process.exit(1);
@@ -49,7 +49,7 @@ function handleSSEEvent(event: SSEEvent): void {
   switch (event.event) {
     case 'status': {
       const phase = data['phase'] as string;
-      if (phase === 'starting') log(chalk.yellow('\n[Jarvis] 분석 중...'));
+      if (phase === 'starting') log(chalk.yellow('\n[Jarvis]  ...'));
       if (phase === 'complete') log(chalk.dim('\n[Complete]'));
       break;
     }

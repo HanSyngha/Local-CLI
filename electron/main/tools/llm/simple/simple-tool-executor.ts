@@ -1,8 +1,8 @@
 /**
  * Simple Tool Executor
  *
- * LLM Simple Tools의 실행 및 콜백 관리
- * UI 통합을 위한 다양한 이벤트 콜백 제공
+ * LLM Simple Tools    
+ * UI      
  *
  * CLI parity: src/tools/llm/simple/simple-tool-executor.ts
  */

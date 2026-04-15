@@ -27,18 +27,18 @@ interface CustomToolDraft {
 }
 
 const toolDescriptions: Record<string, { label: string; desc: string }> = {
-  bash: { label: '명령어 실행', desc: '터미널 명령어를 실행합니다 (ls, cat, grep 등)' },
-  read_file: { label: '파일 읽기', desc: '파일 내용을 읽어옵니다' },
-  create_file: { label: '파일 만들기', desc: '새 파일을 생성합니다' },
-  edit_file: { label: '파일 수정', desc: '기존 파일을 수정합니다' },
-  list_directory: { label: '폴더 목록', desc: '폴더 내 파일 목록을 조회합니다' },
-  search_files: { label: '파일 검색', desc: '파일 내용에서 텍스트를 검색합니다' },
-  search_request: { label: '웹 검색', desc: '웹에서 정보를 검색합니다' },
-  bash_background: { label: '백그라운드 실행', desc: '장시간 명령어를 백그라운드에서 실행합니다' },
-  tell_to_user: { label: '메시지 전달', desc: '사용자에게 메시지를 보냅니다' },
-  ask_to_user: { label: '질문하기', desc: '사용자에게 질문합니다' },
-  final_response: { label: '최종 응답', desc: '작업 완료 후 결과를 전달합니다' },
-  write_todos: { label: '할일 관리', desc: '작업 목록을 관리합니다' },
+  bash: { label: ' ', desc: '   (ls, cat, grep )' },
+  read_file: { label: ' ', desc: '  ' },
+  create_file: { label: ' ', desc: '  ' },
+  edit_file: { label: ' ', desc: '  ' },
+  list_directory: { label: ' ', desc: '    ' },
+  search_files: { label: ' ', desc: '   ' },
+  search_request: { label: ' ', desc: '  ' },
+  bash_background: { label: ' ', desc: '   ' },
+  tell_to_user: { label: ' ', desc: '  ' },
+  ask_to_user: { label: '', desc: ' ' },
+  final_response: { label: ' ', desc: 'task    ' },
+  write_todos: { label: ' ', desc: 'task  ' },
 };
 
 const builtinTools: { id: string; name: string; icon: LucideIcon; desc: string; category: string }[] = [
@@ -51,9 +51,9 @@ const builtinTools: { id: string; name: string; icon: LucideIcon; desc: string; 
 ];
 const toolCategories = [...new Set(builtinTools.map((t) => t.category))];
 const promptTemplates = [
-  { label: '코드 리뷰어', value: '당신은 코드 리뷰 전문가입니다. 코드의 품질, 보안, 성능을 분석하고 개선점을 제안하세요.' },
-  { label: '문서 작성자', value: '당신은 기술 문서 작성 전문가입니다. 명확하고 구조적인 문서를 작성하세요.' },
-  { label: '데이터 분석가', value: '당신은 데이터 분석 전문가입니다. 파일을 분석하고 인사이트를 도출하세요.' },
+  { label: ' ', value: '   .  , ,    .' },
+  { label: ' ', value: '    .    .' },
+  { label: ' ', value: '   .    .' },
   { label: 'DevOps', value: 'You are a DevOps specialist. Help with CI/CD, Docker, Kubernetes, and infrastructure tasks.' },
 ];
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE'] as const;
@@ -423,14 +423,14 @@ export default function AgentBuilder() {
 
           {tab === 'prompt' && (
             <div className="space-y-4">
-              <p className="text-sm text-[var(--text-secondary)]">AI가 항상 따를 기본 규칙을 작성하세요. 비워두면 기본 설정을 사용합니다.</p>
+              <p className="text-sm text-[var(--text-secondary)]">AI     .    .</p>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-medium text-[var(--text-secondary)]">템플릿:</span>
+                <span className="text-xs font-medium text-[var(--text-secondary)]">:</span>
                 {promptTemplates.map((tpl) => (<button key={tpl.label} onClick={() => setAgent({ ...agent, systemPrompt: tpl.value })} className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">{tpl.label}</button>))}
               </div>
               <div className="rounded-xl border border-[var(--border)] overflow-hidden">
                 <div className="px-4 py-2 bg-[var(--bg-tertiary)]/50 border-b border-[var(--border)] flex items-center justify-between">
-                  <span className="text-xs font-medium text-[var(--text-secondary)]">AI 기본 지시사항</span>
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">AI  </span>
                   <span className={clsx('text-xs font-mono', promptColor)}>{promptLen} {t('agent.chars')}</span>
                 </div>
                 <textarea className="w-full px-4 py-3 bg-[#0d1117] text-[var(--text-primary)] font-mono text-sm leading-relaxed resize-none outline-none min-h-[280px]" value={agent.systemPrompt} onChange={(e) => setAgent({ ...agent, systemPrompt: e.target.value })} placeholder={t('agent.systemPromptHint')} spellCheck={false} />

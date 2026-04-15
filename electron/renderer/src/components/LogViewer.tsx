@@ -1,10 +1,10 @@
 /**
  * LogViewer Component
- * - Linux CLI 스타일 로그 뷰어
- * - 실시간 로그 스트리밍
- * - 로그 레벨별 필터링/검색
- * - 로그 카테고리별 필터링
- * - 로그 파일 관리 (열기/다운로드/삭제)
+ * - Linux CLI   
+ * -   
+ * -   /
+ * -   
+ * -    (//)
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -12,11 +12,11 @@ import type { LogEntry, LogCategory } from '../../../preload/index';
 import { useTranslation } from '../i18n/LanguageContext';
 import './LogViewer.css';
 
-// 로그 레벨 정의
+//   
 const LOG_LEVELS = ['DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'] as const;
 type LogLevelName = typeof LOG_LEVELS[number];
 
-// 로그 카테고리 정의 (description은 번역 키)
+//    (description  )
 const LOG_CATEGORIES: { id: LogCategory; label: string; descKey: string; color: string }[] = [
   { id: 'all', label: 'All', descKey: 'log.cat.all', color: '#8b5cf6' },
   { id: 'chat', label: 'Chat', descKey: 'log.cat.chat', color: '#10b981' },
@@ -30,14 +30,14 @@ const LOG_CATEGORIES: { id: LogCategory; label: string; descKey: string; color: 
 ];
 
 /**
- * 메시지에서 카테고리 감지
- * 메시지 prefix 및 키워드를 분석하여 카테고리 결정
+ *   
+ *  prefix     
  *
- * json-stream-logger.ts의 StreamLogEntry.type과 매핑:
+ * json-stream-logger.ts StreamLogEntry.type :
  * - chat: user_input, assistant_response
  * - tool: tool_call, tool_start, tool_end, todo_update, planning_start, planning_end
  * - http: server_request, server_response, http_event
- * - llm: (LLM API 관련)
+ * - llm: (LLM API )
  * - ui: ui_interaction, component_lifecycle, screen_change, form_event, modal_event,
  *       loading_event, animation_event, layout_event
  * - system: system_message, ipc_event, window_event, system_event, update_event, session_event
@@ -46,7 +46,7 @@ const LOG_CATEGORIES: { id: LogCategory; label: string; descKey: string; color: 
 function detectCategory(message: string, level: string): LogCategory {
   const msg = message.toLowerCase();
 
-  // SubAgent 카테고리: 모든 서브에이전트 (Office, Browser, Desktop Control 등) — 최상위 우선 매칭
+  // SubAgent :  agent (Office, Browser, Desktop Control ) —   
   if (msg.includes('[subagent:') || msg.includes('[subagent]') ||
       msg.includes('sub-agent') || msg.includes('subagent[') ||
       // Desktop Control
@@ -67,7 +67,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'subagent';
   }
 
-  // Chat 카테고리: 사용자 입력, 어시스턴트 응답
+  // Chat :  ,  
   if (msg.includes('[chat]') || msg.includes('[user]') || msg.includes('[assistant]') ||
       msg.includes('user message') || msg.includes('assistant response') ||
       msg.includes('user input') || msg.includes('send message') ||
@@ -76,7 +76,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'chat';
   }
 
-  // Tool 카테고리: 도구 실행
+  // Tool :  
   if (msg.includes('[tool]') || msg.includes('[bash]') || msg.includes('[read]') ||
       msg.includes('[write]') || msg.includes('[edit]') || msg.includes('[glob]') ||
       msg.includes('[grep]') || msg.includes('tool:') || msg.includes('tool execution') ||
@@ -89,7 +89,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'tool';
   }
 
-  // HTTP 카테고리: HTTP 요청/응답
+  // HTTP : HTTP /
   if (msg.includes('[http]') || msg.includes('[request]') || msg.includes('[response]') ||
       msg.includes('http request') || msg.includes('http response') ||
       msg.includes('fetch') || msg.includes('api call') ||
@@ -101,7 +101,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'http';
   }
 
-  // LLM 카테고리: LLM API
+  // LLM : LLM API
   if (msg.includes('[llm]') || msg.includes('[api]') || msg.includes('[openai]') ||
       msg.includes('llm request') || msg.includes('llm response') ||
       msg.includes('completion') || msg.includes('model:') ||
@@ -114,7 +114,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'llm';
   }
 
-  // UI 카테고리: UI 컴포넌트
+  // UI : UI 
   if (msg.includes('[ui]') || msg.includes('[component]') || msg.includes('[render]') ||
       msg.includes('[modal]') || msg.includes('[form]') || msg.includes('[dialog]') ||
       msg.includes('[loading]') || msg.includes('[animation]') || msg.includes('[layout]') ||
@@ -134,7 +134,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'ui';
   }
 
-  // System 카테고리: 시스템 관련
+  // System :  
   if (msg.includes('[system]') || msg.includes('[session]') || msg.includes('[config]') ||
       msg.includes('[update]') || msg.includes('[window]') || msg.includes('[ipc]') ||
       msg.includes('[preload]') || msg.includes('[main]') || msg.includes('[app]') ||
@@ -152,7 +152,7 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'system';
   }
 
-  // Debug 카테고리: 디버그 로그
+  // Debug :  
   if (level === 'DEBUG' || msg.includes('[debug]') || msg.includes('debug:') ||
       msg.includes('[vars]') || msg.includes('[flow]') || msg.includes('[enter]') ||
       msg.includes('[exit]') || msg.includes('[state]') || msg.includes('[timer]') ||
@@ -160,17 +160,17 @@ function detectCategory(message: string, level: string): LogCategory {
     return 'debug';
   }
 
-  // 기본값: 레벨에 따라 결정
-  // ERROR, FATAL, WARN은 system으로
+  // :   
+  // ERROR, FATAL, WARN system
   if (level === 'ERROR' || level === 'FATAL' || level === 'WARN') {
     return 'system';
   }
 
-  // INFO는 content 분석 후 기본값으로 system
+  // INFO content    system
   return 'system';
 }
 
-// 로그 레벨 색상 (Linux CLI 스타일)
+//    (Linux CLI )
 const LOG_LEVEL_COLORS: Record<LogLevelName, string> = {
   DEBUG: '#6b7280',   // gray
   INFO: '#38BDF8',    // sky blue
@@ -179,7 +179,7 @@ const LOG_LEVEL_COLORS: Record<LogLevelName, string> = {
   FATAL: '#dc2626',   // dark red
 };
 
-// 로그 레벨 아이콘
+//   
 const LOG_LEVEL_ICONS: Record<LogLevelName, string> = {
   DEBUG: '[D]',
   INFO: '[I]',
@@ -197,7 +197,7 @@ interface LogViewerProps {
 const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
   const { t } = useTranslation();
 
-  // 상태
+  // 
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -205,22 +205,22 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
   // Current Run log state
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
 
-  // 필터 상태
+  //  
   const [searchQuery, setSearchQuery] = useState('');
   const [levelFilter, setLevelFilter] = useState<Set<LogLevelName>>(new Set(LOG_LEVELS));
-  const [categoryFilter, setCategoryFilter] = useState<LogCategory>('all'); // 카테고리 필터
+  const [categoryFilter, setCategoryFilter] = useState<LogCategory>('all'); //  
   const [showTimestamp, setShowTimestamp] = useState(true);
   const [autoScroll, setAutoScroll] = useState(true);
   const [wrapLines, setWrapLines] = useState(false);
 
-  // 현재 로그 레벨
+  //   
   const [currentLogLevel, setCurrentLogLevel] = useState(1); // INFO
 
   // Refs
   const logContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Current Run 로그 엔트리 로드
+  // Current Run   
   const loadCurrentRunLogEntries = useCallback(async () => {
     if (!window.electronAPI?.log?.readCurrentRunLog) {
       setError('Current run log API not available');
@@ -244,7 +244,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     }
   }, []);
 
-  // Current Run ID 로드
+  // Current Run ID 
   const loadCurrentRunId = useCallback(async () => {
     if (!window.electronAPI?.log?.getCurrentRunId) {
       return;
@@ -260,7 +260,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     }
   }, []);
 
-  // 모든 로그 삭제
+  //   
   const clearAllLogs = useCallback(async () => {
     const confirmed = window.confirm(t('log.clearAllConfirm'));
     if (!confirmed) return;
@@ -278,11 +278,11 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     }
   }, []);
 
-  // 클립보드에 로그 복사 (복사 전 최신 로그 다시 로드)
+  //    (     )
   const [copySuccess, setCopySuccess] = useState(false);
   const copyLogsToClipboard = useCallback(async () => {
     try {
-      // 최신 로그를 다시 읽어서 복사 (stale 데이터 방지)
+      //      (stale  )
       const result = await window.electronAPI.log.readCurrentRunLog();
       const freshEntries = result.success && result.entries ? result.entries : logEntries;
 
@@ -306,18 +306,18 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     }
   }, [logEntries]);
 
-  // 로그 폴더 열기
+  //   
   const openLogDirectory = useCallback(async () => {
     await window.electronAPI.log.openDirectory();
   }, []);
 
-  // 로그 레벨 설정
+  //   
   const setLogLevel = useCallback(async (level: number) => {
     await window.electronAPI.log.setLevel(level);
     setCurrentLogLevel(level);
   }, []);
 
-  // 초기화 - isVisible이 true가 될 때마다 로그 자동 로드
+  //  - isVisible true     
   useEffect(() => {
     if (isVisible) {
       loadCurrentRunId();
@@ -328,27 +328,27 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
 
   // Streaming event subscription removed - File mode only
 
-  // 자동 스크롤
+  //  
   useEffect(() => {
     if (autoScroll && logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [logEntries, autoScroll]);
 
-  // 현재 표시할 로그 엔트리 (File mode only)
+  //     (File mode only)
   const displayEntries = useMemo(() => {
     return logEntries.filter(entry => {
-      // 레벨 필터
+      //  
       const level = entry.level as LogLevelName;
       if (!levelFilter.has(level)) return false;
 
-      // 카테고리 필터 (all이면 모두 통과)
+      //   (all  )
       if (categoryFilter !== 'all') {
         const entryCategory = entry.category || detectCategory(entry.message, entry.level);
         if (entryCategory !== categoryFilter) return false;
       }
 
-      // 검색 필터
+      //  
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchMessage = entry.message.toLowerCase().includes(query);
@@ -360,7 +360,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     });
   }, [logEntries, levelFilter, categoryFilter, searchQuery]);
 
-  // 레벨 필터 토글
+  //   
   const toggleLevelFilter = useCallback((level: LogLevelName) => {
     setLevelFilter(prev => {
       const newSet = new Set(prev);
@@ -373,7 +373,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     });
   }, []);
 
-  // 모든 레벨 선택/해제
+  //   /
   const _toggleAllLevels = useCallback(() => {
     if (levelFilter.size === LOG_LEVELS.length) {
       setLevelFilter(new Set(['ERROR', 'FATAL']));
@@ -383,7 +383,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
   }, [levelFilter.size]);
   void _toggleAllLevels; // Suppress unused warning
 
-  // 검색 포커스
+  //  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'f' && isVisible) {
@@ -395,7 +395,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isVisible]);
 
-  // 타임스탬프 포맷
+  //  
   const formatTimestamp = useCallback((timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', {
@@ -411,7 +411,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
 
   return (
     <div className="log-viewer">
-      {/* 헤더 */}
+      {/*  */}
       <div className="log-viewer-header">
         <div className="log-viewer-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -449,9 +449,9 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
         </div>
       </div>
 
-      {/* 툴바 */}
+      {/*  */}
       <div className="log-viewer-toolbar">
-        {/* Current Run 표시 */}
+        {/* Current Run  */}
         <div className="log-current-run-info">
           <span className="run-indicator">● {t('log.live')}</span>
           <span className="run-id">{t('log.run')} {currentRunId ? currentRunId.slice(0, 16) : t('common.loading')}</span>
@@ -466,7 +466,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
           </button>
         </div>
 
-        {/* 클립보드 복사 버튼 */}
+        {/*    */}
         <button
           className={`log-action-btn copy-btn ${copySuccess ? 'success' : ''}`}
           onClick={copyLogsToClipboard}
@@ -484,7 +484,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
           {copySuccess ? t('log.copied') : t('log.copyAll')}
         </button>
 
-        {/* 검색 */}
+        {/*  */}
         <div className="log-search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -505,7 +505,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
           )}
         </div>
 
-        {/* 레벨 필터 */}
+        {/*   */}
         <div className="log-level-filters">
           {LOG_LEVELS.map(level => (
             <button
@@ -520,7 +520,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
           ))}
         </div>
 
-        {/* 카테고리 필터 */}
+        {/*   */}
         <div className="log-category-filters">
           {LOG_CATEGORIES.map(cat => (
             <button
@@ -535,7 +535,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
           ))}
         </div>
 
-        {/* 옵션 */}
+        {/*  */}
         <div className="log-options">
           <button
             className={`option-btn ${showTimestamp ? 'active' : ''}`}
@@ -566,7 +566,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
           </button>
         </div>
 
-        {/* 로그 레벨 설정 */}
+        {/*    */}
         <div className="log-level-setting">
           <span>{t('log.level')}</span>
           <select
@@ -582,7 +582,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
         </div>
       </div>
 
-      {/* 에러 메시지 */}
+      {/*   */}
       {error && (
         <div className="log-error">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -593,7 +593,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
         </div>
       )}
 
-      {/* 로그 컨텐츠 */}
+      {/*   */}
       <div
         ref={logContainerRef}
         className={`log-content ${wrapLines ? 'wrap' : ''}`}
@@ -642,7 +642,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ isVisible = true, onClose }) => {
         })}
       </div>
 
-      {/* 푸터 - 통계 */}
+      {/*  -  */}
       <div className="log-viewer-footer">
         <span className="log-count">
           {t('log.entries', { count: String(displayEntries.length) })} {t('log.thisRun')}

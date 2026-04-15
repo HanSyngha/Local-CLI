@@ -1,7 +1,7 @@
 /**
  * Platform Utilities (Web Session — Linux only)
  *
- * Docker 컨테이너에서 실행되므로 항상 native-linux
+ * Docker    native-linux
  */
 
 // ===========================================================================

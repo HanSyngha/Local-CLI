@@ -42,12 +42,12 @@ const COLOR_PRESETS: Record<string, ColorConfig> = {
 };
 
 const FONT_PRESETS: Record<string, FontConfig> = {
-  MODERN_TECH: { title: 'Segoe UI', body: '맑은 고딕' },
-  WARM_EXECUTIVE: { title: 'Georgia', body: '맑은 고딕' },
-  CLEAN_MINIMAL: { title: '맑은 고딕', body: '돋움' },
-  CORPORATE: { title: 'Calibri', body: '맑은 고딕' },
-  NATURE_FRESH: { title: '굴림', body: '맑은 고딕' },
-  BOLD_MODERN: { title: 'Arial Black', body: '맑은 고딕' },
+  MODERN_TECH: { title: 'Segoe UI', body: ' ' },
+  WARM_EXECUTIVE: { title: 'Georgia', body: ' ' },
+  CLEAN_MINIMAL: { title: ' ', body: '' },
+  CORPORATE: { title: 'Calibri', body: ' ' },
+  NATURE_FRESH: { title: '', body: ' ' },
+  BOLD_MODERN: { title: 'Arial Black', body: ' ' },
 };
 
 function resolveColors(args: Record<string, unknown>): ColorConfig {
@@ -65,12 +65,12 @@ function resolveColors(args: Record<string, unknown>): ColorConfig {
   return COLOR_PRESETS[scheme] ?? COLOR_PRESETS['MODERN_TECH']!;
 }
 
-const DEFAULT_FONTS: FontConfig = { title: 'Segoe UI', body: '맑은 고딕' };
+const DEFAULT_FONTS: FontConfig = { title: 'Segoe UI', body: ' ' };
 
 function resolveFonts(args: Record<string, unknown>): FontConfig {
   if (args['fonts'] && typeof args['fonts'] === 'object') {
     const f = args['fonts'] as Record<string, string>;
-    return { title: f['title'] || 'Segoe UI', body: f['body'] || '맑은 고딕' };
+    return { title: f['title'] || 'Segoe UI', body: f['body'] || ' ' };
   }
   if (typeof args['fonts'] === 'string') {
     return FONT_PRESETS[args['fonts']] ?? DEFAULT_FONTS;
@@ -502,7 +502,7 @@ const PPT_BUILD_LAYOUT_C_DEF: ToolDefinition = {
       type: 'object',
       properties: {
         title: { type: 'string', description: 'Slide title' },
-        number: { type: 'string', description: 'The big number to display (e.g., "300%↑", "₩12.5억")' },
+        number: { type: 'string', description: 'The big number to display (e.g., "300%↑", "₩12.5")' },
         label: { type: 'string', description: 'Label below the number' },
         description: { type: 'string', description: 'Explanation text (2-3 sentences)' },
         color_scheme: { type: 'string' },
@@ -877,11 +877,11 @@ const PPT_BUILD_CLOSING_SLIDE_DEF: ToolDefinition = {
   type: 'function',
   function: {
     name: 'ppt_build_closing_slide',
-    description: 'Build a farewell/thank-you closing slide with dark background. ONLY use as the absolute LAST slide before save. Do NOT use for ANY content sections. text parameter: ONLY short farewell like "감사합니다" or "Thank You" (max 15 chars). NEVER put long sentences in text.',
+    description: 'Build a farewell/thank-you closing slide with dark background. ONLY use as the absolute LAST slide before save. Do NOT use for ANY content sections. text parameter: ONLY short farewell like "" or "Thank You" (max 15 chars). NEVER put long sentences in text.',
     parameters: {
       type: 'object',
       properties: {
-        text: { type: 'string', description: 'Main closing text (e.g., "감사합니다", "Thank You")' },
+        text: { type: 'string', description: 'Main closing text (e.g., "", "Thank You")' },
         subtitle: { type: 'string', description: 'Contact info or tagline' },
         color_scheme: { type: 'string' },
         colors: { type: 'object', properties: { primary: { type: 'string' }, accent: { type: 'string' }, light: { type: 'string' }, highlight: { type: 'string' }, sidebar: { type: 'string' } } },
@@ -898,7 +898,7 @@ async function executeBuildClosingSlide(args: Record<string, unknown>): Promise<
     const colors = resolveColors(args);
     const fonts = resolveFonts(args);
     const style = resolveStyle(args);
-    const text = truncate((args['text'] as string) || '감사합니다', 30);
+    const text = truncate((args['text'] as string) || '', 30);
     const subtitle = truncate((args['subtitle'] as string) || '', 150);
 
     const slideNum = await addSlideAndGetNumber();

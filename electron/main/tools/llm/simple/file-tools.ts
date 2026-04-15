@@ -1,10 +1,10 @@
 /**
  * File System Tools (LLM Simple)
  *
- * LLM이 파일 시스템과 상호작용할 수 있는 도구들
+ * LLM      
  * CLI parity: src/tools/llm/simple/file-tools.ts
  *
- * Category: LLM Simple Tools - LLM이 tool_call로 호출, Sub-LLM 없음
+ * Category: LLM Simple Tools - LLM tool_call , Sub-LLM 
  */
 
 import * as fs from 'fs/promises';
@@ -100,7 +100,7 @@ const CORE_CATEGORIES: ToolCategory[] = ['llm-simple'];
 // Working Directory Management
 // =============================================================================
 
-// Portable/설치 경로에서 실행 시 보호된 디렉토리 방지: 홈 디렉토리로 fallback
+// Portable/      :   fallback
 function getSafeInitialCwd(): string {
   const cwd = process.cwd();
   const lower = cwd.toLowerCase();

@@ -1,10 +1,10 @@
 /**
  * Final Response Tool
  *
- * LLM이 최종 응답을 전달할 때 사용하는 도구
- * - 모든 TODO가 완료되어야만 성공
- * - 미완료 TODO가 있으면 에러 반환 (종료 아님, LLM이 다시 시도)
- * - 성공 시 assistant message로 표시
+ * LLM      
+ * -  TODO  
+ * -  TODO   return ( , LLM  )
+ * -   assistant message 
  */
 
 import { LLMSimpleTool, ToolResult, ToolCategory } from '../../types.js';
@@ -13,13 +13,13 @@ import { logger } from '../../../utils/logger.js';
 import { TodoItem } from '../../../types/index.js';
 
 /**
- * TODO 상태 조회 콜백 타입
+ * TODO    
  */
 export type GetTodosCallback = () => TodoItem[];
 
 /**
- * Final response 완료 콜백 타입
- * true 반환 시 실행 종료
+ * Final response   
+ * true return   
  */
 export type FinalResponseCallback = (message: string) => void;
 

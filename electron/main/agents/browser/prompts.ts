@@ -455,10 +455,10 @@ For pricing, specs, benchmarks, or any numerical claims:
 • For calculations (monthly cost, etc.): show the formula explicitly so the user can verify
 
 ═══ QUERY OPTIMIZATION TIPS ═══
-• For pricing: search "GPT-4o API 가격 2025" on Naver — Korean blogs often have the latest pricing tables
+• For pricing: search "GPT-4o API  2025" on Naver — Korean blogs often have the latest pricing tables
 • For recent events: append year from Today's Date to query
 • For academic papers: try "site:arxiv.org" on Google, or search paper title on Naver
-• For comparisons: add "vs" or "비교" to the query
+• For comparisons: add "vs" or "" to the query
 • For Korean-specific info: Naver will have better Korean-language results
 • For English technical content: Google may work (if no CAPTCHA) or use Naver's English results
 

@@ -13,7 +13,7 @@ import { PROJECTS_DIR } from '../constants.js';
 // Flush interval for periodic buffer writes (in milliseconds)
 const FLUSH_INTERVAL_MS = 1000;
 
-// 로그 카테고리 타입
+//   
 export type LogCategory = 'all' | 'chat' | 'tool' | 'http' | 'llm' | 'subagent' | 'ui' | 'system' | 'debug';
 
 export interface StreamLogEntry {
@@ -24,46 +24,46 @@ export interface StreamLogEntry {
     | 'system_message'
     | 'error'
     | 'tool_call'
-    | 'tool_start'      // Tool 실행 시작
-    | 'tool_end'        // Tool 실행 완료
+    | 'tool_start'      // Tool  
+    | 'tool_end'        // Tool  
     | 'todo_update'
-    | 'planning_start'  // Planning 시작
-    | 'planning_end'    // Planning 완료
-    | 'server_request'  // Windows 서버 요청
-    | 'server_response' // Windows 서버 응답
+    | 'planning_start'  // Planning 
+    | 'planning_end'    // Planning 
+    | 'server_request'  // Windows  
+    | 'server_response' // Windows  
     | 'debug'
     | 'info'
     // New log types for comprehensive logging
-    | 'ui_interaction'      // UI 인터랙션 (클릭, 키보드, 스크롤 등)
-    | 'component_lifecycle' // 컴포넌트 라이프사이클 (mount, unmount, render)
-    | 'screen_change'       // 화면/탭/라우트 전환
-    | 'form_event'          // 폼 이벤트 (submit, validation 등)
-    | 'modal_event'         // 모달/다이얼로그/토스트 이벤트
-    | 'loading_event'       // 로딩/스켈레톤/진행률 이벤트
-    | 'animation_event'     // 애니메이션/트랜지션 이벤트
-    | 'layout_event'        // 레이아웃 이벤트 (resize, breakpoint 등)
-    | 'ipc_event'           // IPC 통신 이벤트 (Electron)
-    | 'window_event'        // 윈도우 이벤트 (Electron)
-    | 'system_event'        // 시스템 이벤트 (app ready, quit 등)
-    | 'update_event'        // 자동 업데이트 이벤트
-    | 'session_event'       // 세션 이벤트 (start, end, milestone)
-    | 'http_event';         // HTTP 이벤트 (stream start/end 등)
+    | 'ui_interaction'      // UI  (, ,  )
+    | 'component_lifecycle' //   (mount, unmount, render)
+    | 'screen_change'       // // 
+    | 'form_event'          //   (submit, validation )
+    | 'modal_event'         // // 
+    | 'loading_event'       // // 
+    | 'animation_event'     // / 
+    | 'layout_event'        //   (resize, breakpoint )
+    | 'ipc_event'           // IPC   (Electron)
+    | 'window_event'        //   (Electron)
+    | 'system_event'        //   (app ready, quit )
+    | 'update_event'        //   
+    | 'session_event'       //   (start, end, milestone)
+    | 'http_event';         // HTTP  (stream start/end )
   content: string;
-  category?: LogCategory;  // 로그 카테고리 (파일 분할용)
+  category?: LogCategory;  //   ( )
   metadata?: Record<string, unknown>;
 }
 
 /**
- * 로그 타입에서 카테고리 결정
+ *    
  */
 function getLogCategory(type: StreamLogEntry['type']): LogCategory {
   switch (type) {
-    // Chat 카테고리
+    // Chat 
     case 'user_input':
     case 'assistant_response':
       return 'chat';
 
-    // Tool 카테고리
+    // Tool 
     case 'tool_call':
     case 'tool_start':
     case 'tool_end':
@@ -72,13 +72,13 @@ function getLogCategory(type: StreamLogEntry['type']): LogCategory {
     case 'planning_end':
       return 'tool';
 
-    // HTTP 카테고리
+    // HTTP 
     case 'server_request':
     case 'server_response':
     case 'http_event':
       return 'http';
 
-    // UI 카테고리
+    // UI 
     case 'ui_interaction':
     case 'component_lifecycle':
     case 'screen_change':
@@ -89,7 +89,7 @@ function getLogCategory(type: StreamLogEntry['type']): LogCategory {
     case 'layout_event':
       return 'ui';
 
-    // System 카테고리
+    // System 
     case 'system_message':
     case 'ipc_event':
     case 'window_event':
@@ -99,7 +99,7 @@ function getLogCategory(type: StreamLogEntry['type']): LogCategory {
     case 'error':
       return 'system';
 
-    // Debug 카테고리
+    // Debug 
     case 'debug':
     case 'info':
       return 'debug';
@@ -110,13 +110,13 @@ function getLogCategory(type: StreamLogEntry['type']): LogCategory {
 }
 
 /**
- * 메시지 내용에서 카테고리 재결정
- * 메시지 접두사(prefix)를 분석하여 더 정확한 카테고리 결정
+ *    
+ *  (prefix)     
  */
 function refineCategoryFromContent(category: LogCategory, content: string): LogCategory {
   const msg = content.toLowerCase();
 
-  // SubAgent 관련 메시지는 subagent 카테고리로 (최상위 우선 매칭)
+  // SubAgent   subagent  (  )
   if (msg.includes('[subagent:') || msg.includes('[subagent]') ||
       msg.includes('sub-agent') || msg.includes('subagent[') ||
       msg.includes('[desktop-control]') || msg.includes('desktop control') ||
@@ -134,42 +134,42 @@ function refineCategoryFromContent(category: LogCategory, content: string): LogC
     return 'subagent';
   }
 
-  // LLM 관련 메시지는 llm 카테고리로
+  // LLM   llm 
   if (msg.includes('[llm]') || msg.includes('llm request') || msg.includes('llm response') ||
       msg.includes('llm tool') || msg.includes('completion') || msg.includes('tokens')) {
     return 'llm';
   }
 
-  // HTTP 관련 메시지
+  // HTTP  
   if (msg.includes('[http]') || msg.includes('stream start') || msg.includes('stream end') ||
       msg.includes('stream chunk') || msg.includes('http request') || msg.includes('http response')) {
     return 'http';
   }
 
-  // Tool 관련 메시지
+  // Tool  
   if (msg.includes('[tool]') || msg.includes('[bash]') || msg.includes('[read]') ||
       msg.includes('[write]') || msg.includes('[edit]') || msg.includes('tool execution') ||
       msg.includes('tool result')) {
     return 'tool';
   }
 
-  // UI 관련 메시지
+  // UI  
   if (msg.includes('[ui]') || msg.includes('[component]') || msg.includes('[render]') ||
       msg.includes('[modal]') || msg.includes('[form]') || msg.includes('[loading]')) {
     return 'ui';
   }
 
-  // System 관련 메시지
+  // System  
   if (msg.includes('[system]') || msg.includes('[session]') || msg.includes('[config]') ||
       msg.includes('[update]') || msg.includes('[window]') || msg.includes('[ipc]')) {
     return 'system';
   }
 
-  // 기존 카테고리 유지
+  //   
   return category;
 }
 
-// 카테고리 스트림 정보
+//   
 interface CategoryStreamInfo {
   stream: WriteStream;
   buffer: StreamLogEntry[];
@@ -192,10 +192,10 @@ export class JsonStreamLogger {
   private appendMode = false;
   private verbose = false;
 
-  // 카테고리별 스트림 관리 (파일 분할용)
+  //    ( )
   private categoryStreams: Map<LogCategory, CategoryStreamInfo> = new Map();
-  private enableCategorySplit = true; // 카테고리별 파일 분할 활성화
-  private pendingStreamInits: Set<Promise<void>> = new Set(); // 초기화 중인 스트림 promise 추적
+  private enableCategorySplit = true; //    
+  private pendingStreamInits: Set<Promise<void>> = new Set(); //    promise 
 
   constructor(filePath: string, errorFilePath: string) {
     this.filePath = filePath;
@@ -281,18 +281,18 @@ export class JsonStreamLogger {
 
   /**
    * Initialize category stream (lazy initialization)
-   * 이 메서드는 log()에서 미리 Map에 등록된 후에도 호출될 수 있음
-   * stream이 null인 경우 스트림을 생성하고 기존 info를 업데이트함
+   *   log()  Map     
+   * stream null     info 
    */
   private async initializeCategoryStream(category: LogCategory): Promise<void> {
     if (!this.enableCategorySplit) {
       return;
     }
 
-    // 기존 info 확인 (log()에서 미리 등록했을 수 있음)
+    //  info  (log()    )
     const existingInfo = this.categoryStreams.get(category);
 
-    // 이미 유효한 스트림이 있으면 return
+    //     return
     if (existingInfo && existingInfo.stream && !existingInfo.stream.destroyed) {
       return;
     }
@@ -328,11 +328,11 @@ export class JsonStreamLogger {
         isFirstEntry = true;
       }
 
-      // 기존 info가 있으면 스트림만 업데이트, 없으면 새로 생성
+      //  info   ,   
       if (existingInfo) {
         existingInfo.stream = stream;
         existingInfo.isFirstEntry = isFirstEntry;
-        // filePath는 이미 설정되어 있음
+        // filePath   
       } else {
         this.categoryStreams.set(category, {
           stream,
@@ -383,12 +383,12 @@ export class JsonStreamLogger {
     if (this.enableCategorySplit && entry.category && entry.category !== 'all') {
       const category = entry.category;
 
-      // 스트림이 없으면 먼저 버퍼만 있는 임시 객체를 등록 (스트림은 나중에 초기화)
+      //         (  )
       if (!this.categoryStreams.has(category)) {
-        // 파일 경로 생성
+        //   
         const categoryFilePath = this.filePath.replace('_log.json', `_${category}.json`);
 
-        // 먼저 Map에 등록 (스트림은 null, 버퍼만 준비)
+        //  Map  ( null,  )
         this.categoryStreams.set(category, {
           stream: null as unknown as WriteStream,
           buffer: [],
@@ -396,7 +396,7 @@ export class JsonStreamLogger {
           filePath: categoryFilePath,
         });
 
-        // 비동기로 스트림 초기화 (promise 추적)
+        //    (promise )
         const initPromise = this.initializeCategoryStream(category).catch(err => {
           console.error(chalk.red(`Failed to initialize category stream (${category}):`), err);
         });
@@ -404,7 +404,7 @@ export class JsonStreamLogger {
         initPromise.finally(() => this.pendingStreamInits.delete(initPromise));
       }
 
-      // 이제 항상 streamInfo가 존재함
+      //   streamInfo 
       const streamInfo = this.categoryStreams.get(category);
       if (streamInfo) {
         streamInfo.buffer.push(entry);
@@ -476,7 +476,7 @@ export class JsonStreamLogger {
       }
 
       this.errorStreamInitialized = true;
-      // Silent: 에러 로그 경로 표시하지 않음
+      // Silent:     
     } catch (error) {
       console.error(chalk.red('Failed to initialize error stream:'), error);
     }
@@ -517,8 +517,8 @@ export class JsonStreamLogger {
    */
   private flushCategories(): void {
     for (const [_category, streamInfo] of this.categoryStreams) {
-      // stream이 없거나, writable하지 않거나, 버퍼가 비었으면 skip
-      // stream이 아직 초기화 안됐으면 버퍼가 유지되고, 다음 flush에서 다시 시도
+      // stream , writable ,   skip
+      // stream     ,  flush  
       if (!streamInfo.stream || !streamInfo.stream.writable || streamInfo.buffer.length === 0) {
         continue;
       }
@@ -1169,7 +1169,7 @@ export class JsonStreamLogger {
             console.error(chalk.red('Failed to close error JSON stream:'), error);
             reject(error);
           } else {
-            // Silent: 에러 로그 저장 메시지 표시하지 않음
+            // Silent:      
             resolve();
           }
         });

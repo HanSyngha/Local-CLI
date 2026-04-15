@@ -1,8 +1,8 @@
 /**
  * LLM Simple Tools Index (Web Session)
  *
- * LLM이 tool_call로 호출하는 도구들 (Sub-LLM 없음)
- * Web session: 항상 bash 도구만 사용 (Docker Linux 환경)
+ * LLM tool_call   (Sub-LLM )
+ * Web session:  bash   (Docker Linux )
  */
 
 import { LLMSimpleTool } from '../../types.js';

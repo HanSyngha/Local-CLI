@@ -66,7 +66,7 @@ $word.DisplayAlerts = -1
   ): Promise<OfficeResponse> {
     // Auto-detect Korean text and set appropriate font if not specified
     // Use 'Malgun Gothic' (English name) for compatibility with all Windows language settings
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     let fontName = options?.fontName?.replace(/'/g, "''") || '';
     if (!fontName && hasKorean) {
       fontName = 'Malgun Gothic'; // Korean font (works on all Windows regardless of UI language)
@@ -220,7 +220,7 @@ ${fontName ? `$typedRange.Font.Name = '${fontName}'\n$typedRange.Font.NameFarEas
     const b64Date = this.encodeTextForPowerShell(options.dateText || '');
     const b64Author = this.encodeTextForPowerShell(options.author || '');
 
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(options.title + (options.subtitle || ''));
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(options.title + (options.subtitle || ''));
     const titleFont = (options.fontTitle || (hasKorean ? 'Malgun Gothic' : 'Segoe UI')).replace(/'/g, "''");
     const bodyFont = (options.fontBody || (hasKorean ? 'Malgun Gothic' : 'Segoe UI')).replace(/'/g, "''");
 
@@ -511,7 +511,7 @@ $doc.Hyperlinks.Add($range, '${escapedUrl}', '', '', '${escapedText}')
           const cellValue = row[j];
           if (cellValue === undefined) continue;
           // Check for Korean text in this specific cell
-          const cellHasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(cellValue);
+          const cellHasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(cellValue);
           // Use Base64 encoding for safe Unicode/Korean transfer
           const base64Val = this.encodeTextForPowerShell(cellValue);
           const decodeExpr = `[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${base64Val}'))`;
@@ -623,7 +623,7 @@ $found = $findObj.Execute([ref]'${escapedFind}', [ref]$false, [ref]$false, [ref]
     const fontPreserveScript = preserveKoreanFont ? `
 # Check if selection contains Korean text and preserve font
 $selectedText = $selection.Text
-if ($selectedText -match '[가-힣ㄱ-ㅎㅏ-ㅣ]') {
+if ($selectedText -match '[-ㄱ-ㅎㅏ-ㅣ]') {
   $selection.Font.Name = 'Malgun Gothic'
 }` : '';
 
@@ -685,7 +685,7 @@ ${isBookmark
 
   async wordInsertHeader(text: string, options?: { fontName?: string; fontSize?: number }): Promise<OfficeResponse> {
     // Auto-detect Korean and set font
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const fontName = options?.fontName || (hasKorean ? 'Malgun Gothic' : '');
 
     // Handle newlines
@@ -708,7 +708,7 @@ ${options?.fontSize ? `$header.Font.Size = ${options.fontSize}` : ''}
 
   async wordInsertFooter(text: string, options?: { fontName?: string; fontSize?: number }): Promise<OfficeResponse> {
     // Auto-detect Korean and set font
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const fontName = options?.fontName || (hasKorean ? 'Malgun Gothic' : '');
 
     // Handle newlines
@@ -858,7 +858,7 @@ try {
     text: string,
     options?: { fontName?: string; fontSize?: number; bold?: boolean }
   ): Promise<OfficeResponse> {
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     let fontName = options?.fontName?.replace(/'/g, "''") || '';
     if (!fontName && hasKorean) {
       fontName = 'Malgun Gothic';
@@ -909,8 +909,8 @@ $startCell.Merge($endCell)
     const styleConstMap: Record<string, number> = {
       'table grid': -176,
       'table normal': -106,
-      '표 눈금': -176,       // Korean for Table Grid
-      '표 보통': -106,       // Korean for Table Normal
+      ' ': -176,       // Korean for Table Grid
+      ' ': -106,       // Korean for Table Normal
     };
 
     const lowerStyleName = styleName.toLowerCase();
@@ -920,7 +920,7 @@ $startCell.Merge($endCell)
     const fontPreserveScript = preserveKoreanFont ? `
 # Check if table contains Korean text and preserve font
 $tableText = $table.Range.Text
-if ($tableText -match '[가-힣ㄱ-ㅎㅏ-ㅣ]') {
+if ($tableText -match '[-ㄱ-ㅎㅏ-ㅣ]') {
   $table.Range.Font.Name = 'Malgun Gothic'
 }` : '';
 
@@ -981,7 +981,7 @@ for ($i = 3; $i -le $table.Rows.Count; $i += 2) {
   try { $table.Rows($i).Shading.BackgroundPatternColor = ${lightWd} } catch {}
 }
 $tableText = $table.Range.Text
-if ($tableText -match '[가-힣ㄱ-ㅎㅏ-ㅣ]') {
+if ($tableText -match '[-ㄱ-ㅎㅏ-ㅣ]') {
   $table.Range.Font.Name = 'Malgun Gothic'
   $headerRow.Range.Font.Name = 'Malgun Gothic'
 }
@@ -1042,7 +1042,7 @@ try {
     const escapedName = name.replace(/'/g, "''");
     const escapedText = text ? text.replace(/'/g, "''") : '';
     const originalTextLength = text ? text.length : 0;  // Use original length, not escaped
-    const hasKorean = text ? /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text) : false;
+    const hasKorean = text ? /[-ㄱ-ㅎㅏ-ㅣ]/.test(text) : false;
 
     return this.executePowerShell(`
 $word = [Runtime.InteropServices.Marshal]::GetActiveObject("Word.Application")
@@ -1169,7 +1169,7 @@ while ($doc.Comments.Count -gt 0) {
   async wordCreateBulletList(items: string[]): Promise<OfficeResponse> {
     // Use Base64 encoding for safe Unicode/Korean transfer
     const itemsScript = items.map(item => {
-      const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(item);
+      const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(item);
       const base64Item = this.encodeTextForPowerShell(item);
       const decodeExpr = `[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${base64Item}'))`;
       // Text first, then font after
@@ -1193,7 +1193,7 @@ $selection.Range.ListFormat.RemoveNumbers()
   async wordCreateNumberedList(items: string[]): Promise<OfficeResponse> {
     // Use Base64 encoding for safe Unicode/Korean transfer
     const itemsScript = items.map(item => {
-      const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(item);
+      const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(item);
       const base64Item = this.encodeTextForPowerShell(item);
       const decodeExpr = `[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${base64Item}'))`;
       // Text first, then font after
@@ -1371,7 +1371,7 @@ foreach ($section in $doc.Sections) {
     height: number,
     options?: { fontName?: string; fontSize?: number; borderColor?: string; fillColor?: string }
   ): Promise<OfficeResponse> {
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     let fontName = options?.fontName?.replace(/'/g, "''") || '';
     if (!fontName && hasKorean) {
       fontName = 'Malgun Gothic';
@@ -1883,7 +1883,7 @@ while ($doc.TablesOfContents.Count -gt 0) {
    * Add a footnote at the current selection
    */
   async wordAddFootnote(text: string): Promise<OfficeResponse> {
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const base64Text = this.encodeTextForPowerShell(text);
     const decodeExpr = this.getPowerShellDecodeExpr(base64Text);
 
@@ -1902,7 +1902,7 @@ ${hasKorean ? "$footnote.Range.Font.Name = 'Malgun Gothic'" : ''}
    * Add an endnote at the current selection
    */
   async wordAddEndnote(text: string): Promise<OfficeResponse> {
-    const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+    const hasKorean = /[-ㄱ-ㅎㅏ-ㅣ]/.test(text);
     const base64Text = this.encodeTextForPowerShell(text);
     const decodeExpr = this.getPowerShellDecodeExpr(base64Text);
 

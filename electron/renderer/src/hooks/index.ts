@@ -1,6 +1,6 @@
 /**
  * Hooks Index
- * 커스텀 훅 내보내기
+ *   
  */
 
 export { useResizable, type ResizableConfig, type ResizableState, type ResizableActions, type UseResizableReturn } from './useResizable';

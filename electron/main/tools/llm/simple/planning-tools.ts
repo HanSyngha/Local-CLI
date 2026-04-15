@@ -1,12 +1,12 @@
 /**
  * Planning Tools
  *
- * Planning LLM 전용 tools
- * - ask_to_user: 요구사항 명확화 (모호할 경우 먼저 사용)
- * - create_todos: TODO 리스트 생성 (action/implementation 필요 시)
- * - respond_to_user: 직접 응답 (단순 질문/대화)
+ * Planning LLM dedicated tools
+ * - ask_to_user:   (   )
+ * - create_todos: TODO   (action/implementation  )
+ * - respond_to_user:   ( /)
  *
- * Planning LLM은 반드시 이 세 tool 중 하나를 선택해야 함
+ * Planning LLM    tool    
  *
  * CLI parity: src/tools/llm/simple/planning-tools.ts
  */
@@ -14,8 +14,8 @@
 import type { LLMSimpleTool, ToolResult } from '../../types';
 
 /**
- * ask_to_user tool (Planning LLM용)
- * 요구사항이 모호할 경우 사용자에게 질문하여 명확화
+ * ask_to_user tool (Planning LLM)
+ *      
  */
 export const askToUserPlanningTool: LLMSimpleTool = {
   definition: {
@@ -59,8 +59,8 @@ export const askToUserPlanningTool: LLMSimpleTool = {
       },
     },
   },
-  // NOTE: 이 execute 함수는 PlanningLLM에서 직접 tool_call을 처리하므로 호출되지 않습니다.
-  // 실제 ask_to_user 실행은 PlanningLLM에서 user-interaction-tools의 callback을 사용합니다.
+  // NOTE:  execute  PlanningLLM  tool_call   .
+  //  ask_to_user  PlanningLLM user-interaction-tools callback .
   execute: async (args: Record<string, unknown>): Promise<ToolResult> => {
     const question = args['question'] as string;
     const options = args['options'] as string[];
@@ -74,7 +74,7 @@ export const askToUserPlanningTool: LLMSimpleTool = {
 
 /**
  * create_todos tool
- * Planning이 필요한 작업에 TODO 리스트 생성
+ * Planning  task TODO  
  */
 export const createTodosTool: LLMSimpleTool = {
   definition: {
@@ -137,8 +137,8 @@ When in doubt, USE THIS TOOL. The Execution Agent is powerful and can handle alm
       },
     },
   },
-  // NOTE: 이 execute 함수는 PlanningLLM에서 직접 tool_call을 처리하므로 호출되지 않습니다.
-  // 오직 tool definition 제공을 위해 존재합니다.
+  // NOTE:  execute  PlanningLLM  tool_call   .
+  //  tool definition   .
   execute: async (args: Record<string, unknown>): Promise<ToolResult> => {
     const todos = args['todos'] as Array<{ id: string; title: string }>;
     const complexity = args['complexity'] as string;
@@ -152,7 +152,7 @@ When in doubt, USE THIS TOOL. The Execution Agent is powerful and can handle alm
 
 /**
  * respond_to_user tool
- * 단순 질문이나 대화에 직접 텍스트로 응답
+ *      
  */
 export const respondToUserTool: LLMSimpleTool = {
   definition: {
@@ -202,9 +202,9 @@ Guidelines:
 };
 
 /**
- * tell_to_user tool (Planning LLM용)
- * 메시지를 사용자에게 전달하고 이어서 create_todos를 호출할 수 있음
- * respond_to_user와 달리 실행이 중단되지 않음
+ * tell_to_user tool (Planning LLM)
+ *     create_todos   
+ * respond_to_user    
  */
 export const tellToUserPlanningTool: LLMSimpleTool = {
   definition: {
@@ -222,8 +222,8 @@ Unlike respond_to_user (which ENDS the conversation with no action), tell_to_use
 Do NOT use this instead of respond_to_user for pure knowledge questions.
 
 Example flow:
-1. tell_to_user: "좋은 질문이네요. 현재 코드를 분석해보겠습니다."
-2. create_todos: [{"id": "1", "title": "코드 분석 후 최적화"}]`,
+1. tell_to_user: " .   ."
+2. create_todos: [{"id": "1", "title": "   "}]`,
       parameters: {
         type: 'object',
         properties: {

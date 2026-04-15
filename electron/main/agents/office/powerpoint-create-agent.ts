@@ -132,9 +132,9 @@ function validateAndFixPlan(plan: StructuredPlan): string | null {
 
   // Validate content_direction quality
   const layoutOnlyPatterns = [
-    /^(?:전체\s*배경|왼쪽에|오른쪽에|중앙에|상단에|하단에)/,
-    /#[0-9a-fA-F]{3,8}에서.*그라데이션/,
-    /(?:accent_light|primary|gradient_end)\s*(?:배경|글씨|색상)/,
+    /^(?:\s*|||||)/,
+    /#[0-9a-fA-F]{3,8}.*/,
+    /(?:accent_light|primary|gradient_end)\s*(?:||)/,
     /^(?:CSS|flexbox|grid|conic-gradient|linear-gradient)/i,
   ];
   for (let i = 0; i < plan.slides.length; i++) {
@@ -392,7 +392,7 @@ function buildClosingSlideHtml(
   language: 'ko' | 'en',
   tagline?: string,
 ): string {
-  const thankYou = language === 'ko' ? '감사합니다' : 'Thank You';
+  const thankYou = language === 'ko' ? '' : 'Thank You';
   const taglineHtml = tagline ? `<div class="tagline">${escapeHtml(tagline)}</div>` : '';
 
   return `<!DOCTYPE html>
@@ -788,7 +788,7 @@ async function generateAllHtml(
         isCodeTemplate: true,
       });
     } else if (slide.type === 'closing') {
-      const closingTagline = (slide.content_direction || '').replace(/감사합니다|thank\s*you/gi, '').trim() || undefined;
+      const closingTagline = (slide.content_direction || '').replace(/|thank\s*you/gi, '').trim() || undefined;
       results.set(i, {
         index: i,
         html: buildClosingSlideHtml(plan.design, companyName, i + 1, language, closingTagline),
@@ -1114,7 +1114,7 @@ async function assemblePresentation(
       const newSlideNum = (slideCountRes as Record<string, unknown>)['slide_count'] as number || builtSlides.length + 1;
 
       const closingPlan = plan.slides.find(s => s.type === 'closing')!;
-      const closingTagline = (closingPlan.content_direction || '').replace(/감사합니다|thank\s*you/gi, '').trim() || undefined;
+      const closingTagline = (closingPlan.content_direction || '').replace(/|thank\s*you/gi, '').trim() || undefined;
       const closingHtml = buildClosingSlideHtml(plan.design, companyName, newSlideNum, language, closingTagline);
       const clHtmlName = `hanseol_closing_${timestamp}.html`;
       const clPngName = `hanseol_closing_${timestamp}.png`;
@@ -1215,13 +1215,13 @@ async function runStructured(
   }
 
   // Post-plan fixups
-  const userYearMatch = instruction.match(/(\d{4})년/);
+  const userYearMatch = instruction.match(/(\d{4})/);
   if (userYearMatch) {
     const userYear = userYearMatch[1];
     for (const slide of plan.slides) {
       if (slide.type === 'content' && slide.content_direction) {
-        if (!slide.content_direction.includes(`${userYear}년`)) {
-          slide.content_direction += ` (Note: This report covers ${userYear}년 data.)`;
+        if (!slide.content_direction.includes(`${userYear}`)) {
+          slide.content_direction += ` (Note: This report covers ${userYear} data.)`;
         }
       }
     }
@@ -1246,15 +1246,15 @@ async function runStructured(
   const dateSearchTexts = [instruction, titleSlidePlanForDate?.title || '', titleSlidePlanForDate?.content_direction || ''];
   let kstDate = '';
   for (const text of dateSearchTexts) {
-    const dateMatch = text.match(/(\d{4})년\s*(\d{1,2})\s*(월|분기)/);
+    const dateMatch = text.match(/(\d{4})\s*(\d{1,2})\s*(monthly|)/);
     if (dateMatch) {
-      kstDate = `${dateMatch[1]}년 ${dateMatch[2]}${dateMatch[3]}`;
+      kstDate = `${dateMatch[1]} ${dateMatch[2]}${dateMatch[3]}`;
       break;
     }
   }
   if (!kstDate) {
     const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
-    kstDate = `${kstNow.getUTCFullYear()}년 ${kstNow.getUTCMonth() + 1}월`;
+    kstDate = `${kstNow.getUTCFullYear()} ${kstNow.getUTCMonth() + 1}monthly`;
   }
 
   // Extract company name and subtitle
@@ -1274,13 +1274,13 @@ async function runStructured(
   if (!titleSubtitle && titleSlidePlan) {
     titleSubtitle = ((titleSlidePlan.content_direction || '').split('\n')[0] || '').trim().slice(0, 120);
   }
-  if (/로고|슬로건|연락처|contact|logo|placeholder/i.test(titleSubtitle)) {
+  if (/|||contact|logo|placeholder/i.test(titleSubtitle)) {
     titleSubtitle = '';
   }
 
   // Company name extraction from instruction (strip markdown bold markers)
   const cleanInstruction = instruction.replace(/\*\*/g, '');
-  const companyMatch = cleanInstruction.match(/회사명\s*[:：]?\s*([^\s,，、]+)/);
+  const companyMatch = cleanInstruction.match(/\s*[:：]?\s*([^\s,，、]+)/);
   if (companyMatch && companyMatch[1]) {
     const companyName_ = companyMatch[1];
     if (titleSlidePlan && titleSlidePlan.title.trim() !== companyName_) {

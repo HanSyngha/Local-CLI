@@ -1,7 +1,7 @@
 /**
  * Orchestration Utilities
  *
- * Plan & Execute 워크플로우의 헬퍼 함수들
+ * Plan & Execute   
  */
 
 import { TodoItem, Message } from '../types/index.js';
@@ -9,7 +9,7 @@ import { BaseError } from '../errors/base.js';
 import { logger } from '../utils/logger.js';
 
 /**
- * 에러를 표시용 문자열로 포맷
+ *    
  */
 export function formatErrorMessage(error: unknown): string {
   logger.enter('formatErrorMessage');
@@ -31,10 +31,10 @@ export function formatErrorMessage(error: unknown): string {
     }
 
     if (error.isRecoverable) {
-      message += `\n\n💡 이 오류는 복구 가능합니다. 다시 시도해보세요.`;
+      message += `\n\n💡    .  .`;
     }
 
-    message += `\n\n🕐 시간: ${error.timestamp.toLocaleString('ko-KR')}`;
+    message += `\n\n🕐 : ${error.timestamp.toLocaleString('ko-KR')}`;
     logger.exit('formatErrorMessage', { isBaseError: true });
     return message;
   }
@@ -51,9 +51,9 @@ export function formatErrorMessage(error: unknown): string {
 }
 
 /**
- * 메시지 배열을 시간순 텍스트로 flatten
- * multi-turn 메시지를 단일 텍스트로 변환하여 XML 태그 구조에 사용
- * system 메시지는 제외, tool 인자/결과는 전체 포함 (truncate 없음)
+ *     flatten
+ * multi-turn     XML   
+ * system  , tool /   (truncate )
  */
 export function flattenMessagesToHistory(messages: Message[]): string {
   const lines: string[] = [];
@@ -83,8 +83,8 @@ export function flattenMessagesToHistory(messages: Message[]): string {
 }
 
 /**
- * TODO 컨텍스트를 LLM용으로 빌드
- * 대화 기록에 저장되지 않고 LLM 호출시에만 추가됨
+ * TODO  LLM 
+ *     LLM  
  */
 export function buildTodoContext(todos: TodoItem[]): string {
   if (todos.length === 0) return '';
@@ -117,22 +117,22 @@ ${pendingCount > 0 || inProgressCount > 0
 }
 
 /**
- * 모든 TODO가 완료되었는지 확인
- * 빈 배열은 완료로 간주
+ *  TODO  
+ *    
  */
 export function areAllTodosCompleted(todos: TodoItem[]): boolean {
   return todos.every(t => t.status === 'completed' || t.status === 'failed');
 }
 
 /**
- * 현재 진행중이거나 대기중인 TODO 찾기
+ *    TODO 
  */
 export function findActiveTodo(todos: TodoItem[]): TodoItem | undefined {
   return todos.find(t => t.status === 'in_progress') || todos.find(t => t.status === 'pending');
 }
 
 /**
- * TODO 통계 계산
+ * TODO  
  */
 export function getTodoStats(todos: TodoItem[]): {
   total: number;

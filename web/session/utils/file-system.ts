@@ -1,7 +1,7 @@
 /**
  * File System Utilities
  *
- * 파일 시스템 관련 유틸리티 함수
+ *     
  */
 
 import * as fs from 'fs';
@@ -15,7 +15,7 @@ const access = promisify(fs.access);
 const stat = promisify(fs.stat);
 
 /**
- * 디렉토리가 존재하는지 확인
+ *   
  */
 export async function directoryExists(dirPath: string): Promise<boolean> {
   try {
@@ -27,7 +27,7 @@ export async function directoryExists(dirPath: string): Promise<boolean> {
 }
 
 /**
- * 파일이 존재하는지 확인
+ *   
  */
 export async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -39,7 +39,7 @@ export async function fileExists(filePath: string): Promise<boolean> {
 }
 
 /**
- * 디렉토리 생성 (재귀적)
+ *   ()
  */
 export async function ensureDirectory(dirPath: string): Promise<void> {
   const exists = await directoryExists(dirPath);
@@ -49,7 +49,7 @@ export async function ensureDirectory(dirPath: string): Promise<void> {
 }
 
 /**
- * JSON 파일 읽기
+ * JSON  
  */
 export async function readJsonFile<T>(filePath: string): Promise<T | null> {
   try {
@@ -69,7 +69,7 @@ export async function readJsonFile<T>(filePath: string): Promise<T | null> {
 }
 
 /**
- * JSON 파일 쓰기
+ * JSON  
  */
 export async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
   try {
@@ -87,7 +87,7 @@ export async function writeJsonFile<T>(filePath: string, data: T): Promise<void>
 }
 
 /**
- * 텍스트 파일 읽기
+ *   
  */
 export async function readTextFile(filePath: string): Promise<string> {
   try {
@@ -101,7 +101,7 @@ export async function readTextFile(filePath: string): Promise<string> {
 }
 
 /**
- * 텍스트 파일 쓰기
+ *   
  */
 export async function writeTextFile(filePath: string, content: string): Promise<void> {
   try {
@@ -118,7 +118,7 @@ export async function writeTextFile(filePath: string, content: string): Promise<
 }
 
 /**
- * 파일 크기 가져오기 (bytes)
+ *    (bytes)
  */
 export async function getFileSize(filePath: string): Promise<number> {
   try {

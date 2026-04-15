@@ -1,6 +1,6 @@
 /**
  * Update Modal Component
- * 백그라운드 다운로드 → 재시작 버튼 → silent install + 자동 재시작
+ *   →   → silent install +  
  */
 
 import React, { useEffect, memo, useState } from 'react';
@@ -106,8 +106,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
                 <path d="M21 12a9 9 0 11-6.219-8.56" />
               </svg>
             </div>
-            <h2 className="update-modal-title">업데이트 확인 중</h2>
-            <p className="update-modal-message">새로운 버전이 있는지 확인하고 있습니다...</p>
+            <h2 className="update-modal-title">  </h2>
+            <p className="update-modal-message">    ...</p>
           </>
         );
 
@@ -119,8 +119,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
             </div>
-            <h2 className="update-modal-title">최신 버전입니다</h2>
-            <p className="update-modal-message">현재 v{currentVersion}을 사용 중입니다.</p>
+            <h2 className="update-modal-title"> </h2>
+            <p className="update-modal-message"> v{currentVersion}  .</p>
           </>
         );
 
@@ -133,7 +133,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
               </svg>
             </div>
-            <h2 className="update-modal-title">업데이트 다운로드 중</h2>
+            <h2 className="update-modal-title">  </h2>
             <div className="update-modal-version-info">
               <span className="update-modal-version-current">v{currentVersion}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -157,7 +157,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
             )}
             {parseReleaseNotes(updateInfo?.releaseNotes) && (
               <div className="update-modal-notes">
-                <strong>변경사항:</strong>
+                <strong>:</strong>
                 <p>{parseReleaseNotes(updateInfo?.releaseNotes)}</p>
               </div>
             )}
@@ -172,8 +172,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
             </div>
-            <h2 className="update-modal-title">업데이트 준비 완료</h2>
-            <p className="update-modal-message">v{updateInfo?.version} 다운로드가 완료되었습니다. 재시작하면 자동으로 설치됩니다.</p>
+            <h2 className="update-modal-title">  </h2>
+            <p className="update-modal-message">v{updateInfo?.version}  .   .</p>
           </>
         );
 
@@ -185,8 +185,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
               </svg>
             </div>
-            <h2 className="update-modal-title">업데이트 오류</h2>
-            <p className="update-modal-message update-modal-error">{error || '업데이트 중 오류가 발생했습니다.'}</p>
+            <h2 className="update-modal-title"> </h2>
+            <p className="update-modal-message update-modal-error">{error || '   .'}</p>
           </>
         );
 
@@ -199,14 +199,14 @@ const UpdateModal: React.FC<UpdateModalProps> = ({
     if (status === 'downloaded') {
       return (
         <button className="update-modal-btn update-modal-btn-primary" onClick={onInstall}>
-          지금 재시작
+           
         </button>
       );
     }
     if (status === 'not-available' || status === 'error') {
       return (
         <button className="update-modal-btn update-modal-btn-primary" onClick={onClose}>
-          확인
+          
         </button>
       );
     }

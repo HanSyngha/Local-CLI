@@ -466,9 +466,9 @@ export default function Chat() {
                   <p className="text-[var(--text-secondary)] text-sm mb-1.5">{t('chat.placeholder')}</p>
                   <p className="text-[var(--text-tertiary)] text-xs">
                     <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--bg-tertiary)]/60 text-[10px] ring-1 ring-[var(--border)] font-mono">Enter</kbd>
-                    {' 전송 · '}
+                    {'  · '}
                     <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--bg-tertiary)]/60 text-[10px] ring-1 ring-[var(--border)] font-mono">Shift+Enter</kbd>
-                    {' 줄바꿈'}
+                    {' '}
                   </p>
                 </motion.div>
               </div>
@@ -589,7 +589,7 @@ export default function Chat() {
 
             {/* Hint */}
             <p className="text-[9px] text-[var(--text-tertiary)]/40 mt-1.5 text-center font-mono">
-              Enter 전송 · Shift+Enter 줄바꿈
+              Enter  · Shift+Enter 
             </p>
           </div>
         </div>

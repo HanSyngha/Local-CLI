@@ -66,7 +66,7 @@ export class CompactManager {
         success: false,
         originalMessageCount: messages.length,
         newMessageCount: messages.length,
-        error: `최소 ${MIN_MESSAGES_FOR_COMPACT}개 이상의 메시지가 필요합니다. (현재: ${nonSystemMessages.length}개)`,
+        error: ` ${MIN_MESSAGES_FOR_COMPACT}   . (: ${nonSystemMessages.length})`,
       };
     }
 
@@ -127,7 +127,7 @@ export class CompactManager {
         success: false,
         originalMessageCount: messages.length,
         newMessageCount: messages.length,
-        error: `Compact 실패: ${errorMessage}`,
+        error: `Compact : ${errorMessage}`,
       };
     }
   }
@@ -149,7 +149,7 @@ export class CompactManager {
     if (nonSystemMessages.length < MIN_MESSAGES_FOR_COMPACT) {
       return {
         canCompact: false,
-        reason: `최소 ${MIN_MESSAGES_FOR_COMPACT}개 이상의 메시지가 필요합니다.`,
+        reason: ` ${MIN_MESSAGES_FOR_COMPACT}   .`,
       };
     }
 

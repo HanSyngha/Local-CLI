@@ -1,8 +1,8 @@
 /**
  * Jarvis Mode - Types
  *
- * Jarvis는 자율적으로 동작하는 비서 모드.
- * 주기적으로 상태를 확인하고, Manager LLM이 자율 판단하여 작업을 실행/보고/질문한다.
+ * Jarvis    .
+ *   , Manager LLM   task //.
  */
 
 // =============================================================================
@@ -10,15 +10,15 @@
 // =============================================================================
 
 export interface JarvisConfig {
-  /** 마스터 토글 (default: false) */
+  /**   (default: false) */
   enabled: boolean;
-  /** 체크 주기 - 분 단위 (default: 30, range: 5~120) */
+  /**   -   (default: 30, range: 5~120) */
   pollIntervalMinutes: number;
-  /** Windows 부팅 시 자동 시작 (default: true when enabled) */
+  /** Windows     (default: true when enabled) */
   autoStartOnBoot: boolean;
-  /** Jarvis 전용 모델 ID (미설정 시 Electron 현재 모델 공유) */
+  /** Jarvis dedicated  ID (  Electron   ) */
   modelId?: string;
-  /** Jarvis 전용 엔드포인트 ID (미설정 시 Electron 현재 엔드포인트 공유) */
+  /** Jarvis dedicated  ID (  Electron   ) */
   endpointId?: string;
 }
 
@@ -32,7 +32,7 @@ export const DEFAULT_JARVIS_CONFIG: JarvisConfig = {
 // Manager LLM Tool Types
 // =============================================================================
 
-/** Manager가 Planner에게 위임하는 작업 */
+/** Manager Planner  task */
 export interface DelegationResult {
   success: boolean;
   response: string;
@@ -46,13 +46,13 @@ export interface DelegationResult {
   error?: string;
 }
 
-/** Manager의 사용자 커뮤니케이션 — report (비동기, 대기 없음) */
+/** Manager   — report (,  ) */
 export interface JarvisReport {
   type: 'report';
   message: string;
 }
 
-/** Manager의 사용자 커뮤니케이션 — 승인 요청 (blocking) */
+/** Manager   —   (blocking) */
 export interface JarvisApprovalRequest {
   type: 'approval';
   id: string;
@@ -63,7 +63,7 @@ export interface JarvisApprovalResponse {
   approved: boolean;
 }
 
-/** Manager의 사용자 커뮤니케이션 — 질문 (blocking) */
+/** Manager   —  (blocking) */
 export interface JarvisQuestion {
   type: 'question';
   id: string;
@@ -76,7 +76,7 @@ export interface JarvisQuestionResponse {
 }
 
 // =============================================================================
-// Memory (Layer 1 — 영구 기억)
+// Memory (Layer 1 —  )
 // =============================================================================
 
 export interface JarvisMemoryEntry {
@@ -114,26 +114,26 @@ export interface JarvisState {
 }
 
 // =============================================================================
-// Chat Message (Jarvis UI용)
+// Chat Message (Jarvis UI)
 // =============================================================================
 
 export type JarvisChatMessageType =
-  | 'jarvis'           // Jarvis 말풍선
-  | 'user'             // 사용자 말풍선
-  | 'approval_request' // 승인 요청 카드
-  | 'question'         // 질문 카드
-  | 'execution_status' // 실행 상태 표시
-  | 'system';          // 시스템 메시지
+  | 'jarvis'           // Jarvis 
+  | 'user'             //  
+  | 'approval_request' //   
+  | 'question'         //  
+  | 'execution_status' //   
+  | 'system';          //  
 
 export interface JarvisChatMessage {
   id: string;
   type: JarvisChatMessageType;
   content: string;
   timestamp: number;
-  /** approval/question 용 */
+  /** approval/question  */
   requestId?: string;
   options?: string[];
-  /** 사용자 응답 완료 여부 */
+  /**     */
   resolved?: boolean;
   resolvedValue?: string;
 }

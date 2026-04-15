@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-  // 메인 프로세스 설정
+  //   
   main: {
     plugins: [externalizeDepsPlugin()],
     build: {
@@ -27,7 +27,7 @@ export default defineConfig({
     },
   },
 
-  // 프리로드 스크립트 설정
+  //   
   preload: {
     plugins: [externalizeDepsPlugin()],
     build: {
@@ -40,7 +40,7 @@ export default defineConfig({
     },
   },
 
-  // 렌더러 프로세스 설정 (React)
+  //    (React)
   renderer: {
     root: resolve(__dirname, 'electron/renderer'),
     build: {

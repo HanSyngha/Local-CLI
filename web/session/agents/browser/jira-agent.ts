@@ -1,8 +1,8 @@
 /**
  * Jira Request Tool
  *
- * LLMAgentTool: Visible browser로 Jira에 직접 접속하여 작업 수행.
- * 이슈 조회/생성/수정, 코멘트, 상태 전환, JQL 검색 등.
+ * LLMAgentTool: Visible browser Jira   task .
+ *  //, ,  , JQL  .
  */
 
 import { LLMAgentTool } from '../../tools/types.js';

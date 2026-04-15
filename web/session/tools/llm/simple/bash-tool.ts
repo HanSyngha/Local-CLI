@@ -1,7 +1,7 @@
 /**
- * Bash Tool (Linux Docker 전용)
+ * Bash Tool (Linux Docker dedicated)
  *
- * LLM이 bash shell 명령어를 실행할 수 있게 해주는 도구
+ * LLM bash shell      
  */
 
 import { spawn } from 'child_process';
@@ -12,7 +12,7 @@ import { logger } from '../../../utils/logger.js';
 import { isDangerousBashCommand } from '../../../utils/platform-utils.js';
 
 /**
- * Bash 명령어 실행 (WSL/Linux only)
+ * Bash   (WSL/Linux only)
  */
 async function executeBash(
   command: string,

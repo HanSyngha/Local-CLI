@@ -39,15 +39,15 @@ const COLOR_PRESETS: Record<string, ColorConfig> = {
 };
 
 const FONT_PRESETS: Record<string, FontConfig> = {
-  MODERN_TECH: { title: 'Segoe UI', body: '맑은 고딕' },
-  WARM_EXECUTIVE: { title: 'Georgia', body: '맑은 고딕' },
-  CLEAN_MINIMAL: { title: '맑은 고딕', body: '돋움' },
-  CORPORATE: { title: 'Calibri', body: '맑은 고딕' },
-  NATURE_FRESH: { title: '굴림', body: '맑은 고딕' },
-  BOLD_MODERN: { title: 'Arial Black', body: '맑은 고딕' },
+  MODERN_TECH: { title: 'Segoe UI', body: ' ' },
+  WARM_EXECUTIVE: { title: 'Georgia', body: ' ' },
+  CLEAN_MINIMAL: { title: ' ', body: '' },
+  CORPORATE: { title: 'Calibri', body: ' ' },
+  NATURE_FRESH: { title: '', body: ' ' },
+  BOLD_MODERN: { title: 'Arial Black', body: ' ' },
 };
 
-const DEFAULT_FONTS: FontConfig = { title: 'Segoe UI', body: '맑은 고딕' };
+const DEFAULT_FONTS: FontConfig = { title: 'Segoe UI', body: ' ' };
 
 /**
  * Strip common markdown formatting from text before writing to Word.
@@ -108,7 +108,7 @@ function resolveColors(args: Record<string, unknown>): ColorConfig {
 function resolveFonts(args: Record<string, unknown>): FontConfig {
   if (args['fonts'] && typeof args['fonts'] === 'object') {
     const f = args['fonts'] as Record<string, string>;
-    return { title: f['title'] || 'Segoe UI', body: f['body'] || '맑은 고딕' };
+    return { title: f['title'] || 'Segoe UI', body: f['body'] || ' ' };
   }
   if (typeof args['fonts'] === 'string') {
     return FONT_PRESETS[args['fonts']] ?? DEFAULT_FONTS;
@@ -138,7 +138,7 @@ const WORD_BUILD_TITLE_PAGE_DEF: ToolDefinition = {
       properties: {
         title: { type: 'string', description: 'Document title' },
         subtitle: { type: 'string', description: 'Subtitle or description' },
-        date_text: { type: 'string', description: 'Date string (e.g., "2024년 12월")' },
+        date_text: { type: 'string', description: 'Date string (e.g., "2024 12monthly")' },
         author: { type: 'string', description: 'Author name' },
         ...COLOR_FONT_PARAMS,
       },
@@ -209,7 +209,7 @@ const WORD_BUILD_TOC_DEF: ToolDefinition = {
     parameters: {
       type: 'object',
       properties: {
-        title: { type: 'string', description: 'TOC title text (default: "목차")' },
+        title: { type: 'string', description: 'TOC title text (default: "")' },
         toc_depth: { type: 'number', description: 'Heading depth to include (1=H1 only, 2=H1+H2, 3=H1+H2+H3). Default: 2. Use 1 for documents with many sections.' },
         ...COLOR_FONT_PARAMS,
       },
@@ -222,7 +222,7 @@ async function executeBuildTOC(args: Record<string, unknown>): Promise<ToolResul
   try {
     const colors = resolveColors(args);
     const fonts = resolveFonts(args);
-    const tocTitle = (args['title'] as string) || '목차';
+    const tocTitle = (args['title'] as string) || '';
 
     // TOC heading with accent left border
     await wordClient.wordWrite(tocTitle, {
@@ -485,7 +485,7 @@ const WORD_BUILD_CALLOUT_BOX_DEF: ToolDefinition = {
     parameters: {
       type: 'object',
       properties: {
-        title: { type: 'string', description: 'Callout title (e.g., "핵심 인사이트", "Key Takeaway", "⚡ 중요")' },
+        title: { type: 'string', description: 'Callout title (e.g., " ", "Key Takeaway", "⚡ ")' },
         body: { type: 'string', description: 'Callout body text — the key insight or information' },
         style: { type: 'string', enum: ['insight', 'tip', 'warning', 'summary'], description: 'Visual style: insight (accent), tip (green), warning (orange/red), summary (primary)' },
         ...COLOR_FONT_PARAMS,
@@ -550,15 +550,15 @@ const WORD_BUILD_KEY_METRICS_DEF: ToolDefinition = {
     parameters: {
       type: 'object',
       properties: {
-        heading: { type: 'string', description: 'Section heading (e.g., "핵심 성과 지표", "Key Metrics")' },
+        heading: { type: 'string', description: 'Section heading (e.g., "  ", "Key Metrics")' },
         metrics: {
           type: 'array',
           description: 'Array of metrics: each has value (large number) and label (description)',
           items: {
             type: 'object',
             properties: {
-              value: { type: 'string', description: 'The metric value (e.g., "32%", "$4.2M", "847대")' },
-              label: { type: 'string', description: 'What the metric represents (e.g., "매출 증가율", "Annual Savings")' },
+              value: { type: 'string', description: 'The metric value (e.g., "32%", "$4.2M", "847")' },
+              label: { type: 'string', description: 'What the metric represents (e.g., " ", "Annual Savings")' },
             },
             required: ['value', 'label'],
           },
@@ -629,7 +629,7 @@ const WORD_BUILD_CONCLUSION_DEF: ToolDefinition = {
     parameters: {
       type: 'object',
       properties: {
-        heading: { type: 'string', description: 'Conclusion heading (e.g., "결론", "마무리")' },
+        heading: { type: 'string', description: 'Conclusion heading (e.g., "", "")' },
         body: { type: 'string', description: 'Conclusion body text' },
         ...COLOR_FONT_PARAMS,
       },
@@ -642,7 +642,7 @@ async function executeBuildConclusion(args: Record<string, unknown>): Promise<To
   try {
     const colors = resolveColors(args);
     const fonts = resolveFonts(args);
-    const heading = stripMarkdown((args['heading'] as string) || '결론');
+    const heading = stripMarkdown((args['heading'] as string) || '');
     const body = (args['body'] as string) || '';
 
     // Heading — with accent left border and light background

@@ -1,13 +1,13 @@
 /**
  * File System Error Classes
  *
- * 파일 시스템 관련 에러들
+ *    
  */
 
 import { BaseError, ErrorOptions } from './base.js';
 
 /**
- * FileSystemError - 일반 파일 시스템 에러
+ * FileSystemError -    
  */
 export class FileSystemError extends BaseError {
   public readonly path?: string;
@@ -23,7 +23,7 @@ export class FileSystemError extends BaseError {
           path,
         },
         isRecoverable: options.isRecoverable ?? false,
-        userMessage: options.userMessage ?? `파일 시스템 오류가 발생했습니다${path ? ` (경로: ${path})` : ''}.`,
+        userMessage: options.userMessage ?? `   ${path ? ` (: ${path})` : ''}.`,
       }
     );
     this.path = path;
@@ -31,7 +31,7 @@ export class FileSystemError extends BaseError {
 }
 
 /**
- * FileNotFoundError - 파일 없음 에러
+ * FileNotFoundError -   
  */
 export class FileNotFoundError extends BaseError {
   public readonly path: string;
@@ -47,7 +47,7 @@ export class FileNotFoundError extends BaseError {
           path,
         },
         isRecoverable: false,
-        userMessage: options.userMessage ?? `파일을 찾을 수 없습니다: ${path}`,
+        userMessage: options.userMessage ?? `   : ${path}`,
       }
     );
     this.path = path;
@@ -55,7 +55,7 @@ export class FileNotFoundError extends BaseError {
 }
 
 /**
- * DirectoryNotFoundError - 디렉토리 없음 에러
+ * DirectoryNotFoundError -   
  */
 export class DirectoryNotFoundError extends BaseError {
   public readonly path: string;
@@ -71,7 +71,7 @@ export class DirectoryNotFoundError extends BaseError {
           path,
         },
         isRecoverable: false,
-        userMessage: options.userMessage ?? `디렉토리를 찾을 수 없습니다: ${path}`,
+        userMessage: options.userMessage ?? `   : ${path}`,
       }
     );
     this.path = path;
@@ -79,7 +79,7 @@ export class DirectoryNotFoundError extends BaseError {
 }
 
 /**
- * PermissionError - 권한 오류
+ * PermissionError -  
  */
 export class PermissionError extends BaseError {
   public readonly path?: string;
@@ -102,7 +102,7 @@ export class PermissionError extends BaseError {
           operation,
         },
         isRecoverable: false,
-        userMessage: options.userMessage ?? `권한이 없습니다${path ? `: ${path}` : ''}${operation ? ` (작업: ${operation})` : ''}.`,
+        userMessage: options.userMessage ?? ` ${path ? `: ${path}` : ''}${operation ? ` (task: ${operation})` : ''}.`,
       }
     );
     this.path = path;
@@ -111,7 +111,7 @@ export class PermissionError extends BaseError {
 }
 
 /**
- * FileReadError - 파일 읽기 에러
+ * FileReadError -   
  */
 export class FileReadError extends BaseError {
   public readonly path: string;
@@ -127,7 +127,7 @@ export class FileReadError extends BaseError {
           path,
         },
         isRecoverable: false,
-        userMessage: options.userMessage ?? `파일을 읽을 수 없습니다: ${path}`,
+        userMessage: options.userMessage ?? `   : ${path}`,
       }
     );
     this.path = path;
@@ -135,7 +135,7 @@ export class FileReadError extends BaseError {
 }
 
 /**
- * FileWriteError - 파일 쓰기 에러
+ * FileWriteError -   
  */
 export class FileWriteError extends BaseError {
   public readonly path: string;
@@ -151,7 +151,7 @@ export class FileWriteError extends BaseError {
           path,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `파일을 쓸 수 없습니다: ${path}. 디스크 공간을 확인해주세요.`,
+        userMessage: options.userMessage ?? `   : ${path}.   .`,
       }
     );
     this.path = path;
@@ -159,7 +159,7 @@ export class FileWriteError extends BaseError {
 }
 
 /**
- * InvalidPathError - 잘못된 경로 에러
+ * InvalidPathError -   
  */
 export class InvalidPathError extends BaseError {
   public readonly path: string;
@@ -175,7 +175,7 @@ export class InvalidPathError extends BaseError {
           path,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `잘못된 경로입니다: ${path}`,
+        userMessage: options.userMessage ?? ` : ${path}`,
       }
     );
     this.path = path;

@@ -1,8 +1,8 @@
 /**
  * Electron Client
  *
- * CLI에서 실행 중인 Electron 앱의 HTTP 서버와 통신.
- * Health check, 자동 시작, SSE 스트림 파싱.
+ * CLI   Electron  HTTP  .
+ * Health check,  , SSE  .
  */
 
 import http from 'http';
@@ -10,7 +10,7 @@ import { spawn, execSync } from 'child_process';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-/** SSE 이벤트 */
+/** SSE  */
 export interface SSEEvent {
   event: string;
   data: unknown;
@@ -28,7 +28,7 @@ export class ElectronClient {
   }
 
   /**
-   * Electron CLI Server가 실행 중인지 확인
+   * Electron CLI Server   
    */
   async isRunning(): Promise<boolean> {
     return new Promise((resolve) => {
@@ -50,20 +50,20 @@ export class ElectronClient {
   }
 
   /**
-   * Electron 앱 자동 시작
+   * Electron   
    */
   async startElectron(): Promise<void> {
     const exePath = this.findElectronPath();
     if (!exePath) {
       throw new Error(
-        `Electron 앱을 찾을 수 없습니다.\n` +
-        `환경변수 LOCAL_CLI_ELECTRON_PATH를 설정하거나 앱을 먼저 설치해주세요.`
+        `Electron    .\n` +
+        ` LOCAL_CLI_ELECTRON_PATH    .`
       );
     }
 
-    // 플랫폼별 시작
+    //  
     if (this.isWSL()) {
-      // WSL → PowerShell로 Windows exe 실행
+      // WSL → PowerShell Windows exe 
       const winPath = this.wslToWinPath(exePath);
       spawn('powershell.exe', ['-Command', `Start-Process '${winPath}'`], {
         detached: true,
@@ -76,7 +76,7 @@ export class ElectronClient {
       }).unref();
     }
 
-    // 서버 준비 대기 (최대 30초)
+    //    ( 30)
     const maxWait = 30000;
     const interval = 1000;
     const start = Date.now();
@@ -86,11 +86,11 @@ export class ElectronClient {
       if (await this.isRunning()) return;
     }
 
-    throw new Error('Electron 앱 시작 시간 초과 (30초)');
+    throw new Error('Electron     (30)');
   }
 
   /**
-   * 명령 실행 (POST + SSE 스트림 수신)
+   *   (POST + SSE  )
    */
   async execute(
     target: 'chat' | 'jarvis',
@@ -109,7 +109,7 @@ export class ElectronClient {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(postData),
         },
-        timeout: 600000, // 10분 타임아웃
+        timeout: 600000, // 10 
       }, (res) => {
         if (res.statusCode !== 200) {
           let body = '';
@@ -118,14 +118,14 @@ export class ElectronClient {
           return;
         }
 
-        // SSE 파싱
+        // SSE 
         let buffer = '';
         let finalResponse = '';
 
         res.on('data', (chunk: Buffer) => {
           buffer += chunk.toString();
           const lines = buffer.split('\n');
-          buffer = lines.pop() || ''; // 마지막 불완전한 라인 유지
+          buffer = lines.pop() || ''; //    
 
           let currentEvent = '';
           for (const line of lines) {
@@ -142,7 +142,7 @@ export class ElectronClient {
                   finalResponse = parsed['response'];
                 }
               } catch {
-                // JSON 파싱 실패 무시
+                // JSON   
               }
               currentEvent = '';
             } else if (line === '') {
@@ -161,7 +161,7 @@ export class ElectronClient {
       req.on('error', reject);
       req.on('timeout', () => {
         req.destroy();
-        reject(new Error('요청 시간 초과'));
+        reject(new Error('  '));
       });
 
       req.write(postData);
@@ -174,10 +174,10 @@ export class ElectronClient {
   // ===========================================================================
 
   /**
-   * Electron 실행 파일 탐지
+   * Electron   
    */
   private findElectronPath(): string | null {
-    // 1. 환경변수
+    // 1. 
     if (process.env['LOCAL_CLI_ELECTRON_PATH']) {
       const envPath = process.env['LOCAL_CLI_ELECTRON_PATH'];
       if (fs.existsSync(envPath)) return envPath;
@@ -187,14 +187,14 @@ export class ElectronClient {
     const appDisplayName = 'LOCAL BOT';
 
     if (this.isWSL()) {
-      // WSL: /mnt/c/Users/{USER}/AppData/Local/{앱이름}/{앱이름}.exe
+      // WSL: /mnt/c/Users/{USER}/AppData/Local/{}/{}.exe
       const winUser = this.getWindowsUsername();
       if (winUser) {
         const exePath = `/mnt/c/Users/${winUser}/AppData/Local/${appDisplayName}/${appDisplayName}.exe`;
         if (fs.existsSync(exePath)) return exePath;
       }
     } else if (process.platform === 'win32') {
-      // Windows: %LOCALAPPDATA%\{앱이름}\{앱이름}.exe
+      // Windows: %LOCALAPPDATA%\{}\{}.exe
       const localAppData = process.env['LOCALAPPDATA'] || path.join(os.homedir(), 'AppData', 'Local');
       const exePath = path.join(localAppData, appDisplayName, `${appDisplayName}.exe`);
       if (fs.existsSync(exePath)) return exePath;
@@ -219,7 +219,7 @@ export class ElectronClient {
         const result = execSync('cmd.exe /c echo %USERNAME%', { encoding: 'utf-8', timeout: 5000, stdio: ['pipe', 'pipe', 'pipe'] }).trim();
         if (result && !result.includes('%')) return result;
       }
-      // Fallback: WSL 사용자 이름과 동일하다고 가정
+      // Fallback: WSL    
       return process.env['USER'] || null;
     } catch {
       return null;

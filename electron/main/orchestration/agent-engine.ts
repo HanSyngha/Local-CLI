@@ -241,7 +241,7 @@ export async function runAgentCore(
   setWorkingDirectory(workingDirectory);
   setPowerShellWorkingDirectory(workingDirectory);
 
-  // LLM 카운트다운 콜백 설정 (확장 retry 2분 대기 표시)
+  // LLM    ( retry 2  )
   llmClient.countdownCallback = (remainingSeconds: number) => {
     io.broadcast('agent:countdown', { seconds: remainingSeconds });
   };
@@ -269,12 +269,12 @@ export async function runAgentCore(
     }
     io.broadcast('agent:todoUpdate', todos);
 
-    // Task 윈도우 자동 표시 (TODO가 처음 생성될 때)
+    // Task    (TODO   )
     if (!io.isTaskWindowVisible() && todos.length > 0) {
       io.showTaskWindow();
     }
 
-    // Background auto-sync: 모든 TODO 완료 시 1회만 실행
+    // Background auto-sync:  TODO   1 
     const allComplete = todos.length > 0 && todos.every(t => t.status === 'completed');
     if (allComplete) {
       const completedTitles = todos.map(t => t.title).join(', ');
@@ -611,9 +611,9 @@ export async function runAgentCore(
           logger.warn('Context length exceeded - rolling back last tool group');
 
           if (callbacks.onTellUser) {
-            callbacks.onTellUser('컨텍스트 길이 초과 - 마지막 도구 실행을 롤백하고 재시도합니다...');
+            callbacks.onTellUser('   -     ...');
           }
-          io.broadcast('agent:tellUser', '컨텍스트 길이 초과 - 마지막 도구 실행을 롤백하고 재시도합니다...');
+          io.broadcast('agent:tellUser', '   -     ...');
 
           let rollbackIdx = toolLoopMessages.length - 1;
           while (rollbackIdx >= 0 && toolLoopMessages[rollbackIdx]?.role === 'tool') {
@@ -628,8 +628,8 @@ export async function runAgentCore(
         } else if (llmError instanceof QuotaExceededError) {
           // Quota exceeded — stop agent gracefully with user-facing message
           const quotaMsg = llmError.quota
-            ? `사용 한도를 초과했습니다. 시간당: ${llmError.quota.hourly?.timeDisplay || '알 수 없음'} 남음, 주간: ${llmError.quota.weekly?.timeDisplay || '알 수 없음'} 남음`
-            : '서버 사용 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+            ? `  . : ${llmError.quota.hourly?.timeDisplay || '  '} , : ${llmError.quota.weekly?.timeDisplay || '  '} `
+            : '   .    .';
 
           logger.warn('Quota exceeded during agent execution', { quota: llmError.quota });
           if (callbacks.onTellUser) {
@@ -653,7 +653,7 @@ export async function runAgentCore(
           // so the request format itself is valid. A 400 on iteration 1 is a genuine format
           // error and should propagate normally.
           // Some LLM proxies (e.g. Samsung A2G) return 400 instead of standard context_length error.
-          const errorMsg = `LLM API 요청 오류 (HTTP 400). 도구 실행 결과가 너무 크거나 메시지 형식이 호환되지 않을 수 있습니다.`;
+          const errorMsg = `LLM API   (HTTP 400).           .`;
           logger.warn('HTTP 400 after tool execution - returning gracefully', {
             toolLoopLength: toolLoopMessages.length,
             iterations,
@@ -752,10 +752,10 @@ export async function runAgentCore(
               rawArguments: typeof toolCall.function.arguments === 'string' ? toolCall.function.arguments.substring(0, 500) : undefined,
             }).catch(() => {});
 
-            // 3회 연속 parse 실패 시 abort
+            // 3  parse   abort
             if (consecutiveParseFailures >= MAX_CONSECUTIVE_PARSE_FAILURES) {
               logger.errorSilent('[ABORT] Tool argument parse failed 3 times consecutively. Model may not support JSON function calling.');
-              const abortMsg = '현재 모델이 올바른 JSON tool arguments를 생성하지 못하고 있습니다. 다른 모델로 변경해 주세요.';
+              const abortMsg = '   JSON tool arguments   .    .';
               addMessage({
                 role: 'tool',
                 content: errorMessage,
@@ -777,7 +777,7 @@ export async function runAgentCore(
               };
             }
 
-            // LLM에게 구체적 피드백
+            // LLM  
             const rawArgs = toolCall.function.arguments;
             const rawPreview = typeof rawArgs === 'string' ? rawArgs.substring(0, 300) : String(rawArgs);
             const hintMsg = `Error: Failed to parse tool arguments for "${toolName}".
@@ -848,7 +848,7 @@ Do NOT use XML tags like <arg_key> or <arg_value>. Retry with valid JSON.`;
               parseFailureToolCallIds.add(toolCall.id);
 
               if (consecutiveParseFailures >= MAX_CONSECUTIVE_PARSE_FAILURES) {
-                const abortMsg = '현재 모델이 올바른 tool arguments를 생성하지 못하고 있습니다. 다른 모델로 변경해 주세요.';
+                const abortMsg = '   tool arguments   .    .';
                 addMessage({ role: 'tool', content: schemaErrors.join('\n'), tool_call_id: toolCall.id });
                 io.broadcast('agent:message', { role: 'assistant', content: abortMsg });
                 toolLoopMessages.push({ role: 'assistant' as const, content: abortMsg });
@@ -885,7 +885,7 @@ Retry with correct parameter names and types.`;
           // Parse + schema validation passed → reset counter
           consecutiveParseFailures = 0;
 
-          // tell_to_user 연속 호출 감지 — 무한루프 방지
+          // tell_to_user    —  
           if (toolName === 'tell_to_user') {
             consecutiveTellToUserCalls++;
             logger.info('[CHAT] tell_to_user called', {
@@ -1128,9 +1128,9 @@ Retry with correct parameter names and types.`;
                 });
 
                 if (callbacks.onTellUser) {
-                  callbacks.onTellUser('완료되지 않은 TODO가 있지만, 최대 재시도 횟수에 도달하여 작업을 종료합니다.');
+                  callbacks.onTellUser('  TODO ,     task .');
                 }
-                io.broadcast('agent:tellUser', '완료되지 않은 TODO가 있지만, 최대 재시도 횟수에 도달하여 작업을 종료합니다.');
+                io.broadcast('agent:tellUser', '  TODO ,     task .');
 
                 logger.info('[CHAT] Final response (fallback)', { content: fallbackMessage.substring(0, 500) });
 
@@ -1252,9 +1252,9 @@ Retry with correct parameter names and types.`;
         });
 
         if (callbacks.onTellUser) {
-          callbacks.onTellUser(`컨텍스트 ${usage.usagePercentage}% 사용 - 자동 압축을 실행합니다...`);
+          callbacks.onTellUser(` ${usage.usagePercentage}%  -   ...`);
         }
-        io.broadcast('agent:tellUser', `컨텍스트 ${usage.usagePercentage}% 사용 - 자동 압축을 실행합니다...`);
+        io.broadcast('agent:tellUser', ` ${usage.usagePercentage}%  -   ...`);
 
         const fullMessages = [...baseHistory, ...toolLoopMessages];
         const compactResult = await compactConversation(fullMessages, { workingDirectory, todos: agentState.currentTodos });
@@ -1323,7 +1323,7 @@ Retry with correct parameter names and types.`;
     }
 
     if (!isAbort) {
-      // LLM 확장 retry 전부 실패 → retryableError broadcast (UI에서 retry 버튼 표시)
+      // LLM  retry   → retryableError broadcast (UI retry  )
       if (error instanceof LLMRetryExhaustedError) {
         io.broadcast('agent:retryableError', { error: errorMessage });
       } else {

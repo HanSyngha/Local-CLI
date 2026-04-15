@@ -1,9 +1,9 @@
 /**
  * User Interaction Tools (LLM Simple)
  *
- * LLM이 사용자와 상호작용할 수 있는 도구들
- * - tell_to_user: 사용자에게 메시지 전송
- * - ask_to_user: 사용자에게 질문하고 응답 받기
+ * LLM     
+ * - tell_to_user:   
+ * - ask_to_user:    
  */
 
 import { LLMSimpleTool, ToolResult, ToolCategory } from '../../types.js';
@@ -86,7 +86,7 @@ export const tellToUserTool: LLMSimpleTool = {
 // ============================================
 
 /**
- * 사용자 질문 요청
+ *   
  */
 export interface AskUserRequest {
   question: string;
@@ -94,7 +94,7 @@ export interface AskUserRequest {
 }
 
 /**
- * 사용자 응답
+ *  
  */
 export interface AskUserResponse {
   selectedOption: string;
@@ -103,7 +103,7 @@ export interface AskUserResponse {
 }
 
 /**
- * 사용자 질문 콜백 타입
+ *    
  */
 export type AskUserCallback = (request: AskUserRequest) => Promise<AskUserResponse>;
 

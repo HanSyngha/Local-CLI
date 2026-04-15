@@ -1,13 +1,13 @@
 /**
  * LLM Error Classes
  *
- * LLM 관련 에러들
+ * LLM  
  */
 
 import { BaseError, ErrorOptions } from './base.js';
 
 /**
- * LLMError - 일반 LLM 에러
+ * LLMError -  LLM 
  */
 export class LLMError extends BaseError {
   constructor(message: string, options: ErrorOptions = {}) {
@@ -17,14 +17,14 @@ export class LLMError extends BaseError {
       {
         ...options,
         isRecoverable: options.isRecoverable ?? true,
-        userMessage: options.userMessage ?? 'LLM 요청 중 오류가 발생했습니다.',
+        userMessage: options.userMessage ?? 'LLM    .',
       }
     );
   }
 }
 
 /**
- * StreamingError - 스트리밍 에러
+ * StreamingError -  
  */
 export class StreamingError extends BaseError {
   constructor(message: string, options: ErrorOptions = {}) {
@@ -34,14 +34,14 @@ export class StreamingError extends BaseError {
       {
         ...options,
         isRecoverable: true,
-        userMessage: options.userMessage ?? '스트리밍 응답 중 오류가 발생했습니다.',
+        userMessage: options.userMessage ?? '    .',
       }
     );
   }
 }
 
 /**
- * ModelError - 모델 관련 에러
+ * ModelError -   
  */
 export class ModelError extends BaseError {
   public readonly modelId?: string;
@@ -57,7 +57,7 @@ export class ModelError extends BaseError {
           modelId,
         },
         isRecoverable: false,
-        userMessage: options.userMessage ?? `모델에 문제가 있습니다${modelId ? ` (모델: ${modelId})` : ''}.`,
+        userMessage: options.userMessage ?? `  ${modelId ? ` (: ${modelId})` : ''}.`,
       }
     );
     this.modelId = modelId;
@@ -65,7 +65,7 @@ export class ModelError extends BaseError {
 }
 
 /**
- * TokenLimitError - 토큰 제한 초과 에러
+ * TokenLimitError -    
  */
 export class TokenLimitError extends BaseError {
   public readonly limit: number;
@@ -87,7 +87,7 @@ export class TokenLimitError extends BaseError {
           actual,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `토큰 한도를 초과했습니다 (최대: ${limit}${actual ? `, 현재: ${actual}` : ''}). 메시지를 줄여주세요.`,
+        userMessage: options.userMessage ?? `   (: ${limit}${actual ? `, : ${actual}` : ''}).  .`,
       }
     );
     this.limit = limit;
@@ -96,7 +96,7 @@ export class TokenLimitError extends BaseError {
 }
 
 /**
- * RateLimitError - API 속도 제한 에러
+ * RateLimitError - API   
  */
 export class RateLimitError extends BaseError {
   public readonly retryAfter?: number;
@@ -112,7 +112,7 @@ export class RateLimitError extends BaseError {
           retryAfter,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `API 요청 한도를 초과했습니다${retryAfter ? `. ${retryAfter}초 후 다시 시도해주세요` : '. 잠시 후 다시 시도해주세요'}.`,
+        userMessage: options.userMessage ?? `API   ${retryAfter ? `. ${retryAfter}   ` : '.    '}.`,
       }
     );
     this.retryAfter = retryAfter;
@@ -120,21 +120,21 @@ export class RateLimitError extends BaseError {
 }
 
 /**
- * LLMRetryExhaustedError - 확장 retry 전부 실패한 에러
- * chatCompletion()에서 Phase 1 (3회) + Phase 2 (2분 대기) + Phase 3 (3회) 모두 실패 시 throw
- * UI 레이어에서 이 에러를 감지해 사용자에게 재시도 옵션을 제공
+ * LLMRetryExhaustedError -  retry   
+ * chatCompletion() Phase 1 (3) + Phase 2 (2 ) + Phase 3 (3)    throw
+ * UI        
  */
 export class LLMRetryExhaustedError extends BaseError {
   public readonly originalError: Error;
 
   constructor(originalError: Error, options: ErrorOptions = {}) {
     super(
-      `LLM 서버 응답 실패 (6회 재시도 + 2분 대기 후 최종 실패): ${originalError.message}`,
+      `LLM    (6  + 2    ): ${originalError.message}`,
       'LLM_RETRY_EXHAUSTED',
       {
         ...options,
         isRecoverable: true,
-        userMessage: options.userMessage ?? `LLM 서버가 응답하지 않습니다. Enter를 눌러 재시도하세요.`,
+        userMessage: options.userMessage ?? `LLM   . Enter  .`,
       }
     );
     this.originalError = originalError;
@@ -142,7 +142,7 @@ export class LLMRetryExhaustedError extends BaseError {
 }
 
 /**
- * ContextLengthError - 컨텍스트 길이 초과 에러
+ * ContextLengthError -    
  */
 export class ContextLengthError extends BaseError {
   public readonly maxLength: number;
@@ -164,7 +164,7 @@ export class ContextLengthError extends BaseError {
           actualLength,
         },
         isRecoverable: true,
-        userMessage: options.userMessage ?? `대화 컨텍스트가 너무 깁니다 (최대: ${maxLength}${actualLength ? `, 현재: ${actualLength}` : ''}). /clear 명령어로 대화를 초기화해주세요.`,
+        userMessage: options.userMessage ?? `    (: ${maxLength}${actualLength ? `, : ${actualLength}` : ''}). /clear   .`,
       }
     );
     this.maxLength = maxLength;

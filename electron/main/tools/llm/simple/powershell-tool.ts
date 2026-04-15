@@ -4,7 +4,7 @@
  * PowerShell execution tools for Windows Native
  * CLI parity: src/tools/llm/simple/powershell-tool.ts
  *
- * Category: LLM Simple Tools - LLM이 tool_call로 호출, Sub-LLM 없음
+ * Category: LLM Simple Tools - LLM tool_call , Sub-LLM 
  *
  * Note: Electron uses PowerShell instead of bash (Windows native)
  */
@@ -51,7 +51,7 @@ function isDangerousPowerShellCommand(command: string): boolean {
 // Working Directory Management
 // =============================================================================
 
-// Portable/설치 경로에서 실행 시 보호된 디렉토리 방지: 홈 디렉토리로 fallback
+// Portable/      :   fallback
 function getSafeInitialCwd(): string {
   const cwd = process.cwd();
   const lower = cwd.toLowerCase();

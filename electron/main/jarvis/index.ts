@@ -1,9 +1,9 @@
 /**
  * Jarvis Module - barrel export
  *
- * NOTE: JarvisTray는 Electron main process 전용 (Tray, Menu, nativeImage 사용).
- * worker 번들에 포함되면 electron-shim 에러 발생하므로 barrel에서 제외.
- * index.ts에서 직접 import: import { JarvisTray } from './jarvis/jarvis-tray';
+ * NOTE: JarvisTray Electron main process dedicated (Tray, Menu, nativeImage ).
+ * worker   electron-shim   barrel .
+ * index.ts  import: import { JarvisTray } from './jarvis/jarvis-tray';
  */
 
 export * from './jarvis-types';

@@ -89,7 +89,7 @@ const JarvisApp: React.FC = () => {
 
   const selectedModelName = useMemo(() => {
     const found = models.find(m => `${m.endpointId}:${m.modelId}` === selectedModelKey);
-    return found ? found.modelName : '모델 선택';
+    return found ? found.modelName : ' ';
   }, [models, selectedModelKey]);
 
   const handleModelSelect = useCallback(async (endpointId: string, modelId: string) => {
@@ -142,7 +142,7 @@ const JarvisApp: React.FC = () => {
     setInput('');
     (window as any).electronAPI?.jarvis?.sendMessage(text).catch((err: unknown) => {
       console.warn('[JarvisApp] Send message failed:', err);
-      setMessages(prev => [...prev, { id: `err-${Date.now()}`, type: 'system', content: '연결 오류', timestamp: Date.now() }]);
+      setMessages(prev => [...prev, { id: `err-${Date.now()}`, type: 'system', content: ' ', timestamp: Date.now() }]);
     });
     inputRef.current?.focus();
   }, [input]);
@@ -154,7 +154,7 @@ const JarvisApp: React.FC = () => {
   const handleApproval = useCallback((requestId: string, approved: boolean) => {
     console.log('[JarvisApp] Approval response:', requestId, approved);
     setMessages(prev => prev.map(msg =>
-      msg.requestId === requestId ? { ...msg, resolved: true, resolvedValue: approved ? '승인됨' : '거부됨' } : msg
+      msg.requestId === requestId ? { ...msg, resolved: true, resolvedValue: approved ? '' : '' } : msg
     ));
     (window as any).electronAPI?.jarvis?.respondToApproval(requestId, approved);
   }, []);
@@ -168,11 +168,11 @@ const JarvisApp: React.FC = () => {
   }, []);
 
   const statusMap: Record<string, { dot: string; label: string }> = {
-    idle: { dot: 'idle', label: '대기' },
-    polling: { dot: 'active', label: '확인 중' },
-    analyzing: { dot: 'active', label: '분석 중' },
-    executing: { dot: 'busy', label: '실행 중' },
-    waiting_user: { dot: 'waiting', label: '응답 대기' },
+    idle: { dot: 'idle', label: '' },
+    polling: { dot: 'active', label: ' ' },
+    analyzing: { dot: 'active', label: ' ' },
+    executing: { dot: 'busy', label: ' ' },
+    waiting_user: { dot: 'waiting', label: ' ' },
   };
   const si = statusMap[status] || statusMap.idle;
 
@@ -190,7 +190,7 @@ const JarvisApp: React.FC = () => {
         <div className="jv-header__left">
           <img src={logoImage} alt="" className="jv-header__logo" />
           <div className="jv-header__info">
-            <span className="jv-header__name">자비스</span>
+            <span className="jv-header__name"></span>
             <span className={`jv-header__status jv-header__status--${si.dot}`}>
               <span className="jv-dot" />
               {si.label}
@@ -236,8 +236,8 @@ const JarvisApp: React.FC = () => {
         {messages.length === 0 && (
           <div className="jv-empty">
             <img src={logoImage} alt="" className="jv-empty__logo" />
-            <p className="jv-empty__title">자비스</p>
-            <p className="jv-empty__sub">할 일을 확인하고 자율적으로 동작합니다</p>
+            <p className="jv-empty__title"></p>
+            <p className="jv-empty__sub">    </p>
           </div>
         )}
 
@@ -263,8 +263,8 @@ const JarvisApp: React.FC = () => {
           }
 
           if (isExec) {
-            const isDone = msg.content.includes('완료');
-            const isFail = msg.content.includes('실패');
+            const isDone = msg.content.includes('');
+            const isFail = msg.content.includes('');
             const variant = isDone ? 'done' : isFail ? 'fail' : '';
             return (
               <div key={msg.id} className={`jv-exec-card ${variant ? `jv-exec-card--${variant}` : ''}`}>
@@ -293,8 +293,8 @@ const JarvisApp: React.FC = () => {
                   {/* Approval card */}
                   {msg.type === 'approval_request' && !msg.resolved && (
                     <div className="jv-card">
-                      <button className="jv-card__btn jv-card__btn--ok" onClick={() => handleApproval(msg.requestId!, true)}>승인</button>
-                      <button className="jv-card__btn jv-card__btn--no" onClick={() => handleApproval(msg.requestId!, false)}>거부</button>
+                      <button className="jv-card__btn jv-card__btn--ok" onClick={() => handleApproval(msg.requestId!, true)}></button>
+                      <button className="jv-card__btn jv-card__btn--no" onClick={() => handleApproval(msg.requestId!, false)}></button>
                     </div>
                   )}
 
@@ -320,7 +320,7 @@ const JarvisApp: React.FC = () => {
       {/* ── Input ── */}
       <div className="jv-input-bar">
         <input ref={inputRef} className="jv-input" type="text"
-          placeholder="메시지 보내기..." value={input}
+          placeholder=" ..." value={input}
           onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} />
         <button className="jv-send" onClick={handleSend} disabled={!input.trim()}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

@@ -188,7 +188,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelect, onCancel
 
       {/* Hint for adding new models */}
       <Box paddingX={1}>
-        <Text color="gray" dimColor>💡 신규 모델 추가: </Text>
+        <Text color="gray" dimColor>💡   : </Text>
         <Text color="yellow">/settings</Text>
         <Text color="gray" dimColor> → </Text>
         <Text color="yellow">LLMs</Text>

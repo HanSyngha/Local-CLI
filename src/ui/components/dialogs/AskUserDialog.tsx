@@ -1,8 +1,8 @@
 /**
  * Ask User Dialog Component
  *
- * LLM이 사용자에게 질문할 때 표시되는 선택형 UI
- * Phase 2: 승인 모드 / 자율 모드
+ * LLM      UI
+ * Phase 2:   /  
  */
 
 import React, { useState, useCallback } from 'react';
@@ -17,9 +17,9 @@ export interface AskUserDialogProps {
 }
 
 /**
- * Ask User Dialog - 사용자에게 선택지를 제공하는 대화상자
- * - LLM이 제공한 선택지들 (2-4개)
- * - + "Other (직접 입력)" 옵션 (항상 표시)
+ * Ask User Dialog -    
+ * - LLM   (2-4)
+ * - + "Other ( )"  ( )
  */
 export const AskUserDialog: React.FC<AskUserDialogProps> = ({ request, onResponse }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -28,8 +28,8 @@ export const AskUserDialog: React.FC<AskUserDialogProps> = ({ request, onRespons
 
   logger.enter('AskUserDialog', { question: request.question, optionCount: request.options.length });
 
-  // LLM이 제공한 옵션들 + "Other (직접 입력)" 옵션 (항상 추가)
-  const allOptions = [...request.options, 'Other (직접 입력)'];
+  // LLM   + "Other ( )"  ( )
+  const allOptions = [...request.options, 'Other ( )'];
 
   const handleSelect = useCallback(() => {
     logger.flow('User selected option', { selectedIndex });
@@ -141,7 +141,7 @@ export const AskUserDialog: React.FC<AskUserDialogProps> = ({ request, onRespons
             <Text color={isSelected ? 'cyan' : 'gray'}>
               {isSelected ? '▸ ' : '  '}
               [{index + 1}] {option}
-              {isOtherOption && <Text color="gray" dimColor> (자유 응답)</Text>}
+              {isOtherOption && <Text color="gray" dimColor> ( )</Text>}
             </Text>
           </Box>
         );
@@ -149,7 +149,7 @@ export const AskUserDialog: React.FC<AskUserDialogProps> = ({ request, onRespons
 
       <Box marginTop={1}>
         <Text color="gray" dimColor>
-          ↑↓ 이동 | Enter 선택 | 1-{allOptions.length} 번호로 선택
+          ↑↓  | Enter  | 1-{allOptions.length}  
         </Text>
       </Box>
     </Box>

@@ -1,11 +1,11 @@
 /**
  * Hanseol Type Definitions
  *
- * 프로젝트 전체에서 사용되는 TypeScript 타입 정의
+ *    TypeScript  
  */
 
 /**
- * 엔드포인트 설정
+ *  
  */
 export interface EndpointConfig {
   id: string;
@@ -22,7 +22,7 @@ export interface EndpointConfig {
 }
 
 /**
- * 모델 정보
+ *  
  */
 export interface ModelInfo {
   id: string;
@@ -38,7 +38,7 @@ export interface ModelInfo {
 }
 
 /**
- * LLM 메시지
+ * LLM 
  */
 export interface Message {
   role: 'system' | 'user' | 'assistant' | 'tool' | 'error';
@@ -61,7 +61,7 @@ export interface ToolCall {
 }
 
 /**
- * LLM 요청 옵션
+ * LLM  
  */
 export interface LLMRequestOptions {
   model: string;
@@ -95,7 +95,7 @@ export interface LLMResponse {
 }
 
 /**
- * Tool 정의
+ * Tool 
  */
 export interface ToolDefinition {
   type: 'function';
@@ -111,7 +111,7 @@ export interface ToolDefinition {
 }
 
 /**
- * 세션 메모리
+ *  
  */
 export interface SessionMemory {
   sessionId: string;
@@ -129,7 +129,7 @@ export interface SessionMemory {
 }
 
 /**
- * 설정 파일 구조
+ *   
  */
 /** Browser service configuration for sub-agents */
 export interface BrowserServiceConfig {

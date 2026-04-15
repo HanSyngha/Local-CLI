@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
-// ============ 타입 정의 ============
+// ============   ============
 
-// PowerShell 타입
+// PowerShell 
 export interface PowerShellResult {
   success: boolean;
   stdout?: string;
@@ -36,7 +36,7 @@ export interface SessionInfo {
   lastActivity: number;
 }
 
-// 시스템 정보 타입
+//   
 export interface SystemInfo {
   platform: string;
   arch: string;
@@ -48,7 +48,7 @@ export interface SystemInfo {
   tempPath: string;
 }
 
-// 다이얼로그 타입
+//  
 export interface FileFilter {
   name: string;
   extensions: string[];
@@ -70,7 +70,7 @@ export interface MessageDialogOptions {
   buttons?: string[];
 }
 
-// 로그 파일 타입
+//   
 export interface LogFile {
   name: string;
   path: string;
@@ -78,13 +78,13 @@ export interface LogFile {
   date: string;
 }
 
-// 테마 타입
+//  
 export type Theme = 'dark' | 'light';
 
-// ============ Electron API 인터페이스 ============
+// ============ Electron API  ============
 
 export interface ElectronAPI {
-  // 윈도우 제어
+  //  
   window: {
     minimize: () => void;
     maximize: () => void;
@@ -96,7 +96,7 @@ export interface ElectronAPI {
     getWindowType: () => Promise<'chat' | 'task'>;
   };
 
-  // Task 윈도우 제어
+  // Task  
   taskWindow: {
     toggle: () => Promise<{ success: boolean; visible?: boolean }>;
     show: () => Promise<{ success: boolean }>;
@@ -106,14 +106,14 @@ export interface ElectronAPI {
     isAlwaysOnTop: () => Promise<boolean>;
   };
 
-  // 테마
+  // 
   theme: {
     getSystem: () => Promise<Theme>;
     onChange: (callback: (theme: Theme) => void) => () => void;
     onAppearanceChange?: (callback: (data: { key: string; value: unknown }) => void) => () => void;
   };
 
-  // 다이얼로그
+  // 
   dialog: {
     openFile: (options?: {
       title?: string;
@@ -141,7 +141,7 @@ export interface ElectronAPI {
     }>;
   };
 
-  // 파일 시스템
+  //  
   fs: {
     readFile: (filePath: string) => Promise<{
       success: boolean;
@@ -226,7 +226,7 @@ export interface ElectronAPI {
     onError: (callback: (event: PowerShellErrorEvent) => void) => () => void;
   };
 
-  // 로그
+  // 
   log: {
     getFiles: () => Promise<LogFile[]>;
 
@@ -247,23 +247,23 @@ export interface ElectronAPI {
     getCurrentPath: () => Promise<string>;
   };
 
-  // 시스템
+  // 
   system: {
     info: () => Promise<SystemInfo>;
   };
 
-  // 앱 제어
+  //  
   app: {
     restart: () => Promise<void>;
     quit: () => Promise<void>;
   };
 
-  // 개발자 도구
+  //  
   devTools: {
     toggle: () => Promise<{ success: boolean }>;
   };
 
-  // Image (Vision 첨부)
+  // Image (Vision )
   image: {
     saveFromClipboard: (base64: string, mimeType: string) => Promise<{
       success: boolean;
@@ -278,7 +278,7 @@ export interface ElectronAPI {
   };
 }
 
-// ============ 전역 타입 선언 ============
+// ============    ============
 
 declare global {
   interface Window {
@@ -286,7 +286,7 @@ declare global {
   }
 }
 
-// Vite 환경 변수 타입
+// Vite   
 interface ImportMetaEnv {
   readonly VITE_DEV_SERVER_URL: string;
   readonly MODE: string;
