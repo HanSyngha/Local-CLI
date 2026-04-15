@@ -59,6 +59,10 @@ export const SLASH_COMMANDS: CommandMetadata[] = [
     description: 'Show token usage statistics',
   },
   {
+    name: '/context',
+    description: 'Show loaded context.md contents and path',
+  },
+  {
     name: '/help',
     description: 'Show help message',
   },
