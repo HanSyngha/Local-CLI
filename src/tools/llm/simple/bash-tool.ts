@@ -6,8 +6,8 @@
  * Native Windows powershell  
  */
 
-import { spawn } from 'child_process';
-import * as fs from 'fs';
+import { spawn } from 'node:child_process';
+import * as fs from 'node:fs';
 import { ToolDefinition } from '../../../types/index.js';
 import { LLMSimpleTool, ToolResult, ToolCategory } from '../../types.js';
 import { logger } from '../../../utils/logger.js';

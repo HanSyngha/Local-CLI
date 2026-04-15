@@ -8,8 +8,8 @@
  * :  LLM   . Message   .
  */
 
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { configManager } from '../../../core/config/config-manager.js';
 import type { LLMSimpleTool, ToolResult } from '../../types.js';
 import type { ModelInfo, EndpointConfig } from '../../../types/index.js';

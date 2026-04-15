@@ -6,7 +6,7 @@
 
 import chalk from 'chalk';
 import { getJsonStreamLogger } from './json-stream-logger.js';
-import * as path from 'path';
+import * as path from 'node:path';
 
 export enum LogLevel {
   ERROR = 0,

@@ -8,13 +8,13 @@
  * Node.js mode: Traditional clone/pull with npm install/build/link
  */
 
-import { spawn } from 'child_process';
-import fs, { createReadStream, createWriteStream } from 'fs';
-import { rm, copyFile, chmod } from 'fs/promises';
-import { pipeline } from 'stream/promises';
-import path from 'path';
-import os from 'os';
-import zlib from 'zlib';
+import { spawn } from 'node:child_process';
+import fs, { createReadStream, createWriteStream } from 'node:fs';
+import { rm, copyFile, chmod } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
+import path from 'node:path';
+import os from 'node:os';
+import zlib from 'node:zlib';
 import { logger } from '../utils/logger.js';
 
 /**

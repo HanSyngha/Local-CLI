@@ -9,8 +9,8 @@
  * CLI parity: electron/main/agents/office/powerpoint-create-agent.ts
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { LLMClient } from '../../core/llm/llm-client.js';
 import { LLMAgentTool, ToolResult } from '../../tools/types.js';
 import { powerpointClient } from '../../tools/office/powerpoint-client.js';

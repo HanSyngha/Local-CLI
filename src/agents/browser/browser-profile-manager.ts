@@ -5,9 +5,9 @@
  * Completely separate from raw browser tool (port 9222, temporary profile).
  */
 
-import * as path from 'path';
-import * as fs from 'fs';
-import { spawnSync } from 'child_process';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { LOCAL_HOME_DIR } from '../../constants.js';
 import { BrowserClient } from '../../tools/browser/browser-client.js';
 import { getPlatform, getPowerShellPath } from '../../utils/platform-utils.js';

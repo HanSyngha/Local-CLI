@@ -9,8 +9,8 @@
  * - Error/abort message cleanup on session load
  */
 
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Message } from '../../types/index.js';
 import { configManager } from '../config/config-manager.js';
 import { PROJECTS_DIR } from '../../constants.js';

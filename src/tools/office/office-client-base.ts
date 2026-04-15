@@ -7,7 +7,7 @@
  * Office tools require Windows access (Native Windows or WSL)
  */
 
-import { execSync, spawn } from 'child_process';
+import { execSync, spawn } from 'node:child_process';
 import { logger } from '../../utils/logger.js';
 import {
   getPlatform,

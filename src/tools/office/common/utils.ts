@@ -4,8 +4,8 @@
  * Shared utility functions for Office tools (Word, Excel, PowerPoint)
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 /**
  * Delay execution for specified milliseconds

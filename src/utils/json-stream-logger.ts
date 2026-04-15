@@ -4,9 +4,9 @@
  * Logs all terminal interactions and events to a JSON file for analysis
  */
 
-import { createWriteStream, WriteStream } from 'fs';
-import { mkdir, access, readFile, writeFile } from 'fs/promises';
-import { dirname, join } from 'path';
+import { createWriteStream, WriteStream } from 'node:fs';
+import { mkdir, access, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import chalk from 'chalk';
 import { PROJECTS_DIR } from '../constants.js';
 

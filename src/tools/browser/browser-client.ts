@@ -7,9 +7,9 @@
  *    (playwright ) .
  */
 
-import { spawn, ChildProcess, execSync } from 'child_process';
-import * as path from 'path';
-import * as fs from 'fs';
+import { spawn, ChildProcess, execSync } from 'node:child_process';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import WebSocket from 'ws';
 import { logger } from '../../utils/logger.js';
 import { reportError } from '../../core/telemetry/error-reporter.js';

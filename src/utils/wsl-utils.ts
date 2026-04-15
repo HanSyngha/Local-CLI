@@ -8,8 +8,8 @@
  * This file only contains WSL-specific networking utilities.
  */
 
-import { execSync } from 'child_process';
-import * as fs from 'fs';
+import { execSync } from 'node:child_process';
+import * as fs from 'node:fs';
 
 /**
  * Check if WSL2 mirrored networking is enabled

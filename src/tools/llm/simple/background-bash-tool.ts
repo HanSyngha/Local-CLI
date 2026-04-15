@@ -6,8 +6,8 @@
  * Native Windows background-powershell-tool 
  */
 
-import { spawn, ChildProcess } from 'child_process';
-import * as fs from 'fs';
+import { spawn, ChildProcess } from 'node:child_process';
+import * as fs from 'node:fs';
 import { ToolDefinition } from '../../../types/index.js';
 import { LLMSimpleTool, ToolResult, ToolCategory } from '../../types.js';
 import { logger } from '../../../utils/logger.js';
