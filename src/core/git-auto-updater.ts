@@ -11,7 +11,9 @@
 import { spawn } from 'node:child_process';
 import fs, { createReadStream, createWriteStream } from 'node:fs';
 import { rm, copyFile, chmod } from 'node:fs/promises';
-import { pipeline } from 'node:stream/promises';
+import { pipeline as pipelineCallback } from 'node:stream';
+import { promisify } from 'node:util';
+const pipeline = promisify(pipelineCallback);
 import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
