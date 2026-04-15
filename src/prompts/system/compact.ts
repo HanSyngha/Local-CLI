@@ -74,7 +74,7 @@ You MUST output valid markdown following this exact structure:
 - Include specific file paths, function names, variable names
 - If code is critical, include it; otherwise summarize intent
 - NEVER use generic phrases like "discussed various options"
-- Output in the same language as the conversation (Korean if Korean, English if English)
+- Output in the same language as the conversation (default English; match user's language if different)
 `;
 
 export default COMPACT_SYSTEM_PROMPT;

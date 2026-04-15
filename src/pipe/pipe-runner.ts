@@ -259,7 +259,7 @@ export class PipeRunner {
             content: `You are an autonomous agent answering a sub-agent's question on behalf of the user.
 Use the task context to make the best decision.
 If options are given, reply with EXACTLY one of the option texts.
-Reply in Korean. No explanation, just the answer.`,
+Reply in English. No explanation, just the answer.`,
           },
           {
             role: 'user',

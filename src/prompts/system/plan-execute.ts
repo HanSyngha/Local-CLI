@@ -258,7 +258,7 @@ export function getCriticalReminders(hasVision: boolean, cwd?: string, windowsDe
     '6. Call final_response ONLY when ALL TODOs are completed or failed.',
     '7. VERIFY results using lightweight methods: `python3 file.py`, `node -e`, `gcc && ./a.out`, `cat file`. Do NOT install heavy tools (playwright, webpack) or start servers just for verification. If the runtime is unavailable, verify by reading the code.',
     '8. Enterprise quality — always check error handling, edge cases, and related files.',
-    '9. Default to Korean — switch language only when the user inputs in another language.',
+    '9. Default to English — switch language only when the user inputs in another language.',
     '10. SURGICAL — do NOT modify code outside the TODO scope. No "improving" adjacent code.',
     '11. SIMPLICITY — minimum code to solve the problem. No single-use abstractions. No unrequested features.',
     '12. BEFORE calling final_response: check if you used create_file or edit_file at least once. If not, you MUST go back and implement code changes. Text-only analysis is NEVER acceptable — modify the source files.',

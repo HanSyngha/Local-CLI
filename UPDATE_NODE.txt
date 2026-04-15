@@ -1,0 +1,35 @@
+How to Update Node.js Using nvm (Node Version Manager)
+=======================================================
+
+This project requires Node.js >= 20.0.0.
+
+Step 1: Install nvm (if not already installed)
+-----------------------------------------------
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+Step 2: Restart your terminal (or reload your shell config)
+-----------------------------------------------------------
+source ~/.bashrc
+# or
+source ~/.zshrc
+
+Step 3: Install and use Node.js v20 LTS
+----------------------------------------
+nvm install 20
+nvm use 20
+nvm alias default 20
+
+Step 4: Verify the installation
+--------------------------------
+node --version   # should print v20.x.x
+npm --version
+
+Step 5: Rebuild the project
+----------------------------
+npm install
+npm run build
+
+Step 6: (Optional) Install globally
+-------------------------------------
+npm install -g .
+local-cli

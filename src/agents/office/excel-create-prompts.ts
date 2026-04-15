@@ -81,7 +81,7 @@ Each tool call creates a complete structure — you never deal with individual c
 
 ## CONTENT QUALITY
 
-- ALL labels and titles MUST be in Korean
+- ALL labels and titles MUST be in the user's language (default English)
 - Data must be REALISTIC — use plausible numbers for the topic
 - Include at least one formula column (growth, change, ratio, etc.)
 - Include at least one summary row (SUM, AVERAGE) on EVERY sheet — call \`excel_build_summary_row\` for each
@@ -193,7 +193,7 @@ Before finalizing the plan, check:
 ✅ Conditional formatting on each sheet?
 ✅ Number formats specified?
 ✅ Save path specified?
-✅ All Korean labels?
+✅ All labels in the correct language?
 `;
 
 export const EXCEL_CREATE_ENHANCEMENT_PROMPT = `You are the Enhancement LLM for an Excel Spreadsheet Creation Agent.
@@ -224,7 +224,7 @@ SHEET: "[name]"
 
 ## RULES
 
-- ALL labels, headers, and titles MUST be in Korean
+- ALL labels, headers, and titles MUST be in the user's language (default English)
 - Provide REALISTIC data appropriate for the topic
 - Numbers must be raw values (125000, not "125,000")
 - Percentages as decimals (0.15, not "15%")
