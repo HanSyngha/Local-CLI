@@ -909,19 +909,17 @@ $startCell.Merge($endCell)
     const styleConstMap: Record<string, number> = {
       'table grid': -176,
       'table normal': -106,
-      ' ': -176,       // Korean for Table Grid
-      ' ': -106,       // Korean for Table Normal
     };
 
     const lowerStyleName = styleName.toLowerCase();
     const styleConst = styleConstMap[lowerStyleName];
 
-    // Preserve Korean font after style change to prevent garbled text
+    // Preserve CJK font after style change to prevent text corruption
     const fontPreserveScript = preserveKoreanFont ? `
-# Check if table contains Korean text and preserve font
+# Check if table contains CJK text and preserve font
 $tableText = $table.Range.Text
 if ($tableText -match '[-ㄱ-ㅎㅏ-ㅣ]') {
-  $table.Range.Font.Name = 'Malgun Gothic'
+  $table.Range.Font.Name = 'Segoe UI'
 }` : '';
 
     return this.executePowerShell(`

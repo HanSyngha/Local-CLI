@@ -2,53 +2,65 @@
   "version": "1.0",
   "description": "Web Search Agent Test Scenarios — 30 high-difficulty queries requiring deep research, cross-verification, and synthesis",
   "scoring": {
-    "accuracy": { "weight": 40, "description": "핵심 사실/수치의 정확성" },
-    "completeness": { "weight": 30, "description": "질문의 모든 측면에 대한 답변 포함 여부" },
-    "sources": { "weight": 15, "description": "실제 소스 페이지 방문 및 인용 여부" },
-    "recency": { "weight": 15, "description": "최신 정보 반영 여부 (날짜 기반 판단)" }
+    "accuracy": {
+      "weight": 40,
+      "description": "Accuracy of key facts and figures"
+    },
+    "completeness": {
+      "weight": 30,
+      "description": "Whether all aspects of the question are covered"
+    },
+    "sources": {
+      "weight": 15,
+      "description": "Whether actual source pages were visited and cited"
+    },
+    "recency": {
+      "weight": 15,
+      "description": "Whether recent information is reflected (date-based assessment)"
+    }
   },
   "scenarios": [
     {
       "id": 1,
       "category": "ai-research",
       "difficulty": "hard",
-      "query": "DeepSeek-R1 논문에서 기존 RLHF의 PPO 대신 어떤 강화학습 알고리즘을 사용했는지, Rule-based reward와 Model-based reward가 각각 어떤 데이터에 적용되었는지 정확히 요약해줘.",
+      "query": "Summarize what reinforcement learning algorithm DeepSeek-R1 used instead of PPO in existing RLHF, and what data was applied to Rule-based reward and Model-based reward respectively.",
       "expected_facts": [
-        "GRPO (Group Relative Policy Optimization) 사용",
-        "Rule-based reward: 수학/코딩 등 정답이 명확한 문제",
-        "Model-based reward: 도움(Helpfulness)/무해성(Harmlessness) 평가"
+        "Uses GRPO (Group Relative Policy Optimization)",
+        "Rule-based reward: Problems with clear correct answers like math/coding",
+        "Model-based reward: Helpfulness/Harmlessness evaluation"
       ],
-      "verification": "논문 원문 또는 신뢰할 수 있는 리뷰 기반 확인"
+      "verification": "Verification based on original paper or trusted review"
     },
     {
       "id": 2,
       "category": "pricing-calculation",
       "difficulty": "hard",
-      "query": "2025년 기준 OpenAI GPT-4o와 Anthropic Claude 3.5 Sonnet의 API 가격을 100만 입력/출력 토큰 기준으로 비교하고, 매월 5000만 입력 토큰과 1000만 출력 토큰을 사용할 때 어느 쪽이 얼마만큼 더 저렴한지 계산해줘.",
+      "query": "Compare API prices for OpenAI GPT-4o and Anthropic Claude 3.5 Sonnet on a per-million-token basis and calculate which is cheaper and by how much when using 50 million input tokens and 10 million output tokens per month as of 2025.",
       "expected_facts": [
-        "GPT-4o: 입력 $2.50~$5.00, 출력 $10.00~$15.00",
-        "Claude 3.5 Sonnet: 입력 $3.00, 출력 $15.00",
-        "월 비용 계산 결과 포함"
+        "GPT-4o: Input $2.50-$5.00, Output $10.00-$15.00",
+        "Claude 3.5 Sonnet: Input $3.00, Output $15.00",
+        "Include monthly cost calculation results"
       ],
-      "verification": "공식 pricing 페이지 기반 수치"
+      "verification": "Based on official pricing page figures"
     },
     {
       "id": 3,
       "category": "regulation",
       "difficulty": "hard",
-      "query": "EU AI Act에서 범용 AI(GPAI)의 시스템적 위험을 분류하는 훈련 연산량(Compute threshold) 기준치(FLOPs)는 정확히 몇이며, 이 기준을 넘을 때 제공자가 지켜야 하는 핵심 의무를 요약해줘.",
+      "query": "What is the exact training compute threshold (FLOPs) for classifying systemic risks of General Purpose AI (GPAI) in the EU AI Act, and summarize the key obligations providers must follow when exceeding this threshold.",
       "expected_facts": [
-        "10^25 FLOPs 기준",
-        "모델 평가(적대적 테스트/Red-teaming) 수행 의무",
-        "심각한 사고 발생 시 EU 집행위원회 보고 의무"
+        "10^25 FLOPs threshold",
+        "Obligation to perform model evaluation (adversarial testing/Red-teaming)",
+        "Obligation to report to EU Commission in case of serious incidents"
       ],
-      "verification": "EU AI Act 원문 또는 공식 해설 기반"
+      "verification": "Based on EU AI Act original text or official guidelines"
     },
     {
       "id": 4,
       "category": "devops",
       "difficulty": "medium",
-      "query": "NVIDIA GPU가 장착된 리눅스 서버에서 Ollama와 Open WebUI를 함께 띄우기 위한 docker-compose.yml 작성법을 알려줘. Ollama 컨테이너가 GPU를 전부 사용하도록 nvidia 드라이버를 할당하고, WebUI는 8080 포트로 구성해야 해.",
+      "query": "Explain how to write a docker-compose.yml for running Ollama and Open WebUI together on a Linux server with NVIDIA GPU. The Ollama container should use all GPU resources via nvidia driver allocation, and WebUI should be configured on port 8080.",
       "expected_facts": [
         "deploy.resources.reservations.devices에 driver: nvidia, count: all, capabilities: [gpu]",
         "Open WebUI 서비스에 ports: 8080:8080",
@@ -85,7 +97,7 @@
       "id": 7,
       "category": "opensource-discovery",
       "difficulty": "hard",
-      "query": "GitHub에서 별 5,000개 이상을 받은 오픈소스 중, Cursor AI처럼 에디터에 종속되지 않고 터미널(CLI)에서 작동하며 다중 파일 수정이 가능한 최신 AI 코딩 어시스턴트 툴 3가지를 찾아 각각의 특징을 비교해줘.",
+      "query": "Find 3 latest AI coding assistant tools from GitHub open-source projects with 5,000+ stars that work independently from editors, function in terminal (CLI), support multi-file editing, and compare their characteristics like Cursor AI.",
       "expected_facts": [
         "Aider 포함",
         "Claude Code 또는 OpenHands 등 CLI 기반 도구",
@@ -121,9 +133,9 @@
       "id": 10,
       "category": "personalized-planning",
       "difficulty": "medium",
-      "query": "도쿄에서 2024년 이후에 새로 오픈한 스페셜티 커피 로스터리와 언더그라운드 테크노 클럽을 동선에 맞게 묶어서 금~일 3일 일정으로 짜줘. 뻔한 관광지는 다 빼고.",
+      "query": "Create a 3-day Friday-to-Sunday itinerary in Tokyo combining specialty coffee roasteries and underground techno clubs that opened after 2024, arranged for optimal route. Exclude typical tourist destinations.",
       "expected_facts": [
-        "2024년 이후 오픈한 구체적 커피숍 이름",
+        "Specific coffee shop names opened after 2024",
         "테크노 클럽/바 이름과 위치",
         "3일 동선 포함"
       ],
@@ -157,7 +169,7 @@
       "id": 13,
       "category": "korea-specific",
       "difficulty": "medium",
-      "query": "2025년 한국 전자정부 프레임워크(eGovFrame)의 최신 버전과 주요 변경사항, 그리고 Spring Boot 3.x와의 호환성 현황을 알려줘.",
+      "query": "Explain the latest version of Korea's eGovFrame (electronic government framework) as of 2025, major changes, and Spring Boot 3.x compatibility status.",
       "expected_facts": [
         "최신 버전 번호",
         "Spring Boot 3.x 호환 여부",
