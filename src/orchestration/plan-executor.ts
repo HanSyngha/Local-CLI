@@ -50,6 +50,9 @@ import { formatErrorMessage, buildTodoContext, flattenMessagesToHistory, findAct
 import { reportError, updateRecentMessagesForTelemetry } from '../core/telemetry/error-reporter.js';
 import { LLMRetryExhaustedError } from '../errors/llm.js';
 
+// Eagerly load context.md at module init so it's cached before the first message arrives.
+loadContextFile().catch(() => {});
+
 /**
  * Build system prompt with conditional Git rules and optional project context.
  * Git rules are only added when .git folder exists in working directory.
