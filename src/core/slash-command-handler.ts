@@ -10,6 +10,7 @@ import { sessionManager } from './session/session-manager.js';
 import { usageTracker } from './usage-tracker.js';
 import { contextTracker } from './compact/context-tracker.js';
 import { logger } from '../utils/logger.js';
+import { loadContextFile } from '../utils/context-loader.js';
 // Planning mode is always 'auto' - other modes have been removed
 export type PlanningMode = 'auto';
 
@@ -251,6 +252,7 @@ Available commands:
   /exit, /quit    - Exit the application
   /clear          - Clear conversation and TODOs
   /compact        - Compact conversation to free up context
+  /context        - Show loaded context.md contents (or where to put one)
   /settings       - Open settings menu
   /model          - Switch between LLM models
   /vision         - Select vision model for image analysis
@@ -396,6 +398,28 @@ Note: All conversations are automatically saved.
         },
       };
     }
+  }
+
+  // Context command - dump loaded context.md and system prompt info
+  if (trimmedCommand === '/context') {
+    const cwd = process.cwd();
+    const contextContent = await loadContextFile();
+    let contextMessage: string;
+    if (contextContent) {
+      contextMessage = `**Context file loaded** from: ${cwd}/context.md\n\n--- context.md contents ---\n${contextContent}\n--- end of context.md ---`;
+    } else {
+      contextMessage = `**No context file found.**\n\nLooked for: ${cwd}/context.md\n\nTo add project context, create a \`context.md\` file in your current directory. Its contents will be injected into the system prompt automatically.`;
+    }
+    const updatedMessages = [
+      ...context.messages,
+      { role: 'assistant' as const, content: contextMessage },
+    ];
+    context.setMessages(updatedMessages);
+    return {
+      handled: true,
+      shouldContinue: false,
+      updatedContext: { messages: updatedMessages },
+    };
   }
 
   // Unknown command
