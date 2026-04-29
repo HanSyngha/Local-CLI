@@ -1,7 +1,7 @@
 # Local CLI
 
 [![npm version](https://img.shields.io/npm/v/local-cli-agent)](https://www.npmjs.com/package/local-cli-agent)
-[![GitHub release](https://img.shields.io/github/v/release/A2G-Dev-Space/Local-CLI)](https://github.com/A2G-Dev-Space/Local-CLI/releases)
+[![GitHub release](https://img.shields.io/github/v/release/HanSyngha/Local-CLI)](https://github.com/HanSyngha/Local-CLI/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green)](https://nodejs.org/)
 
@@ -91,7 +91,7 @@ The endpoint setup wizard launches automatically on first run.
 
 ### Desktop App (Windows)
 
-Download the latest `LOCAL-BOT-Setup-{version}.exe` from the [Releases](https://github.com/A2G-Dev-Space/Local-CLI/releases) page.
+Download the latest `LOCAL-BOT-Setup-{version}.exe` from the [Releases](https://github.com/HanSyngha/Local-CLI/releases) page.
 
 - **NSIS installer** — installs to `%LOCALAPPDATA%\LOCAL BOT\`
 - **Auto-update** — the app automatically checks GitHub Releases for updates and notifies you when a new version is available
@@ -99,7 +99,7 @@ Download the latest `LOCAL-BOT-Setup-{version}.exe` from the [Releases](https://
 ### Build from Source
 
 ```bash
-git clone https://github.com/A2G-Dev-Space/Local-CLI.git
+git clone https://github.com/HanSyngha/Local-CLI.git
 cd Local-CLI
 npm install && npm run build
 node dist/cli.js
@@ -375,8 +375,10 @@ vLLM, Ollama, LM Studio, Azure OpenAI, Google Gemini, or internal LLM servers.
 
 ## Contact
 
-- **GitHub Issues**: https://github.com/A2G-Dev-Space/Local-CLI/issues
-- **Email**: gkstdmgk2731@naver.com
+- **Author**: Syngha Han ([@HanSyngha](https://github.com/HanSyngha))
+- **LinkedIn**: [linkedin.com/in/syngha-han](https://www.linkedin.com/in/syngha-han/)
+- **Email**: syngha.han@gmail.com
+- **GitHub Issues**: https://github.com/HanSyngha/Local-CLI/issues
 
 ---
 
@@ -384,4 +386,4 @@ vLLM, Ollama, LM Studio, Azure OpenAI, Google Gemini, or internal LLM servers.
 
 MIT License
 
-**GitHub**: https://github.com/A2G-Dev-Space/Local-CLI
+**GitHub**: https://github.com/HanSyngha/Local-CLI
