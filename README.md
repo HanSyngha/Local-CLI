@@ -1,9 +1,12 @@
 # Local CLI
 
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_Repository-181717?logo=github&style=for-the-badge)](https://github.com/HanSyngha/Local-CLI)
+
 [![npm version](https://img.shields.io/npm/v/local-cli-agent)](https://www.npmjs.com/package/local-cli-agent)
 [![GitHub release](https://img.shields.io/github/v/release/HanSyngha/Local-CLI)](https://github.com/HanSyngha/Local-CLI/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green)](https://nodejs.org/)
+[![Stars](https://img.shields.io/github/stars/HanSyngha/Local-CLI?style=social)](https://github.com/HanSyngha/Local-CLI/stargazers)
 
 **OpenAI-Compatible CLI Coding Agent for Local & On-Prem LLM Environments**
 
